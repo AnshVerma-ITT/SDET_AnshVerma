@@ -5,7 +5,7 @@
 **Employee ID:** ITTV/EMP/3980  
 
 **Repository Link:**  
-🔗 https://github.com/AnshVerma-ITT/bootstrap
+🔗 https://github.com/AnshVerma-ITT/SDET_Ansh_Verma_training
 
 ---
 
@@ -294,4 +294,4 @@ This assignment provided hands-on experience with version control workflows comm
 
 ## GitHub Repository
 
-🔗 https://github.com/AnshVerma-ITT/bootstrap
+🔗 https://github.com/AnshVerma-ITT/SDET_Ansh_Verma_training
