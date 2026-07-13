@@ -119,7 +119,6 @@ git push origin feature
 
 ![Pushing Feature](screenshots/pushing_feature.png)
 
-![Feature Pushed](screenshots/pushed_feature.png)
 
 ---
 
