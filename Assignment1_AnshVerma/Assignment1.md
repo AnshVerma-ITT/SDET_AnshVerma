@@ -37,7 +37,7 @@ Configured Git username and email using:
 
 ```bash
 git config --global user.name "Ansh Verma"
-git config --global user.email "your-email@example.com"
+git config --global user.email "ansh.verma@intimetec.com"
 
 git config --list
 ```
