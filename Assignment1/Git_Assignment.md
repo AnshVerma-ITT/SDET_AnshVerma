@@ -215,7 +215,7 @@ The following screenshot shows the successful creation of the hotfix branch.
 
 # 14. Modifying README.md for Hotfix
 
-Additional modifications were made to README.md.
+Modifications were made to README.md in hotfix-readme branch.
 
 ![Hotfix README](screenshots/changed_hotfixreadme.png)
 
@@ -228,7 +228,7 @@ Commands used:
 ```bash
 git add .
 git commit -m "hotfix readme change"
-git push origin hotfix
+git push -u origin hotfix-readme
 ```
 
 **Description:**
