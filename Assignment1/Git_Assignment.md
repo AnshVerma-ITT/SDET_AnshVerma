@@ -166,7 +166,7 @@ The following screenshot shows the successful commit.
 Command used:
 
 ```bash
-git push origin feature-navbar
+git push -u origin feature-navbar
 ```
 
 **Description:**
@@ -227,13 +227,13 @@ Commands used:
 
 ```bash
 git add .
-git commit -m "Hotfix changes"
+git commit -m "hotfix readme change"
 git push origin hotfix
 ```
 
 **Description:**
 
-These commands stage, commit, and push hotfix changes to GitHub.
+These commands stage, commit, and push hotfix-readme changes to GitHub.
 
 The following screenshots show the successful operations.
 
