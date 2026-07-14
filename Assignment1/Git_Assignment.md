@@ -2,7 +2,6 @@
 ## Git Assignment: Collaborate and Manage a Project
 
 **Name:** Ansh Verma  
-**Employee ID:** ITTV/EMP/3980  
 
 **Repository Link:**  
 🔗 https://github.com/AnshVerma-ITT/SDET_Ansh_Verma
@@ -116,9 +115,7 @@ git commit -m "Updated README in feature branch"
 ```bash
 git push origin feature
 ```
-
 ![Pushing Feature](screenshots/pushing_feature.png)
-
 
 ---
 
