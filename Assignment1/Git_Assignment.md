@@ -102,14 +102,12 @@ The cloned Bootstrap project was opened in Visual Studio Code.
 Command used:
 
 ```bash
-git checkout -b feature
+git checkout -b feature-navbar
 ```
 
 **Description:**
 
-This command creates a new branch named `feature` and automatically switches to it.
-
-**Note:** Later during the assignment, branches were renamed according to submission requirements.
+This command creates a new branch named `feature-navbar` and automatically switches to it.
 
 The following screenshot shows the successful creation of the feature branch.
 
@@ -149,7 +147,7 @@ Commands used:
 
 ```bash
 git add .
-git commit -m "Updated README in feature branch"
+git commit -m "modified readme for practice"
 ```
 
 **Description:**
@@ -168,7 +166,7 @@ The following screenshot shows the successful commit.
 Command used:
 
 ```bash
-git push origin feature
+git push origin feature-navbar
 ```
 
 **Description:**
@@ -202,12 +200,12 @@ A Pull Request was created to merge feature branch changes.
 Command used:
 
 ```bash
-git checkout -b hotfix
+git checkout -b hotfix-readme
 ```
 
 **Description:**
 
-Creates a new branch named `hotfix` and switches to it.
+Creates a new branch named `hotfix-readme` and switches to it.
 
 The following screenshot shows the successful creation of the hotfix branch.
 
@@ -238,8 +236,6 @@ git push origin hotfix
 These commands stage, commit, and push hotfix changes to GitHub.
 
 The following screenshots show the successful operations.
-
-![Commit](screenshots/config.png)
 
 ![Hotfix Push](screenshots/pushed_hotfix.png)
 
@@ -289,13 +285,13 @@ Commands used:
 
 ```bash
 git checkout main
-git merge feature
+git merge feature-navbar
 ```
 
 **Description:**
 
 - `git checkout main` switches to the main branch.
-- `git merge feature` combines the commits from the feature branch into the main branch.
+- `git merge feature-navbar` combines the commits from the feature branch into the main branch.
 
 Merge preserves the complete history of both branches.
 
@@ -309,7 +305,7 @@ Commands used:
 
 ```bash
 git log --oneline
-git cherry-pick <commit-id>
+git cherry-pick 15dfe0154
 ```
 
 **Description:**
@@ -356,6 +352,8 @@ git push origin v1.0
 - `git push origin v1.0` pushes the tag to GitHub.
 
 Tags are commonly used to mark important releases or versions of a project.
+
+![Pushing Tag](screenshots/pushing_tag.png)
 
 ![Tag Created](screenshots/tag_created.png)
 
