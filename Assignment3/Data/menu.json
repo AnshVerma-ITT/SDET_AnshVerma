@@ -1,0 +1,22 @@
+[
+  {
+    "MenuItemId": 1,
+    "Name": "Burger",
+    "Price": 199,
+    "Recipe": {
+      "1": 1,
+      "2": 1
+    }
+  },
+  {
+    "MenuItemId": 2,
+    "Name": "Pizza",
+    "Price": 400,
+    "Recipe": {
+      "1": 1,
+      "5": 1,
+      "6": 1,
+      "7": 2
+    }
+  }
+]

@@ -1,0 +1,8 @@
+1,Tomato,8,Kg
+2,Cheese,39,Kg
+3,Patty,96,pcs
+4,Bun,92,pcs
+5,Pizza Base,93,pcs
+6,Mozzarella,493,Kg
+7,Onion,73,Kg
+8,Olive Oil,2000,ml
