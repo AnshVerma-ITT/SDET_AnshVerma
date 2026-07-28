@@ -11,14 +11,11 @@ namespace GourmetSpot.Models
                 return MenuItem.Price * Quantity;
             }
         }
+
         public OrderItem(MenuItem menuItem, int quantity)
         {
             MenuItem = menuItem;
             Quantity = quantity;
-        }
-        public override string ToString()
-        {
-            return $"{MenuItem.Name} x {Quantity} = ₹{TotalPrice}";
         }
     }
 }

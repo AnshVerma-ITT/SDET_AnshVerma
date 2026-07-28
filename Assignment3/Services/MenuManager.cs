@@ -5,31 +5,40 @@ namespace GourmetSpot.Services
 {
     public class MenuManager
     {
-        private readonly List<MenuItem> menu;
-
-        private readonly string filePath = "Data/menu.json";
+        private readonly List<MenuItem> menuItems;
+        private readonly string menuFilePath = ApplicationStorage.MenuFilePath;
 
         public MenuManager()
         {
-            menu = new List<MenuItem>();
-
-            Directory.CreateDirectory("Data");
-
+            menuItems = new List<MenuItem>();
             LoadMenu();
         }
 
-        public void AddMenuItem(MenuItem item)
+        public int GetNextMenuItemId()
         {
-            menu.Add(item);
+            int nextMenuItemId = 1;
 
+            foreach (MenuItem menuItem in menuItems)
+            {
+                if (menuItem.MenuItemId >= nextMenuItemId)
+                {
+                    nextMenuItemId = menuItem.MenuItemId + 1;
+                }
+            }
+
+            return nextMenuItemId;
+        }
+
+        public void AddMenuItem(MenuItem menuItem)
+        {
+            menuItems.Add(menuItem);
             SaveMenu();
-
             Console.WriteLine("Menu Item Added Successfully.");
         }
 
         public void DisplayMenu()
         {
-            if (menu.Count == 0)
+            if (menuItems.Count == 0)
             {
                 Console.WriteLine("Menu is Empty.");
                 return;
@@ -37,17 +46,17 @@ namespace GourmetSpot.Services
 
             Console.WriteLine("\n========== MENU ==========");
 
-            foreach (MenuItem item in menu)
+            foreach (MenuItem menuItem in menuItems)
             {
-                Console.WriteLine(item);
+                Console.WriteLine($"{menuItem.MenuItemId} - {menuItem.Name} - ₹{menuItem.Price}");
 
-                if (item.Recipe.Count > 0)
+                if (menuItem.Recipe.Count > 0)
                 {
                     Console.WriteLine("Recipe:");
 
-                    foreach (var ingredient in item.Recipe)
+                    foreach (var recipeIngredient in menuItem.Recipe)
                     {
-                        Console.WriteLine($"Ingredient ID : {ingredient.Key}  Quantity : {ingredient.Value}");
+                        Console.WriteLine($"Ingredient ID : {recipeIngredient.Key}  Quantity : {recipeIngredient.Value}");
                     }
                 }
 
@@ -55,48 +64,68 @@ namespace GourmetSpot.Services
             }
         }
 
-        public MenuItem? SearchMenuItem(int id)
+        public MenuItem? SearchMenuItemById(int menuItemId)
         {
-            foreach (MenuItem item in menu)
+            foreach (MenuItem menuItem in menuItems)
             {
-                if (item.MenuItemId == id)
-                    return item;
+                if (menuItem.MenuItemId == menuItemId)
+                {
+                    return menuItem;
+                }
             }
 
             return null;
         }
 
-        private void SaveMenu()
+        public MenuItem? SearchMenuItemByName(string menuItemName)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions
+            foreach (MenuItem menuItem in menuItems)
             {
-                WriteIndented = true
-            };
-
-            string json = JsonSerializer.Serialize(menu, options);
-
-            File.WriteAllText(filePath, json);
-        }
-
-        private void LoadMenu()
-        {
-            if (!File.Exists(filePath))
-                return;
-
-            string json = File.ReadAllText(filePath);
-
-            List<MenuItem>? loadedMenu =
-                JsonSerializer.Deserialize<List<MenuItem>>(json);
-
-            if (loadedMenu != null)
-            {
-                menu.AddRange(loadedMenu);
+                if (menuItem.Name.Trim().Equals(menuItemName.Trim(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return menuItem;
+                }
             }
+
+            return null;
         }
 
         public List<MenuItem> GetAllMenuItems()
         {
-            return menu;
+            return menuItems;
+        }
+
+        private void SaveMenu()
+        {
+            JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            string menuJson = JsonSerializer.Serialize(menuItems, jsonOptions);
+            ApplicationStorage.TryWriteAllText(menuFilePath, menuJson);
+        }
+
+        private void LoadMenu()
+        {
+            if (!ApplicationStorage.TryReadAllText(menuFilePath, out string menuJson))
+            {
+                return;
+            }
+
+            try
+            {
+                List<MenuItem>? savedMenuItems = JsonSerializer.Deserialize<List<MenuItem>>(menuJson);
+
+                if (savedMenuItems != null)
+                {
+                    menuItems.AddRange(savedMenuItems);
+                }
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Unable to read menu data from '{menuFilePath}': {ex.Message}");
+            }
         }
     }
 }

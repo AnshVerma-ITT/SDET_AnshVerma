@@ -4,36 +4,32 @@ namespace GourmetSpot.Models
 {
     public class Order
     {
-        private const decimal TaxRate = 0.18m;
         public int OrderId { get; set; }
+        public string CustomerName { get; set; }
         public List<OrderItem> Items { get; set; }
-        public Order(int orderId)
+
+        public Order(int orderId, string customerName = "Walk-in Customer")
         {
             OrderId = orderId;
+            CustomerName = customerName;
             Items = new List<OrderItem>();
         }
 
-        public void AddItem(OrderItem item)
+        public void AddItem(OrderItem orderItem)
         {
-            Items.Add(item);
+            Items.Add(orderItem);
         }
 
         public decimal CalculateSubtotal()
         {
             decimal subtotal = 0;
-            foreach (OrderItem item in Items)
+            foreach (OrderItem orderItem in Items)
             {
-                subtotal += item.TotalPrice;
+                subtotal += orderItem.TotalPrice;
             }
+
             return subtotal;
         }
-        public decimal CalculateTax()
-        {
-            return CalculateSubtotal() * TaxRate;
-        }
-        public decimal CalculateGrandTotal()
-        {
-            return CalculateSubtotal() +CalculateTax();
-        }
+
     }
 }
