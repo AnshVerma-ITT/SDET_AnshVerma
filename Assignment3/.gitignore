@@ -1,0 +1,6 @@
+# Build output
+bin/
+obj/
+
+# Project file to exclude from this PR
+GourmetSpot.csproj

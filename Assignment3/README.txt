@@ -18,9 +18,13 @@ Platform:
 PROJECT DESCRIPTION
 ==========================================
 
-The Restaurant Management System is a console-based application developed in C#. The application helps manage restaurant operations such as inventory management, menu management, customer order processing, bill generation, and inventory updates after each order.
+The Restaurant Management System is a console-based application developed in C#. The application helps manage restaurant operations such as inventory management, menu management, customer order processing, bill generation, table reservations, and inventory updates after each order.
 
 The project has been developed using Object-Oriented Programming principles and various C# concepts covered during training.
+
+The console screens are separated into the UserInterface folder so Program.cs remains small and each module has its own class.
+
+ApplicationStorage creates Data and Bills folders once at startup and centralizes file paths and file handling exception management.
 
 ==========================================
 FEATURES IMPLEMENTED
@@ -29,32 +33,55 @@ FEATURES IMPLEMENTED
 1. Inventory Management
    - Add Ingredient
    - View Ingredients
-   - Search Ingredient
-   - Update Ingredient Quantity
-   - Delete Ingredient
+   - Search Ingredient by Name
+   - Update Ingredient Quantity by Name
+   - Delete Ingredient by Name
+   - Automatic Ingredient ID Creation
+   - Duplicate Ingredient Check
    - Automatic Inventory Save & Load
 
 2. Menu Management
    - Add Menu Item
    - View Menu Items
-   - Search Menu Item
+   - Search Menu Item by Name
    - Menu Recipe Management
+   - Automatic Menu Item ID Creation
    - JSON Serialization for Menu Data
 
 3. Order Management
    - Create Customer Order
+   - Customer Name on Order
    - Multiple Menu Items in One Order
    - Quantity Management
+   - Automatic Order ID Creation
    - View Orders
 
 4. Billing
    - Automatic Bill Generation
    - GST Calculation (18%)
-   - Bill Saved to File
+   - Tax Rate Managed in Billing Module
+   - Bill Displayed in Console
+   - Bill Saved to Bills Folder using File Handling
+   - Customer Name Included on Bill
 
 5. Inventory Update
    - Automatically reduces ingredient quantities after order placement
    - Prevents order placement if stock is insufficient
+
+6. Reservation Management
+   - Create Table Reservation
+   - Validate Customer Name
+   - Validate 10 Digit Contact Number
+   - Validate Reservation Date and Time
+   - Prevent Past Reservations
+   - Prevent Reservations More Than 3 Months Ahead
+   - 2 Hour Reservation Window
+   - Show Available Tables Before Booking
+   - View Reservations
+   - Search Reservation
+   - Cancel Reservation
+   - Automatic Reservation ID Creation
+   - Reservation Save & Load
 
 ==========================================
 C# CONCEPTS USED
@@ -75,14 +102,19 @@ C# CONCEPTS USED
     - try-catch
     - ArgumentException
     - FormatException
+    - IOException
+    - UnauthorizedAccessException
 • File Handling
     - Read
     - Write
     - Directory Management
+    - File Handling Exception Management
 • JSON Serialization
 • JSON Deserialization
-• Method Overriding (ToString)
+• DateTime Handling
 • Namespaces
+• Separation of Responsibilities
+• Centralized Storage Folder Management
 
 ==========================================
 HOW TO RUN
@@ -96,8 +128,12 @@ HOW TO RUN
    - Manage Menu
    - Create Orders
    - Generate Bills
-5. Menu data is automatically stored in menu.json.
-6. Inventory and bills are automatically saved in the Data folder.
+   - Manage Reservations
+5. Menu data is automatically stored in Data/menu.json.
+6. Inventory data is automatically stored in Data/inventory.txt.
+7. Order data is automatically stored in Data/orders.txt.
+8. Reservation data is automatically stored in Data/reservations.txt.
+9. Generated bills are automatically stored in the Bills folder.
 
 ==========================================
 EXPECTED OUTPUT
@@ -111,7 +147,9 @@ EXPECTED OUTPUT
 
 ✔ Inventory is automatically updated after successful order placement.
 
-✔ Bills are generated with GST calculation.
+✔ Bills are generated with GST calculation, customer name, and saved to a bill file.
+
+✔ Table reservations can be created after selecting from available tables for a 2 hour time window.
 
 ✔ Menu information is stored using JSON Serialization.
 

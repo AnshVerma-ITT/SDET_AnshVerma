@@ -1,4 +1,1 @@
-1|2:Pizza:400:1
-102|1:Burger:150:2;2:Pizza:400:1
-103|1:Burger:199:1;2:Pizza:400:2
-302|2:Pizza:400:3
+304|ansh|3:Pasta:500:1

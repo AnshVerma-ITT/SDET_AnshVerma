@@ -4,53 +4,80 @@ namespace GourmetSpot.Services
 {
     public class BillManager
     {
-        private const decimal GST = 0.18m;
+        private const decimal GstRate = 0.18m;
 
         public void GenerateBill(Order order)
         {
-            decimal subTotal = order.CalculateGrandTotal();
-
-            decimal tax = subTotal * GST;
-
-            decimal grandTotal = subTotal + tax;
+            decimal subtotal = order.CalculateSubtotal();
+            decimal tax = CalculateTax(subtotal);
+            decimal grandTotal = CalculateGrandTotal(subtotal, tax);
+            string? billFilePath = SaveBill(order, subtotal, tax, grandTotal);
 
             Console.WriteLine();
             Console.WriteLine("========== BILL ==========");
+            Console.WriteLine($"Order ID : {order.OrderId}");
+            Console.WriteLine($"Customer Name : {order.CustomerName}");
+            Console.WriteLine("--------------------------");
 
-            foreach (OrderItem item in order.Items)
+            foreach (OrderItem orderItem in order.Items)
             {
-                Console.WriteLine($"{item.MenuItem.Name} x {item.Quantity} = ₹{item.TotalPrice}");
+                Console.WriteLine($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{orderItem.TotalPrice}");
             }
 
             Console.WriteLine("--------------------------");
-            Console.WriteLine($"Subtotal : ₹{subTotal}");
+            Console.WriteLine($"Subtotal : ₹{subtotal}");
             Console.WriteLine($"GST (18%): ₹{tax}");
             Console.WriteLine("--------------------------");
             Console.WriteLine($"Grand Total : ₹{grandTotal}");
-
-            SaveBill(order, subTotal, tax, grandTotal);
+            if (billFilePath != null)
+            {
+                Console.WriteLine($"Bill saved to file: {billFilePath}");
+            }
+            else
+            {
+                Console.WriteLine("Bill could not be saved to file.");
+            }
         }
 
-        private void SaveBill(Order order, decimal subTotal, decimal tax, decimal grandTotal)
+        private decimal CalculateTax(decimal subtotal)
         {
+            return subtotal * GstRate;
+        }
 
-            string filePath = $"Data/Bill_{order.OrderId}.txt";
+        private decimal CalculateGrandTotal(decimal subtotal, decimal tax)
+        {
+            return subtotal + tax;
+        }
 
-            List<string> lines = new List<string>();
+        private string? SaveBill(Order order, decimal subtotal, decimal tax, decimal grandTotal)
+        {
+            string billFilePath = ApplicationStorage.GetBillFilePath(order.OrderId);
+            List<string> billLines = new List<string>();
 
-            lines.Add("========== BILL ==========");
+            billLines.Add("========== BILL ==========");
+            billLines.Add($"Order ID : {order.OrderId}");
+            billLines.Add($"Customer Name : {order.CustomerName}");
+            billLines.Add("--------------------------");
 
-            foreach (OrderItem item in order.Items)
+            foreach (OrderItem orderItem in order.Items)
             {
-                lines.Add($"{item.MenuItem.Name} x {item.Quantity} = ₹{item.TotalPrice}");
+                billLines.Add($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{orderItem.TotalPrice}");
             }
 
-            lines.Add("--------------------------");
-            lines.Add($"Subtotal : ₹{subTotal}");
-            lines.Add($"GST (18%) : ₹{tax}");
-            lines.Add($"Grand Total : ₹{grandTotal}");
+            billLines.Add("--------------------------");
+            billLines.Add($"Subtotal : ₹{subtotal}");
+            billLines.Add($"GST (18%) : ₹{tax}");
+            billLines.Add("--------------------------");
+            billLines.Add($"Grand Total : ₹{grandTotal}");
 
-            File.WriteAllLines(filePath, lines);
+            bool billSaved = ApplicationStorage.TryWriteAllLines(billFilePath, billLines);
+
+            if (billSaved)
+            {
+                return billFilePath;
+            }
+
+            return null;
         }
     }
 }
