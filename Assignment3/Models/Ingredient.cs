@@ -9,16 +9,10 @@ namespace GourmetSpot.Models
 
         public Ingredient(int ingredientId, string name, double quantity, string unit)
         {
-            if (quantity < 0)
-            {
-                throw new ArgumentException("Quantity cannot be negative.");
-            }
-
             IngredientId = ingredientId;
             Name = name;
             Quantity = quantity;
             Unit = unit;
         }
-
     }
 }

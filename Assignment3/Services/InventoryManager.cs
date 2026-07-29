@@ -1,11 +1,14 @@
 using GourmetSpot.Models;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
     public class InventoryManager
     {
-        private readonly List<Ingredient> ingredients;
-        private readonly string inventoryFilePath = ApplicationStorage.InventoryFilePath;
+        private List<Ingredient> ingredients;
+        private string inventoryFilePath = FileManager.InventoryFilePath;
+
+        public string LoadMessage { get; private set; } = string.Empty;
 
         public InventoryManager()
         {
@@ -16,7 +19,6 @@ namespace GourmetSpot.Services
         public int GetNextIngredientId()
         {
             int nextIngredientId = 1;
-
             foreach (Ingredient ingredient in ingredients)
             {
                 if (ingredient.IngredientId >= nextIngredientId)
@@ -24,40 +26,34 @@ namespace GourmetSpot.Services
                     nextIngredientId = ingredient.IngredientId + 1;
                 }
             }
-
             return nextIngredientId;
         }
 
-        public bool AddIngredient(Ingredient ingredient)
+        public List<Ingredient> GetAllIngredients()
         {
-            Ingredient? existingIngredient = SearchIngredientByName(ingredient.Name);
-
-            if (existingIngredient != null)
-            {
-                Console.WriteLine("Ingredient already exists in inventory.");
-                return false;
-            }
-
-            ingredients.Add(ingredient);
-            SaveInventory();
-            Console.WriteLine("Ingredient added successfully.");
-            return true;
+            return new List<Ingredient>(ingredients);
         }
 
-        public void DisplayInventory()
+        public bool AddIngredient(Ingredient ingredient, out string message)
         {
-            if (ingredients.Count == 0)
+            if (!ValidateIngredient(ingredient, out message))
             {
-                Console.WriteLine("\nInventory is empty.");
-                return;
+                return false;
             }
-
-            Console.WriteLine("\n========== INVENTORY ==========");
-
-            foreach (Ingredient ingredient in ingredients)
+            Ingredient? existingIngredient = SearchIngredientByName(ingredient.Name);
+            if (existingIngredient != null)
             {
-                Console.WriteLine($"{ingredient.IngredientId} - {ingredient.Name} - {ingredient.Quantity} {ingredient.Unit}");
+                message = "Ingredient already exists in inventory.";
+                return false;
             }
+            ingredients.Add(ingredient);
+            if (!SaveInventory())
+            {
+                message = GetStorageErrorMessage("Ingredient added, but inventory could not be saved.");
+                return false;
+            }
+            message = "Ingredient added successfully.";
+            return true;
         }
 
         public Ingredient? SearchIngredientById(int ingredientId)
@@ -69,7 +65,6 @@ namespace GourmetSpot.Services
                     return ingredient;
                 }
             }
-
             return null;
         }
 
@@ -82,166 +77,196 @@ namespace GourmetSpot.Services
                     return ingredient;
                 }
             }
-
             return null;
         }
 
-        public bool AddIngredientQuantityByName(string ingredientName, double additionalQuantity)
+        public bool AddIngredientQuantityByName(string ingredientName, double additionalQuantity, out string message)
         {
             Ingredient? ingredient = SearchIngredientByName(ingredientName);
-
             if (ingredient == null)
             {
+                message = "Ingredient not found.";
                 return false;
             }
-
+            if (additionalQuantity < 0)
+            {
+                message = "Quantity cannot be negative.";
+                return false;
+            }
             ingredient.Quantity += additionalQuantity;
-            SaveInventory();
+            if (!SaveInventory())
+            {
+                message = GetStorageErrorMessage("Ingredient quantity updated, but inventory could not be saved.");
+                return false;
+            }
+            message = "Ingredient quantity updated successfully.";
             return true;
         }
 
-        public bool UpdateIngredientQuantityByName(string ingredientName, double newQuantity)
+        public bool UpdateIngredientQuantityByName(string ingredientName, double newQuantity, out string message)
         {
             Ingredient? ingredient = SearchIngredientByName(ingredientName);
-
             if (ingredient == null)
             {
+                message = "Ingredient not found.";
                 return false;
             }
-
-            ingredient.Quantity = newQuantity;
-            SaveInventory();
+            if (newQuantity < 0)
+            {
+                message = "Quantity cannot be negative.";
+                return false;
+            }
+            ingredient.Quantity += newQuantity;
+            if (!SaveInventory())
+            {
+                message = GetStorageErrorMessage("Ingredient updated, but inventory could not be saved.");
+                return false;
+            }
+            message = "Ingredient updated successfully.";
             return true;
         }
 
-        public bool DeleteIngredientByName(string ingredientName)
+        public bool DeleteIngredientByName(string ingredientName, out string message)
         {
             Ingredient? ingredient = SearchIngredientByName(ingredientName);
-
             if (ingredient == null)
             {
+                message = "Ingredient not found.";
                 return false;
             }
-
             ingredients.Remove(ingredient);
-            SaveInventory();
+            if (!SaveInventory())
+            {
+                message = GetStorageErrorMessage("Ingredient deleted, but inventory could not be saved.");
+                return false;
+            }
+            message = "Ingredient deleted successfully.";
             return true;
         }
 
-        public bool HasEnoughIngredients(Dictionary<int, double> recipe, int orderQuantity)
-        {
-            Dictionary<int, double> requiredIngredients = CalculateRequiredIngredients(recipe, orderQuantity);
-            return HasEnoughIngredients(requiredIngredients);
-        }
-
-        public bool HasEnoughIngredients(Dictionary<int, double> requiredIngredients)
+        public bool HasEnoughIngredients(Dictionary<int, double> requiredIngredients, out string message)
         {
             foreach (var requiredIngredient in requiredIngredients)
             {
                 Ingredient? ingredient = SearchIngredientById(requiredIngredient.Key);
-
                 if (ingredient == null)
                 {
-                    Console.WriteLine($"Ingredient ID {requiredIngredient.Key} not found.");
+                    message = $"Ingredient ID {requiredIngredient.Key} not found.";
                     return false;
                 }
-
                 double requiredQuantity = requiredIngredient.Value;
-
                 if (ingredient.Quantity < requiredQuantity)
                 {
-                    Console.WriteLine($"Insufficient stock for {ingredient.Name}");
+                    message = $"Insufficient stock for {ingredient.Name}";
                     return false;
                 }
             }
-
+            message = string.Empty;
             return true;
         }
 
-        public bool UseIngredients(Dictionary<int, double> recipe, int orderQuantity)
+        public bool UseIngredients(Dictionary<int, double> requiredIngredients, out string message)
         {
-            Dictionary<int, double> requiredIngredients = CalculateRequiredIngredients(recipe, orderQuantity);
-            return UseIngredients(requiredIngredients);
-        }
-
-        public bool UseIngredients(Dictionary<int, double> requiredIngredients)
-        {
-            if (!HasEnoughIngredients(requiredIngredients))
+            if (!HasEnoughIngredients(requiredIngredients, out message))
             {
                 return false;
             }
-
             foreach (var requiredIngredient in requiredIngredients)
             {
                 Ingredient ingredient = SearchIngredientById(requiredIngredient.Key)!;
                 ingredient.Quantity -= requiredIngredient.Value;
             }
+            if (!SaveInventory())
+            {
+                message = GetStorageErrorMessage("Inventory was updated, but it could not be saved.");
+                return false;
+            }
+            message = string.Empty;
+            return true;
+        }
 
-            SaveInventory();
+        private bool ValidateIngredient(Ingredient ingredient, out string validationMessage)
+        {
+            if (ingredient is null)
+            {
+                validationMessage = "Ingredient cannot be null.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(ingredient.Name))
+            {
+                validationMessage = "Ingredient name cannot be empty.";
+                return false;
+            }
+            if (ingredient.Quantity < 0)
+            {
+                validationMessage = "Quantity cannot be negative.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(ingredient.Unit))
+            {
+                validationMessage = "Ingredient unit cannot be empty.";
+                return false;
+            }
+            validationMessage = string.Empty;
             return true;
         }
 
         private static bool IngredientNameMatches(Ingredient ingredient, string ingredientName)
         {
-            return ingredient.Name.Trim().Equals(ingredientName.Trim(), StringComparison.OrdinalIgnoreCase);
+            return !string.IsNullOrWhiteSpace(ingredient.Name) &&
+                   !string.IsNullOrWhiteSpace(ingredientName) &&
+                   ingredient.Name.Trim().Equals(ingredientName.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
-        private void SaveInventory()
+        private bool SaveInventory()
         {
             List<string> inventoryLines = new List<string>();
-
             foreach (Ingredient ingredient in ingredients)
             {
-                inventoryLines.Add($"{ingredient.IngredientId},{ingredient.Name},{ingredient.Quantity},{ingredient.Unit}");
+                string ingredientName = (ingredient.Name ?? "").Replace(",", " ");
+                string ingredientUnit = (ingredient.Unit ?? "").Replace(",", " ");
+                inventoryLines.Add($"{ingredient.IngredientId},{ingredientName},{ingredient.Quantity},{ingredientUnit}");
             }
-
-            ApplicationStorage.TryWriteAllLines(inventoryFilePath, inventoryLines);
+            return FileManager.TryWriteAllLines(inventoryFilePath, inventoryLines);
         }
 
         private void LoadInventory()
         {
-            if (!ApplicationStorage.TryReadAllLines(inventoryFilePath, out string[] inventoryLines))
+            LoadMessage = string.Empty;
+            if (!FileManager.TryReadAllLines(inventoryFilePath, out string[] inventoryLines))
             {
+                LoadMessage = FileManager.LastErrorMessage;
                 return;
             }
-
             foreach (string inventoryLine in inventoryLines)
             {
                 string[] ingredientData = inventoryLine.Split(',');
-
                 if (ingredientData.Length < 4)
                 {
                     continue;
                 }
-
                 bool ingredientIdValid = int.TryParse(ingredientData[0], out int ingredientId);
                 bool ingredientQuantityValid = double.TryParse(ingredientData[2], out double ingredientQuantity);
-
                 if (!ingredientIdValid || !ingredientQuantityValid)
                 {
                     continue;
                 }
-
                 Ingredient ingredient = new Ingredient(
                     ingredientId,
                     ingredientData[1],
                     ingredientQuantity,
                     ingredientData[3]);
-
                 ingredients.Add(ingredient);
             }
         }
 
-        private Dictionary<int, double> CalculateRequiredIngredients(Dictionary<int, double> recipe, int orderQuantity)
+        private static string GetStorageErrorMessage(string fallbackMessage)
         {
-            Dictionary<int, double> requiredIngredients = new Dictionary<int, double>();
-
-            foreach (var recipeIngredient in recipe)
+            if (!string.IsNullOrWhiteSpace(FileManager.LastErrorMessage))
             {
-                requiredIngredients[recipeIngredient.Key] = recipeIngredient.Value * orderQuantity;
+                return FileManager.LastErrorMessage;
             }
-
-            return requiredIngredients;
+            return fallbackMessage;
         }
     }
 }

@@ -1,13 +1,23 @@
 ﻿using GourmetSpot.UserInterface;
-
 namespace GourmetSpot
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            RestaurantApplication restaurantApplication = new RestaurantApplication();
-            restaurantApplication.Run();
+            try
+            {
+                RestaurantApp restaurantApp = new RestaurantApp();
+                restaurantApp.Run();
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Application stopped because of an input/output error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected application error: {ex.Message}");
+            }
         }
     }
 }

@@ -1,12 +1,16 @@
 using System.Text.Json;
 using GourmetSpot.Models;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
     public class MenuManager
     {
-        private readonly List<MenuItem> menuItems;
-        private readonly string menuFilePath = ApplicationStorage.MenuFilePath;
+        private List<MenuItem> menuItems;
+        private string menuFilePath = FileManager.MenuFilePath;
+        private string storageErrorMessage = string.Empty;
+
+        public string LoadMessage { get; private set; } = string.Empty;
 
         public MenuManager()
         {
@@ -17,7 +21,6 @@ namespace GourmetSpot.Services
         public int GetNextMenuItemId()
         {
             int nextMenuItemId = 1;
-
             foreach (MenuItem menuItem in menuItems)
             {
                 if (menuItem.MenuItemId >= nextMenuItemId)
@@ -25,43 +28,23 @@ namespace GourmetSpot.Services
                     nextMenuItemId = menuItem.MenuItemId + 1;
                 }
             }
-
             return nextMenuItemId;
         }
 
-        public void AddMenuItem(MenuItem menuItem)
+        public bool AddMenuItem(MenuItem menuItem, out string message)
         {
+            if (!ValidateMenuItem(menuItem, out message))
+            {
+                return false;
+            }
             menuItems.Add(menuItem);
-            SaveMenu();
-            Console.WriteLine("Menu Item Added Successfully.");
-        }
-
-        public void DisplayMenu()
-        {
-            if (menuItems.Count == 0)
+            if (!SaveMenu())
             {
-                Console.WriteLine("Menu is Empty.");
-                return;
+                message = GetStorageErrorMessage("Menu item added, but menu could not be saved.");
+                return false;
             }
-
-            Console.WriteLine("\n========== MENU ==========");
-
-            foreach (MenuItem menuItem in menuItems)
-            {
-                Console.WriteLine($"{menuItem.MenuItemId} - {menuItem.Name} - ₹{menuItem.Price}");
-
-                if (menuItem.Recipe.Count > 0)
-                {
-                    Console.WriteLine("Recipe:");
-
-                    foreach (var recipeIngredient in menuItem.Recipe)
-                    {
-                        Console.WriteLine($"Ingredient ID : {recipeIngredient.Key}  Quantity : {recipeIngredient.Value}");
-                    }
-                }
-
-                Console.WriteLine("--------------------------------");
-            }
+            message = "Menu Item Added Successfully.";
+            return true;
         }
 
         public MenuItem? SearchMenuItemById(int menuItemId)
@@ -73,7 +56,6 @@ namespace GourmetSpot.Services
                     return menuItem;
                 }
             }
-
             return null;
         }
 
@@ -81,51 +63,140 @@ namespace GourmetSpot.Services
         {
             foreach (MenuItem menuItem in menuItems)
             {
-                if (menuItem.Name.Trim().Equals(menuItemName.Trim(), StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(menuItemName) &&
+                    !string.IsNullOrWhiteSpace(menuItem.Name) &&
+                    menuItem.Name.Trim().Equals(menuItemName.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     return menuItem;
                 }
             }
-
             return null;
         }
 
         public List<MenuItem> GetAllMenuItems()
         {
-            return menuItems;
+            return new List<MenuItem>(menuItems);
         }
 
-        private void SaveMenu()
+        public Dictionary<int, double> CreateRecipe()
         {
-            JsonSerializerOptions jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
+            return new Dictionary<int, double>();
+        }
 
-            string menuJson = JsonSerializer.Serialize(menuItems, jsonOptions);
-            ApplicationStorage.TryWriteAllText(menuFilePath, menuJson);
+        public void AddRecipeIngredient(Dictionary<int, double> recipeIngredients, int ingredientId, double requiredQuantity)
+        {
+            if (recipeIngredients.ContainsKey(ingredientId))
+            {
+                recipeIngredients[ingredientId] += requiredQuantity;
+            }
+            else
+            {
+                recipeIngredients.Add(ingredientId, requiredQuantity);
+            }
+        }
+
+        private bool ValidateMenuItem(MenuItem menuItem, out string message)
+        {
+            if (menuItem is null)
+            {
+                message = "Menu item cannot be null.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(menuItem.Name))
+            {
+                message = "Menu item name cannot be empty.";
+                return false;
+            }
+            if (menuItem.Price <= 0)
+            {
+                message = "Menu item price must be greater than zero.";
+                return false;
+            }
+            if (menuItem.Recipe == null)
+            {
+                message = "Menu item recipe cannot be null.";
+                return false;
+            }
+            message = string.Empty;
+            return true;
+        }
+
+        private bool SaveMenu()
+        {
+            storageErrorMessage = string.Empty;
+            try
+            {
+                JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                string menuJson = JsonSerializer.Serialize(menuItems, jsonOptions);
+                return FileManager.TryWriteAllText(menuFilePath, menuJson);
+            }
+            catch (Exception ex)
+            {
+                storageErrorMessage = $"Unexpected error while preparing menu data: {ex.Message}";
+                return false;
+            }
         }
 
         private void LoadMenu()
         {
-            if (!ApplicationStorage.TryReadAllText(menuFilePath, out string menuJson))
+            LoadMessage = string.Empty;
+            if (!FileManager.TryReadAllText(menuFilePath, out string menuJson))
             {
+                LoadMessage = FileManager.LastErrorMessage;
                 return;
             }
-
             try
             {
-                List<MenuItem>? savedMenuItems = JsonSerializer.Deserialize<List<MenuItem>>(menuJson);
-
+                List<MenuItem?>? savedMenuItems = JsonSerializer.Deserialize<List<MenuItem?>>(menuJson);
                 if (savedMenuItems != null)
                 {
-                    menuItems.AddRange(savedMenuItems);
+                    foreach (MenuItem? savedMenuItem in savedMenuItems)
+                    {
+                        if (savedMenuItem == null || !IsStoredMenuItemValid(savedMenuItem))
+                        {
+                            continue;
+                        }
+                        if (savedMenuItem.Recipe == null)
+                        {
+                            savedMenuItem.Recipe = new Dictionary<int, double>();
+                        }
+                        menuItems.Add(savedMenuItem);
+                    }
                 }
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"Unable to read menu data from '{menuFilePath}': {ex.Message}");
+                menuItems.Clear();
+                LoadMessage = $"Menu file contains invalid JSON and could not be loaded: {ex.Message}";
             }
+            catch (Exception ex)
+            {
+                menuItems.Clear();
+                LoadMessage = $"Unexpected error while loading menu: {ex.Message}";
+            }
+        }
+
+        private static bool IsStoredMenuItemValid(MenuItem menuItem)
+        {
+            return menuItem.MenuItemId > 0 &&
+                   !string.IsNullOrWhiteSpace(menuItem.Name) &&
+                   menuItem.Price > 0;
+        }
+
+        private string GetStorageErrorMessage(string fallbackMessage)
+        {
+            if (!string.IsNullOrWhiteSpace(storageErrorMessage))
+            {
+                return storageErrorMessage;
+            }
+            if (!string.IsNullOrWhiteSpace(FileManager.LastErrorMessage))
+            {
+                return FileManager.LastErrorMessage;
+            }
+            return fallbackMessage;
         }
     }
 }

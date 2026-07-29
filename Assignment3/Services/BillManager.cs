@@ -1,4 +1,5 @@
 using GourmetSpot.Models;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
@@ -6,37 +7,52 @@ namespace GourmetSpot.Services
     {
         private const decimal GstRate = 0.18m;
 
-        public void GenerateBill(Order order)
+        public Bill GenerateBill(Order order)
         {
-            decimal subtotal = order.CalculateSubtotal();
-            decimal tax = CalculateTax(subtotal);
-            decimal grandTotal = CalculateGrandTotal(subtotal, tax);
-            string? billFilePath = SaveBill(order, subtotal, tax, grandTotal);
-
-            Console.WriteLine();
-            Console.WriteLine("========== BILL ==========");
-            Console.WriteLine($"Order ID : {order.OrderId}");
-            Console.WriteLine($"Customer Name : {order.CustomerName}");
-            Console.WriteLine("--------------------------");
-
-            foreach (OrderItem orderItem in order.Items)
+            Bill bill = CreateBill(order);
+            if (SaveBill(bill, out string? savedFilePath, out string saveMessage))
             {
-                Console.WriteLine($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{orderItem.TotalPrice}");
-            }
-
-            Console.WriteLine("--------------------------");
-            Console.WriteLine($"Subtotal : ₹{subtotal}");
-            Console.WriteLine($"GST (18%): ₹{tax}");
-            Console.WriteLine("--------------------------");
-            Console.WriteLine($"Grand Total : ₹{grandTotal}");
-            if (billFilePath != null)
-            {
-                Console.WriteLine($"Bill saved to file: {billFilePath}");
+                bill.IsSaved = true;
+                bill.SavedFilePath = savedFilePath;
+                bill.SaveMessage = saveMessage;
             }
             else
             {
-                Console.WriteLine("Bill could not be saved to file.");
+                bill.IsSaved = false;
+                bill.SavedFilePath = null;
+                bill.SaveMessage = saveMessage;
             }
+            return bill;
+        }
+
+        public Bill CreateBill(Order order)
+        {
+            decimal subtotal = CalculateSubtotal(order);
+            decimal tax = CalculateTax(subtotal);
+            decimal grandTotal = CalculateGrandTotal(subtotal, tax);
+            Bill bill = new Bill(
+                order.OrderId,
+                order.CustomerName,
+                new List<OrderItem>(order.Items),
+                subtotal,
+                tax,
+                grandTotal);
+            return bill;
+        }
+
+        private decimal CalculateSubtotal(Order order)
+        {
+            decimal subtotal = 0;
+            foreach (OrderItem orderItem in order.Items)
+            {
+                subtotal += CalculateItemTotalPrice(orderItem);
+            }
+            return subtotal;
+        }
+
+        public decimal CalculateItemTotalPrice(OrderItem orderItem)
+        {
+            return orderItem.MenuItem.Price * orderItem.Quantity;
         }
 
         private decimal CalculateTax(decimal subtotal)
@@ -49,35 +65,40 @@ namespace GourmetSpot.Services
             return subtotal + tax;
         }
 
-        private string? SaveBill(Order order, decimal subtotal, decimal tax, decimal grandTotal)
+        private bool SaveBill(Bill bill, out string? savedFilePath, out string saveMessage)
         {
-            string billFilePath = ApplicationStorage.GetBillFilePath(order.OrderId);
+            string billFilePath = FileManager.GetBillFilePath(bill.OrderId);
             List<string> billLines = new List<string>();
-
             billLines.Add("========== BILL ==========");
-            billLines.Add($"Order ID : {order.OrderId}");
-            billLines.Add($"Customer Name : {order.CustomerName}");
+            billLines.Add($"Order ID : {bill.OrderId}");
+            billLines.Add($"Customer Name : {bill.CustomerName}");
             billLines.Add("--------------------------");
-
-            foreach (OrderItem orderItem in order.Items)
+            foreach (OrderItem orderItem in bill.Items)
             {
-                billLines.Add($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{orderItem.TotalPrice}");
+                billLines.Add($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{CalculateItemTotalPrice(orderItem)}");
             }
-
             billLines.Add("--------------------------");
-            billLines.Add($"Subtotal : ₹{subtotal}");
-            billLines.Add($"GST (18%) : ₹{tax}");
+            billLines.Add($"Subtotal : ₹{bill.Subtotal}");
+            billLines.Add($"GST (18%) : ₹{bill.Tax}");
             billLines.Add("--------------------------");
-            billLines.Add($"Grand Total : ₹{grandTotal}");
-
-            bool billSaved = ApplicationStorage.TryWriteAllLines(billFilePath, billLines);
-
+            billLines.Add($"Grand Total : ₹{bill.GrandTotal}");
+            bool billSaved = FileManager.TryWriteAllLines(billFilePath, billLines);
             if (billSaved)
             {
-                return billFilePath;
+                savedFilePath = billFilePath;
+                saveMessage = $"Bill saved to file: {billFilePath}";
+                return true;
             }
-
-            return null;
+            savedFilePath = null;
+            if (!string.IsNullOrWhiteSpace(FileManager.LastErrorMessage))
+            {
+                saveMessage = FileManager.LastErrorMessage;
+            }
+            else
+            {
+                saveMessage = "Bill could not be saved to file.";
+            }
+            return false;
         }
     }
 }

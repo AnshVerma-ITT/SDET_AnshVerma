@@ -1,11 +1,9 @@
 using System.Globalization;
 
-namespace GourmetSpot.UserInterface
+namespace GourmetSpot.Utilities
 {
     public static class ConsoleInput
     {
-        private const int ContactNumberLength = 10;
-        private const int MaximumAdvanceReservationMonths = 3;
         private const string ReservationDateTimeFormat = "dd-MM-yyyy HH:mm";
 
         public static string ReadRequiredText(string message)
@@ -14,12 +12,10 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string value = ReadConsoleLine();
-
                 if (!string.IsNullOrWhiteSpace(value))
                 {
                     return value.Trim();
                 }
-
                 Console.WriteLine("This field cannot be empty.");
             }
         }
@@ -35,76 +31,28 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string choice = ReadConsoleLine().Trim();
-
                 if (choice.Equals("y", StringComparison.OrdinalIgnoreCase) ||
                     choice.Equals("yes", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
-
                 if (choice.Equals("n", StringComparison.OrdinalIgnoreCase) ||
                     choice.Equals("no", StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
-
                 Console.WriteLine("Please enter y or n.");
             }
         }
 
         public static string ReadCustomerName()
         {
-            while (true)
-            {
-                try
-                {
-                    string customerName = ReadRequiredText("Enter Customer Name: ");
-
-                    foreach (char letter in customerName)
-                    {
-                        if (!char.IsLetter(letter) && letter != ' ')
-                        {
-                            throw new ArgumentException("Customer name should contain alphabets only.");
-                        }
-                    }
-
-                    return customerName;
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            return ReadRequiredText("Enter Customer Name: ");
         }
 
         public static string ReadContactNumber()
         {
-            while (true)
-            {
-                try
-                {
-                    string contactNumber = ReadRequiredText("Enter Contact Number: ");
-
-                    if (contactNumber.Length != ContactNumberLength)
-                    {
-                        throw new ArgumentException("Contact number must contain exactly 10 digits.");
-                    }
-
-                    foreach (char digit in contactNumber)
-                    {
-                        if (!char.IsDigit(digit))
-                        {
-                            throw new ArgumentException("Contact number must contain digits only.");
-                        }
-                    }
-
-                    return contactNumber;
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            return ReadRequiredText("Enter Contact Number: ");
         }
 
         public static int ReadInt(string message)
@@ -113,12 +61,10 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string input = ReadConsoleLine();
-
                 if (int.TryParse(input, out int value))
                 {
                     return value;
                 }
-
                 Console.WriteLine("Please enter a valid number.");
             }
         }
@@ -128,12 +74,10 @@ namespace GourmetSpot.UserInterface
             while (true)
             {
                 int value = ReadInt(message);
-
                 if (value > 0)
                 {
                     return value;
                 }
-
                 Console.WriteLine("Value must be greater than zero.");
             }
         }
@@ -143,12 +87,10 @@ namespace GourmetSpot.UserInterface
             while (true)
             {
                 int value = ReadInt(message);
-
                 if (value >= 0)
                 {
                     return value;
                 }
-
                 Console.WriteLine("Value cannot be negative.");
             }
         }
@@ -159,12 +101,10 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string input = ReadConsoleLine();
-
                 if (double.TryParse(input, out double value) && value > 0)
                 {
                     return value;
                 }
-
                 Console.WriteLine("Please enter a value greater than zero.");
             }
         }
@@ -175,12 +115,10 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string input = ReadConsoleLine();
-
                 if (double.TryParse(input, out double value) && value >= 0)
                 {
                     return value;
                 }
-
                 Console.WriteLine("Please enter zero or a positive value.");
             }
         }
@@ -191,12 +129,10 @@ namespace GourmetSpot.UserInterface
             {
                 Console.Write(message);
                 string input = ReadConsoleLine();
-
                 if (decimal.TryParse(input, out decimal value) && value > 0)
                 {
                     return value;
                 }
-
                 Console.WriteLine("Please enter a valid amount greater than zero.");
             }
         }
@@ -205,42 +141,20 @@ namespace GourmetSpot.UserInterface
         {
             while (true)
             {
-                try
+                Console.Write($"Enter Reservation Date and Time ({ReservationDateTimeFormat}): ");
+                string input = ReadConsoleLine();
+                bool validDateTime = DateTime.TryParseExact(
+                    input,
+                    ReservationDateTimeFormat,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime reservationDateTime);
+                if (!validDateTime)
                 {
-                    Console.Write($"Enter Reservation Date and Time ({ReservationDateTimeFormat}): ");
-                    string input = ReadConsoleLine();
-
-                    bool validDateTime = DateTime.TryParseExact(
-                        input,
-                        ReservationDateTimeFormat,
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.None,
-                        out DateTime reservationDateTime);
-
-                    if (!validDateTime)
-                    {
-                        throw new ArgumentException($"Please enter date and time in {ReservationDateTimeFormat} format.");
-                    }
-
-                    DateTime now = DateTime.Now;
-                    DateTime maximumReservationDate = now.AddMonths(MaximumAdvanceReservationMonths);
-
-                    if (reservationDateTime < now)
-                    {
-                        throw new ArgumentException("Reservation date and time cannot be in the past.");
-                    }
-
-                    if (reservationDateTime > maximumReservationDate)
-                    {
-                        throw new ArgumentException("Reservation date and time cannot be more than 3 months from now.");
-                    }
-
-                    return reservationDateTime;
+                    Console.WriteLine($"Please enter date and time in {ReservationDateTimeFormat} format.");
+                    continue;
                 }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                return reservationDateTime;
             }
         }
 
@@ -252,8 +166,11 @@ namespace GourmetSpot.UserInterface
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"Unable to read input: {ex.Message}");
-                return "";
+                throw new IOException($"Unable to read console input: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Unexpected error while reading console input: {ex.Message}", ex);
             }
         }
     }

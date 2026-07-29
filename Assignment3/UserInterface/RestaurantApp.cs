@@ -1,28 +1,34 @@
 using GourmetSpot.Services;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class RestaurantApplication
+    public class RestaurantApp
     {
-        private readonly InventoryConsoleMenu inventoryConsoleMenu;
-        private readonly MenuManagementConsoleMenu menuManagementConsoleMenu;
-        private readonly OrderConsoleMenu orderConsoleMenu;
-        private readonly ReservationConsoleMenu reservationConsoleMenu;
+        private InventoryScreen inventoryScreen;
+        private MenuScreen menuScreen;
+        private OrderScreen orderScreen;
+        private ReservationScreen reservationScreen;
 
-        public RestaurantApplication()
+        public RestaurantApp()
         {
-            ApplicationStorage.EnsureApplicationDirectoriesExist();
-
+            if (!FileManager.EnsureApplicationDirectoriesExist(out string folderMessage))
+            {
+                Console.WriteLine(folderMessage);
+            }
             InventoryManager inventoryManager = new InventoryManager();
             MenuManager menuManager = new MenuManager();
             OrderManager orderManager = new OrderManager();
             BillManager billManager = new BillManager();
             ReservationManager reservationManager = new ReservationManager();
-
-            inventoryConsoleMenu = new InventoryConsoleMenu(inventoryManager);
-            menuManagementConsoleMenu = new MenuManagementConsoleMenu(menuManager, inventoryManager);
-            orderConsoleMenu = new OrderConsoleMenu(orderManager, menuManager, inventoryManager, billManager);
-            reservationConsoleMenu = new ReservationConsoleMenu(reservationManager);
+            DisplayStartupMessage(inventoryManager.LoadMessage);
+            DisplayStartupMessage(menuManager.LoadMessage);
+            DisplayStartupMessage(orderManager.LoadMessage);
+            DisplayStartupMessage(reservationManager.LoadMessage);
+            inventoryScreen = new InventoryScreen(inventoryManager);
+            menuScreen = new MenuScreen(menuManager, inventoryManager);
+            orderScreen = new OrderScreen(orderManager, menuManager, inventoryManager, billManager);
+            reservationScreen = new ReservationScreen(reservationManager);
         }
 
         public void Run()
@@ -30,22 +36,20 @@ namespace GourmetSpot.UserInterface
             while (true)
             {
                 DisplayMainMenu();
-
                 string userChoice = ConsoleInput.ReadMenuChoice();
-
                 switch (userChoice)
                 {
                     case "1":
-                        inventoryConsoleMenu.Show();
+                        ScreenActionRunner.TryRun(inventoryScreen.Show);
                         break;
                     case "2":
-                        menuManagementConsoleMenu.Show();
+                        ScreenActionRunner.TryRun(menuScreen.Show);
                         break;
                     case "3":
-                        orderConsoleMenu.Show();
+                        ScreenActionRunner.TryRun(orderScreen.Show);
                         break;
                     case "4":
-                        reservationConsoleMenu.Show();
+                        ScreenActionRunner.TryRun(reservationScreen.Show);
                         break;
                     case "5":
                         Console.WriteLine("Thank you for using the Restaurant Management System.");
@@ -68,6 +72,14 @@ namespace GourmetSpot.UserInterface
             Console.WriteLine("4. Reservation Management");
             Console.WriteLine("5. Exit");
             Console.Write("Enter your choice: ");
+        }
+
+        private void DisplayStartupMessage(string message)
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Console.WriteLine(message);
+            }
         }
     }
 }

@@ -6,3 +6,4 @@
 6,Mozzarella,493,Kg
 7,Onion,72,Kg
 8,Olive Oil,1980,ml
+9,salt,2000,grm

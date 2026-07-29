@@ -1,13 +1,14 @@
 using GourmetSpot.Models;
 using GourmetSpot.Services;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class InventoryConsoleMenu
+    public class InventoryScreen
     {
-        private readonly InventoryManager inventoryManager;
+        private InventoryManager inventoryManager;
 
-        public InventoryConsoleMenu(InventoryManager inventoryManager)
+        public InventoryScreen(InventoryManager inventoryManager)
         {
             this.inventoryManager = inventoryManager;
         }
@@ -17,25 +18,23 @@ namespace GourmetSpot.UserInterface
             while (true)
             {
                 DisplayInventoryMenu();
-
                 string userChoice = ConsoleInput.ReadMenuChoice();
-
                 switch (userChoice)
                 {
                     case "1":
-                        AddIngredient();
+                        ScreenActionRunner.TryRun(AddIngredient);
                         break;
                     case "2":
-                        inventoryManager.DisplayInventory();
+                        ScreenActionRunner.TryRun(DisplayInventory);
                         break;
                     case "3":
-                        SearchIngredientByName();
+                        ScreenActionRunner.TryRun(SearchIngredientByName);
                         break;
                     case "4":
-                        UpdateIngredientByName();
+                        ScreenActionRunner.TryRun(UpdateIngredientByName);
                         break;
                     case "5":
-                        DeleteIngredientByName();
+                        ScreenActionRunner.TryRun(DeleteIngredientByName);
                         break;
                     case "6":
                         return;
@@ -61,55 +60,51 @@ namespace GourmetSpot.UserInterface
 
         private void AddIngredient()
         {
-            try
+            string ingredientName = ConsoleInput.ReadRequiredText("Enter Ingredient Name: ");
+            Ingredient? existingIngredient = inventoryManager.SearchIngredientByName(ingredientName);
+            if (existingIngredient != null)
             {
-                string ingredientName = ConsoleInput.ReadRequiredText("Enter Ingredient Name: ");
-
-                Ingredient? existingIngredient = inventoryManager.SearchIngredientByName(ingredientName);
-
-                if (existingIngredient != null)
+                Console.WriteLine("\nIngredient already exists in stock.");
+                Console.WriteLine("-------------------------");
+                DisplayIngredient(existingIngredient);
+                bool shouldAddStock = ConsoleInput.ReadYesNo("Do you want to add more quantity to this ingredient? (y/n): ");
+                if (shouldAddStock)
                 {
-                    Console.WriteLine("\nIngredient already exists in stock.");
-                    Console.WriteLine("-------------------------");
-                    DisplayIngredient(existingIngredient);
-
-                    bool shouldAddStock = ConsoleInput.ReadYesNo("Do you want to add more quantity to this ingredient? (y/n): ");
-
-                    if (shouldAddStock)
-                    {
-                        double additionalQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity to Add: ");
-                        inventoryManager.AddIngredientQuantityByName(existingIngredient.Name, additionalQuantity);
-                        Console.WriteLine("Ingredient quantity updated successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("New ingredient was not added.");
-                    }
-
-                    return;
+                    double additionalQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity to Add: ");
+                    inventoryManager.AddIngredientQuantityByName(existingIngredient.Name, additionalQuantity, out string updateMessage);
+                    Console.WriteLine(updateMessage);
                 }
-
-                int ingredientId = inventoryManager.GetNextIngredientId();
-                Console.WriteLine($"Ingredient ID: {ingredientId}");
-
-                double ingredientQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity: ");
-                string ingredientUnit = ConsoleInput.ReadRequiredText("Enter Unit: ");
-
-                Ingredient ingredient = new Ingredient(
-                    ingredientId,
-                    ingredientName,
-                    ingredientQuantity,
-                    ingredientUnit);
-
-                inventoryManager.AddIngredient(ingredient);
+                else
+                {
+                    Console.WriteLine("New ingredient was not added.");
+                }
+                return;
             }
-            catch (ArgumentException ex)
+            int ingredientId = inventoryManager.GetNextIngredientId();
+            Console.WriteLine($"Ingredient ID: {ingredientId}");
+            double ingredientQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity: ");
+            string ingredientUnit = ConsoleInput.ReadRequiredText("Enter Unit: ");
+            Ingredient ingredient = new Ingredient(
+                ingredientId,
+                ingredientName,
+                ingredientQuantity,
+                ingredientUnit);
+            inventoryManager.AddIngredient(ingredient, out string addMessage);
+            Console.WriteLine(addMessage);
+        }
+
+        private void DisplayInventory()
+        {
+            List<Ingredient> ingredients = inventoryManager.GetAllIngredients();
+            if (ingredients.Count == 0)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("\nInventory is empty.");
+                return;
             }
-            catch (Exception ex)
+            Console.WriteLine("\n========== INVENTORY ==========");
+            foreach (Ingredient ingredient in ingredients)
             {
-                Console.WriteLine($"Unexpected Error: {ex.Message}");
+                DisplayIngredient(ingredient);
             }
         }
 
@@ -117,7 +112,6 @@ namespace GourmetSpot.UserInterface
         {
             string ingredientName = ConsoleInput.ReadRequiredText("Enter Ingredient Name: ");
             Ingredient? ingredient = inventoryManager.SearchIngredientByName(ingredientName);
-
             if (ingredient != null)
             {
                 Console.WriteLine("\nIngredient Found");
@@ -134,41 +128,22 @@ namespace GourmetSpot.UserInterface
         {
             string ingredientName = ConsoleInput.ReadRequiredText("Enter Ingredient Name: ");
             Ingredient? ingredient = inventoryManager.SearchIngredientByName(ingredientName);
-
             if (ingredient == null)
             {
                 Console.WriteLine("Ingredient not found.");
                 return;
             }
-
             Console.WriteLine($"Current Stock: {ingredient.Quantity} {ingredient.Unit}");
-
             double newQuantity = ConsoleInput.ReadNonNegativeDouble("Enter New Quantity: ");
-            bool ingredientUpdated = inventoryManager.UpdateIngredientQuantityByName(ingredientName, newQuantity);
-
-            if (ingredientUpdated)
-            {
-                Console.WriteLine("Ingredient updated successfully.");
-            }
-            else
-            {
-                Console.WriteLine("Ingredient not found.");
-            }
+            inventoryManager.UpdateIngredientQuantityByName(ingredientName, newQuantity, out string updateMessage);
+            Console.WriteLine(updateMessage);
         }
 
         private void DeleteIngredientByName()
         {
             string ingredientName = ConsoleInput.ReadRequiredText("Enter Ingredient Name: ");
-            bool ingredientDeleted = inventoryManager.DeleteIngredientByName(ingredientName);
-
-            if (ingredientDeleted)
-            {
-                Console.WriteLine("Ingredient deleted successfully.");
-            }
-            else
-            {
-                Console.WriteLine("Ingredient not found.");
-            }
+            inventoryManager.DeleteIngredientByName(ingredientName, out string deleteMessage);
+            Console.WriteLine(deleteMessage);
         }
 
         private void DisplayIngredient(Ingredient ingredient)
