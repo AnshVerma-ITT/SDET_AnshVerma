@@ -1,11 +1,14 @@
 using GourmetSpot.Models;
+using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
     public class OrderManager
     {
-        private readonly List<Order> orders;
-        private readonly string ordersFilePath = ApplicationStorage.OrdersFilePath;
+        private List<Order> orders;
+        private string ordersFilePath = FileManager.OrdersFilePath;
+
+        public string LoadMessage { get; private set; } = string.Empty;
 
         public OrderManager()
         {
@@ -16,7 +19,6 @@ namespace GourmetSpot.Services
         public int GetNextOrderId()
         {
             int nextOrderId = 1;
-
             foreach (Order order in orders)
             {
                 if (order.OrderId >= nextOrderId)
@@ -24,92 +26,146 @@ namespace GourmetSpot.Services
                     nextOrderId = order.OrderId + 1;
                 }
             }
-
             return nextOrderId;
         }
 
-        public void PlaceOrder(Order order)
+        public List<Order> GetAllOrders()
+        {
+            return new List<Order>(orders);
+        }
+
+        public bool CreateOrder(
+            Order order,
+            List<(MenuItem MenuItem, int Quantity)> selectedMenuItems,
+            InventoryManager inventoryManager,
+            out string message)
+        {
+            if (order == null)
+            {
+                message = "Order cannot be null.";
+                return false;
+            }
+            if (selectedMenuItems == null || selectedMenuItems.Count == 0)
+            {
+                message = "Order was not placed.";
+                return false;
+            }
+            if (inventoryManager == null)
+            {
+                message = "Inventory manager is not available.";
+                return false;
+            }
+            Dictionary<int, double> requiredIngredients = CalculateRequiredIngredients(selectedMenuItems);
+            if (!inventoryManager.UseIngredients(requiredIngredients, out string inventoryMessage))
+            {
+                if (string.IsNullOrWhiteSpace(inventoryMessage))
+                {
+                    message = "Order cannot be placed.";
+                }
+                else
+                {
+                    message = $"{inventoryMessage}\nOrder cannot be placed.";
+                }
+                return false;
+            }
+            AddItemsToOrder(order, selectedMenuItems);
+            return PlaceOrder(order, out message);
+        }
+
+        private bool PlaceOrder(Order order, out string message)
         {
             orders.Add(order);
-            SaveOrders();
-
-            Console.WriteLine("\nOrder Placed Successfully.");
-            Console.WriteLine($"Order Subtotal : ₹{order.CalculateSubtotal()}");
+            if (!SaveOrders())
+            {
+                message = GetStorageErrorMessage("Order placed, but order data could not be saved.");
+                return false;
+            }
+            message = "Order Placed Successfully.";
+            return true;
         }
 
-        public void DisplayOrders()
+        private void AddItem(Order order, OrderItem orderItem)
         {
-            if (orders.Count == 0)
-            {
-                Console.WriteLine("No Orders Found.");
-                return;
-            }
+            order.Items.Add(orderItem);
+        }
 
-            foreach (Order order in orders)
+        private Dictionary<int, double> CalculateRequiredIngredients(List<(MenuItem MenuItem, int Quantity)> selectedMenuItems)
+        {
+            Dictionary<int, double> requiredIngredients = new Dictionary<int, double>();
+            foreach (var selectedMenuItem in selectedMenuItems)
             {
-                Console.WriteLine($"\nOrder ID : {order.OrderId}");
-                Console.WriteLine($"Customer Name : {order.CustomerName}");
-
-                foreach (OrderItem orderItem in order.Items)
+                if (selectedMenuItem.MenuItem.Recipe == null)
                 {
-                    Console.WriteLine($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{orderItem.TotalPrice}");
+                    continue;
                 }
+                foreach (var recipeIngredient in selectedMenuItem.MenuItem.Recipe)
+                {
+                    double requiredQuantity = recipeIngredient.Value * selectedMenuItem.Quantity;
+                    if (requiredIngredients.ContainsKey(recipeIngredient.Key))
+                    {
+                        requiredIngredients[recipeIngredient.Key] += requiredQuantity;
+                    }
+                    else
+                    {
+                        requiredIngredients.Add(recipeIngredient.Key, requiredQuantity);
+                    }
+                }
+            }
+            return requiredIngredients;
+        }
 
-                Console.WriteLine($"Order Subtotal : ₹{order.CalculateSubtotal()}");
+        private void AddItemsToOrder(Order order, List<(MenuItem MenuItem, int Quantity)> selectedMenuItems)
+        {
+            foreach (var selectedMenuItem in selectedMenuItems)
+            {
+                OrderItem orderItem = new OrderItem(selectedMenuItem.MenuItem, selectedMenuItem.Quantity);
+                AddItem(order, orderItem);
             }
         }
 
-        private void SaveOrders()
+        private bool SaveOrders()
         {
             List<string> orderLines = new List<string>();
-
             foreach (Order order in orders)
             {
                 List<string> savedOrderItems = new List<string>();
-                string customerName = order.CustomerName.Replace("|", " ");
-
+                string customerName = (order.CustomerName ?? "Walk-in Customer").Replace("|", " ");
                 foreach (OrderItem orderItem in order.Items)
                 {
-                    savedOrderItems.Add($"{orderItem.MenuItem.MenuItemId}:{orderItem.MenuItem.Name}:{orderItem.MenuItem.Price}:{orderItem.Quantity}");
+                    string menuItemName = (orderItem.MenuItem.Name ?? "Unnamed Item").Replace(":", " ");
+                    savedOrderItems.Add($"{orderItem.MenuItem.MenuItemId}:{menuItemName}:{orderItem.MenuItem.Price}:{orderItem.Quantity}");
                 }
-
                 orderLines.Add($"{order.OrderId}|{customerName}|{string.Join(";", savedOrderItems)}");
             }
-
-            ApplicationStorage.TryWriteAllLines(ordersFilePath, orderLines);
+            return FileManager.TryWriteAllLines(ordersFilePath, orderLines);
         }
 
         private void LoadOrders()
         {
-            if (!ApplicationStorage.TryReadAllLines(ordersFilePath, out string[] orderLines))
+            LoadMessage = string.Empty;
+            if (!FileManager.TryReadAllLines(ordersFilePath, out string[] orderLines))
             {
+                LoadMessage = FileManager.LastErrorMessage;
                 return;
             }
-
             foreach (string orderLine in orderLines)
             {
                 if (string.IsNullOrWhiteSpace(orderLine))
                 {
                     continue;
                 }
-
                 string[] orderParts = orderLine.Split('|', 3);
-
                 if (orderParts.Length < 2)
                 {
                     continue;
                 }
-
                 bool orderIdValid = int.TryParse(orderParts[0], out int orderId);
-
                 if (!orderIdValid)
                 {
                     continue;
                 }
-
                 string customerName = "Walk-in Customer";
                 string savedMenuItems;
-
                 if (orderParts.Length == 2)
                 {
                     savedMenuItems = orderParts[1];
@@ -119,39 +175,40 @@ namespace GourmetSpot.Services
                     customerName = orderParts[1];
                     savedMenuItems = orderParts[2];
                 }
-
                 Order order = new Order(orderId, customerName);
-
                 foreach (string savedMenuItem in savedMenuItems.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
                     string[] savedMenuItemData = savedMenuItem.Split(':');
-
                     if (savedMenuItemData.Length < 4)
                     {
                         continue;
                     }
-
                     bool menuItemIdValid = int.TryParse(savedMenuItemData[0], out int menuItemId);
                     bool menuItemPriceValid = decimal.TryParse(savedMenuItemData[2], out decimal menuItemPrice);
                     bool menuItemQuantityValid = int.TryParse(savedMenuItemData[3], out int menuItemQuantity);
-
                     if (!menuItemIdValid || !menuItemPriceValid || !menuItemQuantityValid)
                     {
                         continue;
                     }
-
                     MenuItem menuItem = new MenuItem(
                         menuItemId,
                         savedMenuItemData[1],
                         menuItemPrice,
                         new Dictionary<int, double>());
-
                     OrderItem orderItem = new OrderItem(menuItem, menuItemQuantity);
-                    order.AddItem(orderItem);
+                    AddItem(order, orderItem);
                 }
-
                 orders.Add(order);
             }
+        }
+
+        private static string GetStorageErrorMessage(string fallbackMessage)
+        {
+            if (!string.IsNullOrWhiteSpace(FileManager.LastErrorMessage))
+            {
+                return FileManager.LastErrorMessage;
+            }
+            return fallbackMessage;
         }
     }
 }

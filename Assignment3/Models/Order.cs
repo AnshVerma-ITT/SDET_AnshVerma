@@ -14,22 +14,5 @@ namespace GourmetSpot.Models
             CustomerName = customerName;
             Items = new List<OrderItem>();
         }
-
-        public void AddItem(OrderItem orderItem)
-        {
-            Items.Add(orderItem);
-        }
-
-        public decimal CalculateSubtotal()
-        {
-            decimal subtotal = 0;
-            foreach (OrderItem orderItem in Items)
-            {
-                subtotal += orderItem.TotalPrice;
-            }
-
-            return subtotal;
-        }
-
     }
 }

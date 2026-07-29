@@ -4,13 +4,6 @@ namespace GourmetSpot.Models
     {
         public MenuItem MenuItem { get; set; }
         public int Quantity { get; set; }
-        public decimal TotalPrice
-        {
-            get
-            {
-                return MenuItem.Price * Quantity;
-            }
-        }
 
         public OrderItem(MenuItem menuItem, int quantity)
         {

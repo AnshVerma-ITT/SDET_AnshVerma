@@ -14,6 +14,5 @@ namespace GourmetSpot.Models
             Price = price;
             Recipe = recipe;
         }
-
     }
 }

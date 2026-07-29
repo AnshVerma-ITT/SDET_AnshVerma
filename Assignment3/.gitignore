@@ -1,6 +1,19 @@
 # Build output
-bin/
-obj/
+[Bb]in/
+[Oo]bj/
 
-# Project file to exclude from this PR
-GourmetSpot.csproj
+# .NET project files intentionally excluded
+*.csproj
+
+# User-specific IDE files
+*.user
+*.suo
+.vs/
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Application-generated local data
+[Bb]ills/
