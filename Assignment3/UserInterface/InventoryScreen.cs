@@ -22,19 +22,19 @@ namespace GourmetSpot.UserInterface
                 switch (userChoice)
                 {
                     case "1":
-                        ScreenActionRunner.TryRun(AddIngredient);
+                        AddIngredient();
                         break;
                     case "2":
-                        ScreenActionRunner.TryRun(DisplayInventory);
+                        DisplayInventory();
                         break;
                     case "3":
-                        ScreenActionRunner.TryRun(SearchIngredientByName);
+                        SearchIngredientByName();
                         break;
                     case "4":
-                        ScreenActionRunner.TryRun(UpdateIngredientByName);
+                        UpdateIngredientByName();
                         break;
                     case "5":
-                        ScreenActionRunner.TryRun(DeleteIngredientByName);
+                        DeleteIngredientByName();
                         break;
                     case "6":
                         return;

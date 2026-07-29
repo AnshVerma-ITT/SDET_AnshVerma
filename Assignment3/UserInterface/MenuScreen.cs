@@ -24,13 +24,13 @@ namespace GourmetSpot.UserInterface
                 switch (userChoice)
                 {
                     case "1":
-                        ScreenActionRunner.TryRun(AddMenuItem);
+                        AddMenuItem();
                         break;
                     case "2":
-                        ScreenActionRunner.TryRun(DisplayMenu);
+                        DisplayMenu();
                         break;
                     case "3":
-                        ScreenActionRunner.TryRun(SearchMenuItemByName);
+                        SearchMenuItemByName();
                         break;
                     case "4":
                         return;

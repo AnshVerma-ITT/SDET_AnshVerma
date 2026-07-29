@@ -32,10 +32,10 @@ namespace GourmetSpot.UserInterface
                 switch (userChoice)
                 {
                     case "1":
-                        ScreenActionRunner.TryRun(TakeOrder);
+                        TakeOrder();
                         break;
                     case "2":
-                        ScreenActionRunner.TryRun(DisplayOrders);
+                        DisplayOrders();
                         break;
                     case "3":
                         return;

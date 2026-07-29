@@ -40,16 +40,16 @@ namespace GourmetSpot.UserInterface
                 switch (userChoice)
                 {
                     case "1":
-                        ScreenActionRunner.TryRun(inventoryScreen.Show);
+                        inventoryScreen.Show();
                         break;
                     case "2":
-                        ScreenActionRunner.TryRun(menuScreen.Show);
+                        menuScreen.Show();
                         break;
                     case "3":
-                        ScreenActionRunner.TryRun(orderScreen.Show);
+                        orderScreen.Show();
                         break;
                     case "4":
-                        ScreenActionRunner.TryRun(reservationScreen.Show);
+                        reservationScreen.Show();
                         break;
                     case "5":
                         Console.WriteLine("Thank you for using the Restaurant Management System.");

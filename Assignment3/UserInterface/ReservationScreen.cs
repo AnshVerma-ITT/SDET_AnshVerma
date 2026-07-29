@@ -22,16 +22,16 @@ namespace GourmetSpot.UserInterface
                 switch (userChoice)
                 {
                     case "1":
-                        ScreenActionRunner.TryRun(CreateReservation);
+                        CreateReservation();
                         break;
                     case "2":
-                        ScreenActionRunner.TryRun(DisplayReservations);
+                        DisplayReservations();
                         break;
                     case "3":
-                        ScreenActionRunner.TryRun(SearchReservationById);
+                        SearchReservationById();
                         break;
                     case "4":
-                        ScreenActionRunner.TryRun(CancelReservation);
+                        CancelReservation();
                         break;
                     case "5":
                         return;
