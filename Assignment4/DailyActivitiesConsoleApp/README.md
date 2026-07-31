@@ -63,7 +63,7 @@ The project is structured so that the main program remains simple, while each re
 - `Services`: Contains task business logic such as add, view, complete, and delete operations.
 - `UserInterface`: Contains the console menu and display logic.
 - `Utilities`: Contains input helpers, validation, and JSON file handling classes.
-- `Data`: Contains `tasks.json`, where task data is stored.
+- `Data`: Contains `Task.json`, where task data is stored.
 
 ## How To Run
 
