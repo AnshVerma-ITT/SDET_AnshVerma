@@ -12,7 +12,7 @@ namespace Assignment1_OOP_DailyActivities.Utilities
 
         public JsonTaskFile()
         {
-            filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "tasks.json");
+            filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Task.json");
         }
 
         public List<DailyTask> LoadTasks()
