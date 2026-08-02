@@ -13,7 +13,7 @@ namespace GourmetSpot.Services.Contracts
         bool HasAvailableTables(DateTime reservationDateTime);
         bool IsTableAvailable(int tableNumber, DateTime reservationDateTime);
         List<int> GetAvailableTables(DateTime reservationDateTime);
-        Reservation SearchReservationById(int reservationId);
+        Reservation? SearchReservationById(int reservationId);
         bool CancelReservation(int reservationId, out string message);
     }
 }

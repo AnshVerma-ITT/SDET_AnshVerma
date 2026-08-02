@@ -9,7 +9,7 @@ namespace GourmetSpot.Services.Contracts
         int GetNextOrderId();
         List<Order> GetAllOrders();
         List<Order> GetActiveTableOrders();
-        Order SearchActiveOrderByTable(int tableNumber);
+        Order? SearchActiveOrderByTable(int tableNumber);
         bool CreateOrder(
             Order order,
             List<OrderItemSelection> selectedMenuItems,
