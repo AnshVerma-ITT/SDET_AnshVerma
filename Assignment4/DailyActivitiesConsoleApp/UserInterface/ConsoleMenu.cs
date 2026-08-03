@@ -8,9 +8,9 @@ namespace Assignment1_OOP_DailyActivities.UserInterface
 {
     public class ConsoleMenu
     {
-        private TaskService taskService;
+        private ITaskService taskService;
 
-        public ConsoleMenu(TaskService service)
+        public ConsoleMenu(ITaskService service)
         {
             taskService = service;
         }
@@ -145,18 +145,11 @@ namespace Assignment1_OOP_DailyActivities.UserInterface
                 for (int index = 0; index < dailyTasks.Count; index++)
                 {
                     DailyTask dailyTask = dailyTasks[index];
-                    string status = "Pending";
-
-                    if (dailyTask.IsCompleted == true)
-                    {
-                        status = "Completed";
-                    }
-
                     Console.WriteLine("Id: " + dailyTask.Id);
                     Console.WriteLine("Title: " + dailyTask.Title);
                     Console.WriteLine("Category: " + dailyTask.Category);
                     Console.WriteLine("Time: " + dailyTask.Time);
-                    Console.WriteLine("Status: " + status);
+                    Console.WriteLine("Status: " + dailyTask.GetStatus());
                     Console.WriteLine("---------------------------------");
                 }
             }

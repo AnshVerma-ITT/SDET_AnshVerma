@@ -1,29 +1,20 @@
 namespace Assignment1_OOP_DailyActivities.Model
 {
-    public class DailyTask
+    public class DailyTask : TaskItem
     {
-        public int Id;
-        public string Title;
-        public string Category;
-        public string Time;
-        public bool IsCompleted;
-
         public DailyTask()
+            : base()
         {
-            Id = 0;
-            Title = "";
-            Category = "";
-            Time = "";
-            IsCompleted = false;
         }
 
         public DailyTask(int id, string title, string category, string time)
+            : base(id, title, category, time)
         {
-            Id = id;
-            Title = title;
-            Category = category;
-            Time = time;
-            IsCompleted = false;
+        }
+
+        public override string GetStatus()
+        {
+            return base.GetStatus();
         }
     }
 }

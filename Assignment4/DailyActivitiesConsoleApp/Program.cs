@@ -7,7 +7,7 @@ namespace Assignment1_OOP_DailyActivities
     {
         static void Main(string[] args)
         {
-            TaskService taskService = new TaskService();
+            ITaskService taskService = new TaskService();
             ConsoleMenu consoleMenu = new ConsoleMenu(taskService);
             consoleMenu.Start();
         }
