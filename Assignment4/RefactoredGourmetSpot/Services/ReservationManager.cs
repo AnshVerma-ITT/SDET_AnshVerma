@@ -1,3 +1,4 @@
+using System.Globalization;
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
 using GourmetSpot.Utilities;
@@ -252,16 +253,23 @@ namespace GourmetSpot.Services
                 bool reservationIdValid = int.TryParse(reservationData[0], out int reservationId);
                 bool tableNumberValid = int.TryParse(reservationData[3], out int tableNumber);
                 bool guestCountValid = int.TryParse(reservationData[4], out int numberOfGuests);
-                bool dateTimeValid = DateTime.TryParse(reservationData[5], out DateTime reservationDateTime);
+                bool dateTimeValid = DateTime.TryParseExact(
+                    reservationData[5],
+                    "O",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind,
+                    out DateTime reservationDateTime);
                 if (!reservationIdValid || !tableNumberValid || !guestCountValid || !dateTimeValid)
                 {
                     continue;
                 }
-                string reservationStatus = reservationData[6];
+                string reservationStatus = reservationData[6].Trim();
+                string customerName = reservationData[1].Trim();
+                string contactNumber = reservationData[2].Trim();
                 Reservation reservation = new Reservation(
                     reservationId,
-                    reservationData[1],
-                    reservationData[2],
+                    customerName,
+                    contactNumber,
                     tableNumber,
                     numberOfGuests,
                     reservationDateTime,
