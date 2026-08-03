@@ -5,7 +5,7 @@ using Assignment1_OOP_DailyActivities.Utilities;
 
 namespace Assignment1_OOP_DailyActivities.Services
 {
-    public class TaskService
+    public class TaskService : ITaskService
     {
         private List<DailyTask> dailyTasks;
         private JsonTaskFile jsonTaskFile;
