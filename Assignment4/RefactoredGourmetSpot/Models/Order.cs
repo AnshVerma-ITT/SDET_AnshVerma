@@ -12,6 +12,9 @@ namespace GourmetSpot.Models
         private readonly List<SubOrder> subOrders;
         private readonly List<OrderItem> items;
 
+        internal List<SubOrder> InternalSubOrders => subOrders;
+        internal List<OrderItem> InternalItems => items;
+
         public IReadOnlyList<SubOrder> SubOrders => subOrders;
         public IReadOnlyList<OrderItem> Items => items;
 
@@ -28,25 +31,6 @@ namespace GourmetSpot.Models
             items = new List<OrderItem>();
         }
 
-        public void AddSubOrder(SubOrder subOrder)
-        {
-            subOrders.Add(subOrder);
-            foreach (OrderItem orderItem in subOrder.Items)
-            {
-                items.Add(orderItem);
-            }
-        }
-
-        public void RebuildItemsFromSubOrders()
-        {
-            items.Clear();
-            foreach (SubOrder subOrder in subOrders)
-            {
-                foreach (OrderItem orderItem in subOrder.Items)
-                {
-                    items.Add(orderItem);
-                }
-            }
-        }
+        // Behavioral methods were moved to Services/OrderOperations to keep models as data-only.
     }
 }

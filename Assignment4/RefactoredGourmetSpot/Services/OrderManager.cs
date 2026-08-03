@@ -6,6 +6,29 @@ namespace GourmetSpot.Services
 {
     public class OrderManager : IOrderManager
     {
+        public static void AddSubOrder(Order order, SubOrder subOrder)
+        {
+            if (order == null || subOrder == null) return;
+            order.InternalSubOrders.Add(subOrder);
+            foreach (OrderItem orderItem in subOrder.Items)
+            {
+                order.InternalItems.Add(orderItem);
+            }
+        }
+
+        public static void RebuildItemsFromSubOrders(Order order)
+        {
+            if (order == null) return;
+            order.InternalItems.Clear();
+            foreach (SubOrder subOrder in order.InternalSubOrders)
+            {
+                foreach (OrderItem orderItem in subOrder.Items)
+                {
+                    order.InternalItems.Add(orderItem);
+                }
+            }
+        }
+
         private readonly List<Order> orders;
         private readonly IOrderStore orderStore;
         private readonly IIngredientRequirementCalculator ingredientRequirementCalculator;
@@ -272,7 +295,7 @@ namespace GourmetSpot.Services
             {
                 subOrder.AddItem(selectedMenuItem.ToOrderItem());
             }
-            order.AddSubOrder(subOrder);
+                AddSubOrder(order, subOrder);
         }
 
         private int GetNextSubOrderNumber(Order order)

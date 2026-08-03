@@ -143,15 +143,15 @@ namespace GourmetSpot.Services
                 OrderTypes.Customer,
                 0,
                 true);
-            SubOrder subOrder = new SubOrder(1, DateTime.MinValue);
+                SubOrder subOrder = new SubOrder(1, DateTime.MinValue);
             foreach (OrderItem orderItem in DeserializeOrderItems(savedMenuItems))
             {
                 subOrder.AddItem(orderItem);
             }
-            if (subOrder.Items.Count > 0)
-            {
-                order.AddSubOrder(subOrder);
-            }
+                if (subOrder.Items.Count > 0)
+                {
+                    OrderManager.AddSubOrder(order, subOrder);
+                }
             return order;
         }
 
@@ -179,7 +179,7 @@ namespace GourmetSpot.Services
                 }
                 if (subOrder.Items.Count > 0)
                 {
-                    order.AddSubOrder(subOrder);
+                        OrderManager.AddSubOrder(order, subOrder);
                 }
             }
         }
