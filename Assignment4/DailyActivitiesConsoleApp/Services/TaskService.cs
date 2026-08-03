@@ -143,6 +143,23 @@ namespace Assignment1_OOP_DailyActivities.Services
             }
         }
 
+        public string GetTaskStatus(DailyTask task)
+        {
+            try
+            {
+                if (task == null)
+                {
+                    throw new ArgumentNullException(nameof(task));
+                }
+
+                return task.IsCompleted ? "Completed" : "Pending";
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private int GetNextId()
         {
             try

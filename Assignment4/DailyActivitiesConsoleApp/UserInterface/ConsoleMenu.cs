@@ -149,7 +149,7 @@ namespace Assignment1_OOP_DailyActivities.UserInterface
                     Console.WriteLine("Title: " + dailyTask.Title);
                     Console.WriteLine("Category: " + dailyTask.Category);
                     Console.WriteLine("Time: " + dailyTask.Time);
-                    Console.WriteLine("Status: " + dailyTask.GetStatus());
+                    Console.WriteLine("Status: " + taskService.GetTaskStatus(dailyTask));
                     Console.WriteLine("---------------------------------");
                 }
             }

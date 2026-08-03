@@ -12,5 +12,6 @@ namespace Assignment1_OOP_DailyActivities.Services
         void DeleteTask(int id);
         List<DailyTask> GetPendingTasks();
         List<DailyTask> GetCompletedTasks();
+        string GetTaskStatus(DailyTask task);
     }
 }

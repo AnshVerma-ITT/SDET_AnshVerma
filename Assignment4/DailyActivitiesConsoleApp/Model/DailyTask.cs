@@ -11,10 +11,5 @@ namespace Assignment1_OOP_DailyActivities.Model
             : base(id, title, category, time)
         {
         }
-
-        public override string GetStatus()
-        {
-            return base.GetStatus();
-        }
     }
 }

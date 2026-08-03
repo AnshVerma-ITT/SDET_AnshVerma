@@ -2,11 +2,11 @@ namespace Assignment1_OOP_DailyActivities.Model
 {
     public abstract class TaskItem
     {
-        public int Id;
-        public string Title;
-        public string Category;
-        public string Time;
-        public bool IsCompleted;
+        public int Id { get; private set; }
+        public string Title { get; set; }
+        public string Category { get; set; }
+        public string Time { get; set; }
+        public bool IsCompleted { get; set; }
 
         protected TaskItem()
         {
@@ -24,11 +24,6 @@ namespace Assignment1_OOP_DailyActivities.Model
             Category = category;
             Time = time;
             IsCompleted = false;
-        }
-
-        public virtual string GetStatus()
-        {
-            return IsCompleted ? "Completed" : "Pending";
         }
     }
 }
