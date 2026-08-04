@@ -1,15 +1,17 @@
 using GourmetSpot.Models;
+using GourmetSpot.Services;
 using GourmetSpot.Services.Contracts;
+using GourmetSpot.UserInterface.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class MenuScreen
+    public class MenuScreen : IDisplay
     {
-        private IMenuManager menuManager;
-        private IInventoryManager inventoryManager;
+        public MenuManager menuManager;
+        public IInventoryManager inventoryManager;
 
-        public MenuScreen(IMenuManager menuManager, IInventoryManager inventoryManager)
+        public MenuScreen(MenuManager menuManager, IInventoryManager inventoryManager)
         {
             this.menuManager = menuManager;
             this.inventoryManager = inventoryManager;

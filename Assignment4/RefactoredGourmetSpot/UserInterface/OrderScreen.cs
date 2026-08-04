@@ -1,19 +1,21 @@
 using GourmetSpot.Models;
+using GourmetSpot.Services;
 using GourmetSpot.Services.Contracts;
+using GourmetSpot.UserInterface.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class OrderScreen
+    public class OrderScreen : IDisplay
     {
-        private IOrderManager orderManager;
-        private IMenuManager menuManager;
+        private OrderManager orderManager;
+        private MenuManager menuManager;
         private IInventoryManager inventoryManager;
         private IBillManager billManager;
 
         public OrderScreen(
-            IOrderManager orderManager,
-            IMenuManager menuManager,
+            OrderManager orderManager,
+            MenuManager menuManager,
             IInventoryManager inventoryManager,
             IBillManager billManager)
         {
@@ -77,8 +79,8 @@ namespace GourmetSpot.UserInterface
             int orderId = orderManager.GetNextOrderId();
             Console.WriteLine($"Order ID: {orderId}");
             string customerName = ConsoleInput.ReadRequiredText("Enter Customer Name: ");
-            CustomerOrder order = new CustomerOrder(orderId, customerName);
-            List<OrderItemSelection> selectedMenuItems = ReadSelectedMenuItems("Order Items");
+            TakeawayOrder order = new TakeawayOrder(orderId, customerName);
+            List<OrderItem> selectedMenuItems = ReadSelectedMenuItems("Order Items");
             if (!orderManager.CreateOrder(order, selectedMenuItems, inventoryManager, out string orderMessage))
             {
                 Console.WriteLine(orderMessage);
@@ -107,7 +109,7 @@ namespace GourmetSpot.UserInterface
             string customerName = ConsoleInput.ReadRequiredText("Enter Customer Name: ");
             int tableNumber = ConsoleInput.ReadPositiveInt("Enter Table Number: ");
             TableOrder order = new TableOrder(orderId, customerName, tableNumber, false);
-            List<OrderItemSelection> selectedMenuItems = ReadSelectedMenuItems("Suborder 1");
+            List<OrderItem> selectedMenuItems = ReadSelectedMenuItems("Suborder 1");
             if (!orderManager.StartTableOrder(order, selectedMenuItems, inventoryManager, out string orderMessage))
             {
                 Console.WriteLine(orderMessage);
@@ -129,7 +131,7 @@ namespace GourmetSpot.UserInterface
                 return;
             }
             int tableNumber = ConsoleInput.ReadPositiveInt("Enter Table Number: ");
-            List<OrderItemSelection> selectedMenuItems = ReadSelectedMenuItems("New Suborder");
+            List<OrderItem> selectedMenuItems = ReadSelectedMenuItems("New Suborder");
             if (!orderManager.AddSubOrderToTable(
                 tableNumber,
                 selectedMenuItems,
@@ -207,9 +209,9 @@ namespace GourmetSpot.UserInterface
             return true;
         }
 
-        private List<OrderItemSelection> ReadSelectedMenuItems(string heading)
+        private List<OrderItem> ReadSelectedMenuItems(string heading)
         {
-            List<OrderItemSelection> selectedMenuItems = new();
+            List<OrderItem> selectedMenuItems = new();
             Console.WriteLine($"\n--- {heading} ---");
             DisplayMenu();
             while (true)
@@ -226,7 +228,7 @@ namespace GourmetSpot.UserInterface
                     continue;
                 }
                 int quantity = ConsoleInput.ReadPositiveInt("Enter Quantity: ");
-                selectedMenuItems.Add(new OrderItemSelection(menuItem, quantity));
+                selectedMenuItems.Add(new OrderItem(menuItem, quantity));
                 Console.WriteLine($"{menuItem.Name} added to order.");
             }
             return selectedMenuItems;

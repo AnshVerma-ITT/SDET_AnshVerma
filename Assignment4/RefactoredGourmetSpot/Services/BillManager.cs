@@ -131,7 +131,7 @@ namespace GourmetSpot.Services
                 SubOrder copiedSubOrder = new SubOrder(subOrder.SubOrderNumber, subOrder.OrderedAt);
                 foreach (OrderItem orderItem in subOrder.Items)
                 {
-                    copiedSubOrder.AddItem(orderItem);
+                    copiedSubOrder.Items.Add(orderItem);
                 }
                 copiedSubOrders.Add(copiedSubOrder);
             }

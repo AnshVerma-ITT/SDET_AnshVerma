@@ -1,10 +1,11 @@
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
+using GourmetSpot.UserInterface.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class InventoryScreen
+    public class InventoryScreen : IDisplay
     {
         private IInventoryManager inventoryManager;
 
@@ -67,17 +68,11 @@ namespace GourmetSpot.UserInterface
                 Console.WriteLine("\nIngredient already exists in stock.");
                 Console.WriteLine("-------------------------");
                 DisplayIngredient(existingIngredient);
-                bool shouldAddStock = ConsoleInput.ReadYesNo("Do you want to add more quantity to this ingredient? (y/n): ");
-                if (shouldAddStock)
-                {
-                    double additionalQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity to Add: ");
-                    inventoryManager.AddIngredientQuantityByName(existingIngredient.Name, additionalQuantity, out string updateMessage);
-                    Console.WriteLine(updateMessage);
-                }
-                else
-                {
-                    Console.WriteLine("New ingredient was not added.");
-                }
+                Console.WriteLine("Adding more quantity to the existing ingredient.");
+                double additionalQuantity = ConsoleInput.ReadNonNegativeDouble("Enter Quantity to Add: ");
+                double newQuantity = existingIngredient.Quantity + additionalQuantity;
+                inventoryManager.UpdateIngredientQuantityByName(existingIngredient.Name, newQuantity, out string updateMessage);
+                Console.WriteLine(updateMessage);
                 return;
             }
             int ingredientId = inventoryManager.GetNextIngredientId();

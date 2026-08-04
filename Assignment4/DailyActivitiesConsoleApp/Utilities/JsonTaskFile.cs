@@ -20,22 +20,17 @@ namespace Assignment1_OOP_DailyActivities.Utilities
             try
             {
                 CreateFileIfMissing();
-
                 string json = File.ReadAllText(filePath);
-
                 if (json.Trim() == "")
                 {
                     return new List<DailyTask>();
                 }
-
                 JsonSerializerOptions options = GetJsonOptions();
                 List<DailyTask> dailyTasks = JsonSerializer.Deserialize<List<DailyTask>>(json, options);
-
                 if (dailyTasks == null)
                 {
                     return new List<DailyTask>();
                 }
-
                 return dailyTasks;
             }
             catch (JsonException)
@@ -53,12 +48,10 @@ namespace Assignment1_OOP_DailyActivities.Utilities
             try
             {
                 string folderPath = Path.GetDirectoryName(filePath);
-
                 if (Directory.Exists(folderPath) == false)
                 {
                     Directory.CreateDirectory(folderPath);
                 }
-
                 JsonSerializerOptions options = GetJsonOptions();
                 string json = JsonSerializer.Serialize(dailyTasks, options);
                 File.WriteAllText(filePath, json);
@@ -74,12 +67,10 @@ namespace Assignment1_OOP_DailyActivities.Utilities
             try
             {
                 string folderPath = Path.GetDirectoryName(filePath);
-
                 if (Directory.Exists(folderPath) == false)
                 {
                     Directory.CreateDirectory(folderPath);
                 }
-
                 if (File.Exists(filePath) == false)
                 {
                     File.WriteAllText(filePath, "[]");

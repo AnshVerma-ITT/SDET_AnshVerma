@@ -1,23 +1,22 @@
+using GourmetSpot.Exceptions;
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
-    public class OrderFileStore : IOrderStore
+    public class OrderStoreManager : IStoreManager<Order>
     {
-        private readonly IOrderCreator orderCreator;
         private readonly string ordersFilePath;
 
         public string LoadMessage { get; private set; } = string.Empty;
 
-        public OrderFileStore(IOrderCreator orderCreator)
+        public OrderStoreManager()
         {
-            this.orderCreator = orderCreator;
             ordersFilePath = FileManager.OrdersFilePath;
         }
 
-        public List<Order> LoadOrders()
+        public List<Order> Load()
         {
             List<Order> orders = new List<Order>();
             LoadMessage = string.Empty;
@@ -26,30 +25,45 @@ namespace GourmetSpot.Services
                 LoadMessage = FileManager.LastErrorMessage;
                 return orders;
             }
-            foreach (string orderLine in orderLines)
+            try
             {
-                Order? order = DeserializeOrder(orderLine);
-                if (order != null)
+                foreach (string orderLine in orderLines)
                 {
-                    orders.Add(order);
+                    Order? order = DeserializeOrderFromLine(orderLine);
+                    if (order != null)
+                    {
+                        orders.Add(order);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LoadMessage = ExceptionUtilities.GetMessage(
+                    new OrderException("Unexpected error while loading orders.", ex));
             }
             return orders;
         }
 
-        public bool SaveOrders(List<Order> orders)
+        public bool Save(List<Order> orders)
         {
             List<string> orderLines = new List<string>();
             foreach (Order order in orders)
             {
                 orderLines.Add(SerializeOrder(order));
             }
-            return FileManager.TryWriteAllLines(ordersFilePath, orderLines);
+            try
+            {
+                return FileManager.TryWriteAllLines(ordersFilePath, orderLines);
+            }
+            catch (Exception ex)
+            {
+                throw new OrderException("Unexpected error while saving orders.", ex);
+            }
         }
 
         private string SerializeOrder(Order order)
         {
-            string customerName = SanitizeStoredText(order.CustomerName, "Walk-in Customer");
+            string customerName = SanitizeStoredValue(order.CustomerName, "Walk-in Customer");
             string orderStatus = order.IsFinalized ? "Finalized" : "Open";
             string savedSubOrders = SerializeSubOrders(order);
             return $"{order.OrderId}|{customerName}|{order.OrderType}|{order.TableNumber}|{orderStatus}|{savedSubOrders}";
@@ -70,20 +84,20 @@ namespace GourmetSpot.Services
             List<string> savedOrderItems = new List<string>();
             foreach (OrderItem orderItem in orderItems)
             {
-                string menuItemName = SanitizeStoredText(orderItem.MenuItem.Name, "Unnamed Item");
+                string menuItemName = SanitizeStoredValue(orderItem.MenuItem.Name, "Unnamed Item");
                 savedOrderItems.Add($"{orderItem.MenuItem.MenuItemId}:{menuItemName}:{orderItem.MenuItem.Price}:{orderItem.Quantity}");
             }
             return string.Join(";", savedOrderItems);
         }
 
-        private Order? DeserializeOrder(string orderLine)
+        private Order? DeserializeOrderFromLine(string orderLine)
         {
             if (string.IsNullOrWhiteSpace(orderLine))
             {
                 return null;
             }
             string[] orderParts = orderLine.Split('|', 6);
-            if (orderParts.Length < 2)
+            if (orderParts.Length < 6)
             {
                 return null;
             }
@@ -91,71 +105,38 @@ namespace GourmetSpot.Services
             {
                 return null;
             }
-            if (orderParts.Length >= 6)
-            {
-                return DeserializeCurrentOrderFormat(orderParts, orderId);
-            }
-            if (orderParts.Length >= 5)
-            {
-                return DeserializePreviousSubOrderFormat(orderParts, orderId);
-            }
-            return DeserializeLegacyOrderFormat(orderParts, orderId);
+            return DeserializeOrderFromParts(orderParts, orderId);
         }
 
-        private Order DeserializeCurrentOrderFormat(string[] orderParts, int orderId)
+        private Order DeserializeOrderFromParts(string[] orderParts, int orderId)
         {
             string customerName = orderParts[1];
-            string orderType = orderParts[2];
             int tableNumber = ParseTableNumber(orderParts[3]);
+            OrderType orderType = ParseOrderType(orderParts[2], tableNumber);
             bool isFinalized = IsStoredOrderFinalized(orderParts[4]);
-            Order order = orderCreator.CreateOrder(orderId, customerName, orderType, tableNumber, isFinalized);
-            AddStoredSubOrders(order, orderParts[5]);
+            Order order = OrderManager.CreateOrderInstance(orderId, customerName, orderType, tableNumber, isFinalized);
+            AddStoredSubOrdersToOrder(order, orderParts[5]);
             return order;
         }
 
-        private Order DeserializePreviousSubOrderFormat(string[] orderParts, int orderId)
+        private OrderType ParseOrderType(string value, int tableNumber)
         {
-            string customerName = orderParts[1];
-            int tableNumber = ParseTableNumber(orderParts[2]);
-            string orderType = tableNumber > 0 ? OrderTypes.Table : OrderTypes.Customer;
-            bool isFinalized = IsStoredOrderFinalized(orderParts[3]);
-            Order order = orderCreator.CreateOrder(orderId, customerName, orderType, tableNumber, isFinalized);
-            AddStoredSubOrders(order, orderParts[4]);
-            return order;
+            if (value.Equals("Customer", StringComparison.OrdinalIgnoreCase))
+            {
+                return OrderType.Takeaway;
+            }
+            if (Enum.TryParse(value, true, out OrderType orderType))
+            {
+                return orderType;
+            }
+            if (tableNumber > 0)
+            {
+                return OrderType.Table;
+            }
+            return OrderType.Takeaway;
         }
 
-        private Order DeserializeLegacyOrderFormat(string[] orderParts, int orderId)
-        {
-            string customerName = "Walk-in Customer";
-            string savedMenuItems;
-            if (orderParts.Length == 2)
-            {
-                savedMenuItems = orderParts[1];
-            }
-            else
-            {
-                customerName = orderParts[1];
-                savedMenuItems = orderParts[2];
-            }
-            Order order = orderCreator.CreateOrder(
-                orderId,
-                customerName,
-                OrderTypes.Customer,
-                0,
-                true);
-                SubOrder subOrder = new SubOrder(1, DateTime.MinValue);
-            foreach (OrderItem orderItem in DeserializeOrderItems(savedMenuItems))
-            {
-                subOrder.AddItem(orderItem);
-            }
-                if (subOrder.Items.Count > 0)
-                {
-                    OrderManager.AddSubOrder(order, subOrder);
-                }
-            return order;
-        }
-
-        private void AddStoredSubOrders(Order order, string savedSubOrders)
+        private void AddStoredSubOrdersToOrder(Order order, string savedSubOrders)
         {
             foreach (string savedSubOrder in savedSubOrders.Split('#', StringSplitOptions.RemoveEmptyEntries))
             {
@@ -175,11 +156,11 @@ namespace GourmetSpot.Services
                 SubOrder subOrder = new SubOrder(subOrderNumber, orderedAt);
                 foreach (OrderItem orderItem in DeserializeOrderItems(savedSubOrderData[2]))
                 {
-                    subOrder.AddItem(orderItem);
+                    subOrder.Items.Add(orderItem);
                 }
                 if (subOrder.Items.Count > 0)
                 {
-                        OrderManager.AddSubOrder(order, subOrder);
+                    OrderManager.AddSubOrder(order, subOrder);
                 }
             }
         }
@@ -225,7 +206,7 @@ namespace GourmetSpot.Services
             return !value.Equals("Open", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string SanitizeStoredText(string? value, string fallbackValue)
+        private static string SanitizeStoredValue(string? value, string fallbackValue)
         {
             return (value ?? fallbackValue)
                 .Replace("|", " ")

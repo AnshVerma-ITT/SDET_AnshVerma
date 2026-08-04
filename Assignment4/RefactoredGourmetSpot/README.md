@@ -24,12 +24,14 @@ The console screens are separated into the `UserInterface` folder so `Program.cs
 
 The project has been refactored to address the client escalation about maintainability, scalability, and flexibility.
 
-- **Abstraction:** Service contracts were added under `Services/Contracts` so UI classes depend on interfaces such as `IOrderManager`, `IInventoryManager`, `IMenuManager`, `IBillManager`, and `IReservationManager`.
-- **Inheritance and Polymorphism:** `Order` is now an abstract base class. `CustomerOrder` and `TableOrder` extend it, allowing different order types to define their own behavior such as whether they can receive more suborders.
-- **Encapsulation:** `Order` and `SubOrder` now protect their internal item collections and expose read-only views. Items are added through domain methods.
-- **Single Responsibility Principle:** Order storage was moved from `OrderManager` into `TextOrderRepository`; recipe inventory calculation was moved into `RecipeInventoryRequirementCalculator`.
-- **Open/Closed Principle:** New order types can be added through new `Order` subclasses and the `OrderFactory` without rewriting billing, inventory, or UI flow.
-- **Dependency Inversion Principle:** Screens and services communicate through interfaces instead of direct concrete dependencies.
+- **Abstraction:** Service responsibilities are separated into focused classes such as `OrderManager`, `InventoryManager`, `MenuManager`, `BillManager`, and `ReservationManager`.
+- **Inheritance and Polymorphism:** `Order` is an abstract base class. `TakeawayOrder` and `TableOrder` extend it for different order structures.
+- **Model Simplicity:** Model classes hold data structure, while order behavior such as suborder rules stays in service classes.
+- **Single Responsibility Principle:** Order storage was moved from `OrderManager` into `OrderStoreManager`; recipe inventory calculation now lives with inventory stock handling in `InventoryManager`.
+- **Open/Closed Principle:** New order types can be added through new `Order` subclasses and the `OrderCreator` without rewriting billing, inventory, or UI flow.
+- **Pragmatic Dependencies:** Low-value interfaces were removed, while selected boundaries remain for billing, inventory, and order storage.
+- **Billing Logic Isolation:** Billing rules remain centralized behind `IBillManager`, so tax or bill-format changes can be introduced without changing order screen logic.
+- **Custom Exception Handling:** Application, file, and input errors use custom exception classes and a central `ExceptionHandler`.
 - **DRY:** Shared order request validation, inventory consumption, suborder creation, and order serialization are centralized.
 - **Backward Compatibility:** Existing saved orders continue to load, while newly saved orders include an explicit order type for future extension.
 
@@ -57,7 +59,7 @@ The project has been refactored to address the client escalation about maintaina
 
 ### 3. Order Management
 
-- Create Customer Order
+- Create Takeaway Order
 - Customer Name on Order
 - Multiple Menu Items in One Order
 - Table Order Sessions
@@ -125,8 +127,8 @@ The project has been refactored to address the client escalation about maintaina
 - Conditional Statements
 - Exception Handling
   - `try-catch`
+  - Custom exception classes
   - `IOException`
-  - `InvalidOperationException`
   - `JsonException`
   - `Exception`
 - File Handling
@@ -163,7 +165,7 @@ The project has been refactored to address the client escalation about maintaina
 
 - Ingredients can be added and managed.
 - Menu items can be created with recipes.
-- Customer orders can contain multiple menu items.
+- Takeaway orders can contain multiple menu items.
 - Table orders can contain multiple suborders before the final bill is generated.
 - Inventory is automatically updated after successful order placement.
 - Bills are generated with GST calculation, customer name, table number where available, and saved to a bill file.

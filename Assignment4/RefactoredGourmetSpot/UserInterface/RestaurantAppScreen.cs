@@ -1,27 +1,28 @@
 using GourmetSpot.Services;
 using GourmetSpot.Services.Contracts;
+using GourmetSpot.UserInterface.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class RestaurantApp
+    public class RestaurantAppScreen : IDisplay
     {
-        private InventoryScreen inventoryScreen;
-        private MenuScreen menuScreen;
-        private OrderScreen orderScreen;
-        private ReservationScreen reservationScreen;
+        private readonly IDisplay inventoryScreen;
+        private readonly IDisplay menuScreen;
+        private readonly IDisplay orderScreen;
+        private readonly IDisplay reservationScreen;
 
-        public RestaurantApp()
+        public RestaurantAppScreen()
         {
             if (!FileManager.EnsureApplicationDirectoriesExist(out string folderMessage))
             {
                 Console.WriteLine(folderMessage);
             }
             IInventoryManager inventoryManager = new InventoryManager();
-            IMenuManager menuManager = new MenuManager();
-            IOrderManager orderManager = new OrderManager();
+            MenuManager menuManager = new MenuManager();
+            OrderManager orderManager = new OrderManager();
             IBillManager billManager = new BillManager();
-            IReservationManager reservationManager = new ReservationManager();
+            ReservationManager reservationManager = new ReservationManager();
             DisplayStartupMessage(inventoryManager.LoadMessage);
             DisplayStartupMessage(menuManager.LoadMessage);
             DisplayStartupMessage(orderManager.LoadMessage);
@@ -32,7 +33,7 @@ namespace GourmetSpot.UserInterface
             reservationScreen = new ReservationScreen(reservationManager);
         }
 
-        public void Run()
+        public void Show()
         {
             while (true)
             {
