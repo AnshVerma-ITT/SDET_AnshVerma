@@ -7,8 +7,8 @@ namespace Assignment1_OOP_DailyActivities.Services
 {
     public class TaskService : ITaskService
     {
-        private List<DailyTask> dailyTasks;
-        private JsonTaskFile jsonTaskFile;
+        public List<DailyTask> dailyTasks;
+        public JsonTaskFile jsonTaskFile;
         private int nextId;
 
         public TaskService()
@@ -54,7 +54,6 @@ namespace Assignment1_OOP_DailyActivities.Services
             try
             {
                 Validator.ValidateId(id);
-
                 for (int index = 0; index < dailyTasks.Count; index++)
                 {
                     if (dailyTasks[index].Id == id)
@@ -62,7 +61,6 @@ namespace Assignment1_OOP_DailyActivities.Services
                         return dailyTasks[index];
                     }
                 }
-
                 throw new Exception("Task was not found.");
             }
             catch (Exception)
@@ -104,7 +102,6 @@ namespace Assignment1_OOP_DailyActivities.Services
             try
             {
                 List<DailyTask> pendingTasks = new List<DailyTask>();
-
                 for (int index = 0; index < dailyTasks.Count; index++)
                 {
                     if (dailyTasks[index].IsCompleted == false)
@@ -112,7 +109,6 @@ namespace Assignment1_OOP_DailyActivities.Services
                         pendingTasks.Add(dailyTasks[index]);
                     }
                 }
-
                 return pendingTasks;
             }
             catch (Exception)
@@ -126,7 +122,6 @@ namespace Assignment1_OOP_DailyActivities.Services
             try
             {
                 List<DailyTask> completedTasks = new List<DailyTask>();
-
                 for (int index = 0; index < dailyTasks.Count; index++)
                 {
                     if (dailyTasks[index].IsCompleted == true)
@@ -134,7 +129,6 @@ namespace Assignment1_OOP_DailyActivities.Services
                         completedTasks.Add(dailyTasks[index]);
                     }
                 }
-
                 return completedTasks;
             }
             catch (Exception)
@@ -151,7 +145,6 @@ namespace Assignment1_OOP_DailyActivities.Services
                 {
                     throw new ArgumentNullException(nameof(task));
                 }
-
                 return task.IsCompleted ? "Completed" : "Pending";
             }
             catch (Exception)
@@ -165,7 +158,6 @@ namespace Assignment1_OOP_DailyActivities.Services
             try
             {
                 int highestId = 0;
-
                 for (int index = 0; index < dailyTasks.Count; index++)
                 {
                     if (dailyTasks[index].Id > highestId)
@@ -173,7 +165,6 @@ namespace Assignment1_OOP_DailyActivities.Services
                         highestId = dailyTasks[index].Id;
                     }
                 }
-
                 return highestId + 1;
             }
             catch (Exception)

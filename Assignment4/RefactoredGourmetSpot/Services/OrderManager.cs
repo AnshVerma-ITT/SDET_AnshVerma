@@ -4,64 +4,75 @@ using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
-    public class OrderManager : IOrderManager
+    public class OrderManager
     {
         public static void AddSubOrder(Order order, SubOrder subOrder)
         {
             if (order == null || subOrder == null) return;
-            order.InternalSubOrders.Add(subOrder);
+            order.SubOrders.Add(subOrder);
             foreach (OrderItem orderItem in subOrder.Items)
             {
-                order.InternalItems.Add(orderItem);
+                order.Items.Add(orderItem);
             }
         }
 
         public static void RebuildItemsFromSubOrders(Order order)
         {
             if (order == null) return;
-            order.InternalItems.Clear();
-            foreach (SubOrder subOrder in order.InternalSubOrders)
+            order.Items.Clear();
+            foreach (SubOrder subOrder in order.SubOrders)
             {
                 foreach (OrderItem orderItem in subOrder.Items)
                 {
-                    order.InternalItems.Add(orderItem);
+                    order.Items.Add(orderItem);
                 }
             }
         }
 
-        private readonly List<Order> orders;
-        private readonly IOrderStore orderStore;
-        private readonly IIngredientRequirementCalculator ingredientRequirementCalculator;
+        public List<Order> orders;
+        public IStoreManager<Order> orderStore;
 
-        public string LoadMessage => orderStore.LoadMessage;
+        public string LoadMessage
+        {
+            get
+            {
+                return orderStore.LoadMessage;
+            }
+        }
 
         public OrderManager()
-            : this(
-                new OrderFileStore(new OrderCreator()),
-                new IngredientRequirementCalculator())
+            : this(new OrderStoreManager())
         {
         }
 
-        public OrderManager(
-            IOrderStore orderStore,
-            IIngredientRequirementCalculator ingredientRequirementCalculator)
+        internal static Order CreateOrderInstance(
+            int orderId,
+            string customerName,
+            OrderType orderType,
+            int tableNumber,
+            bool isFinalized)
+        {
+            if (orderType == OrderType.Table || tableNumber > 0)
+            {
+                return new TableOrder(orderId, customerName, tableNumber, isFinalized);
+            }
+            return new TakeawayOrder(orderId, customerName, isFinalized);
+        }
+
+        public OrderManager(IStoreManager<Order> orderStore)
         {
             this.orderStore = orderStore;
-            this.ingredientRequirementCalculator = ingredientRequirementCalculator;
-            orders = this.orderStore.LoadOrders();
+            orders = this.orderStore.Load();
         }
 
         public int GetNextOrderId()
         {
-            int nextOrderId = 1;
+            int highestOrderId = 0;
             foreach (Order order in orders)
             {
-                if (order.OrderId >= nextOrderId)
-                {
-                    nextOrderId = order.OrderId + 1;
-                }
+                highestOrderId = Math.Max(highestOrderId, order.OrderId);
             }
-            return nextOrderId;
+            return highestOrderId + 1;
         }
 
         public List<Order> GetAllOrders()
@@ -74,7 +85,7 @@ namespace GourmetSpot.Services
             List<Order> activeTableOrders = new List<Order>();
             foreach (Order order in orders)
             {
-                if (order.TableNumber > 0 && order.CanReceiveSubOrder)
+                if (CanReceiveSubOrder(order))
                 {
                     activeTableOrders.Add(order);
                 }
@@ -86,7 +97,7 @@ namespace GourmetSpot.Services
         {
             foreach (Order order in orders)
             {
-                if (order.TableNumber == tableNumber && order.CanReceiveSubOrder)
+                if (order.TableNumber == tableNumber && CanReceiveSubOrder(order))
                 {
                     return order;
                 }
@@ -96,7 +107,7 @@ namespace GourmetSpot.Services
 
         public bool CreateOrder(
             Order order,
-            List<OrderItemSelection> selectedMenuItems,
+            List<OrderItem> selectedMenuItems,
             IInventoryManager inventoryManager,
             out string message)
         {
@@ -127,7 +138,7 @@ namespace GourmetSpot.Services
 
         public bool StartTableOrder(
             TableOrder order,
-            List<OrderItemSelection> selectedMenuItems,
+            List<OrderItem> selectedMenuItems,
             IInventoryManager inventoryManager,
             out string message)
         {
@@ -164,7 +175,7 @@ namespace GourmetSpot.Services
 
         public bool AddSubOrderToTable(
             int tableNumber,
-            List<OrderItemSelection> selectedMenuItems,
+            List<OrderItem> selectedMenuItems,
             IInventoryManager inventoryManager,
             out Order? order,
             out string message)
@@ -188,7 +199,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             AddSubOrderToOrder(order, selectedMenuItems);
-            if (!SaveOrders())
+            if (!Save())
             {
                 message = GetStorageErrorMessage("Suborder added, but order data could not be saved.");
                 return false;
@@ -211,7 +222,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             order.IsFinalized = true;
-            if (!SaveOrders())
+            if (!Save())
             {
                 order.IsFinalized = false;
                 message = GetStorageErrorMessage("Table order finalized, but order data could not be saved.");
@@ -228,7 +239,7 @@ namespace GourmetSpot.Services
             out string message)
         {
             orders.Add(order);
-            if (!SaveOrders())
+            if (!Save())
             {
                 orders.Remove(order);
                 message = GetStorageErrorMessage(saveErrorFallbackMessage);
@@ -240,7 +251,7 @@ namespace GourmetSpot.Services
 
         private bool ValidateOrderRequest(
             Order? order,
-            List<OrderItemSelection>? selectedMenuItems,
+            List<OrderItem>? selectedMenuItems,
             IInventoryManager? inventoryManager,
             string emptySelectionMessage,
             out string message)
@@ -265,13 +276,13 @@ namespace GourmetSpot.Services
         }
 
         private bool UseIngredientsForSelectedItems(
-            List<OrderItemSelection> selectedMenuItems,
+            List<OrderItem> selectedMenuItems,
             IInventoryManager inventoryManager,
             string actionBlockedMessage,
             out string message)
         {
             Dictionary<int, double> requiredIngredients =
-                ingredientRequirementCalculator.CalculateRequiredIngredients(selectedMenuItems);
+                inventoryManager.CalculateRequiredIngredients(selectedMenuItems);
             if (!inventoryManager.UseIngredients(requiredIngredients, out string inventoryMessage))
             {
                 if (string.IsNullOrWhiteSpace(inventoryMessage))
@@ -288,32 +299,34 @@ namespace GourmetSpot.Services
             return true;
         }
 
-        private void AddSubOrderToOrder(Order order, List<OrderItemSelection> selectedMenuItems)
+        private void AddSubOrderToOrder(Order order, List<OrderItem> selectedMenuItems)
         {
             SubOrder subOrder = new SubOrder(GetNextSubOrderNumber(order), DateTime.Now);
-            foreach (OrderItemSelection selectedMenuItem in selectedMenuItems)
+            foreach (OrderItem selectedMenuItem in selectedMenuItems)
             {
-                subOrder.AddItem(selectedMenuItem.ToOrderItem());
+                subOrder.Items.Add(selectedMenuItem);
             }
-                AddSubOrder(order, subOrder);
+            AddSubOrder(order, subOrder);
         }
 
         private int GetNextSubOrderNumber(Order order)
         {
-            int nextSubOrderNumber = 1;
+            int highestSubOrderNumber = 0;
             foreach (SubOrder subOrder in order.SubOrders)
             {
-                if (subOrder.SubOrderNumber >= nextSubOrderNumber)
-                {
-                    nextSubOrderNumber = subOrder.SubOrderNumber + 1;
-                }
+                highestSubOrderNumber = Math.Max(highestSubOrderNumber, subOrder.SubOrderNumber);
             }
-            return nextSubOrderNumber;
+            return highestSubOrderNumber + 1;
         }
 
-        private bool SaveOrders()
+        private bool Save()
         {
-            return orderStore.SaveOrders(orders);
+            return orderStore.Save(orders);
+        }
+
+        private static bool CanReceiveSubOrder(Order order)
+        {
+            return order is TableOrder && order.TableNumber > 0 && !order.IsFinalized;
         }
 
         private static string GetStorageErrorMessage(string fallbackMessage)

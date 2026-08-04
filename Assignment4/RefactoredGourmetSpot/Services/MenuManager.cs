@@ -1,11 +1,12 @@
 using System.Text.Json;
+using GourmetSpot.Exceptions;
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
-    public class MenuManager : IMenuManager
+    public class MenuManager : IStoreManager<MenuItem>
     {
         private List<MenuItem> menuItems;
         private string menuFilePath = FileManager.MenuFilePath;
@@ -16,20 +17,17 @@ namespace GourmetSpot.Services
         public MenuManager()
         {
             menuItems = new List<MenuItem>();
-            LoadMenu();
+            menuItems = Load();
         }
 
         public int GetNextMenuItemId()
         {
-            int nextMenuItemId = 1;
+            int highestMenuItemId = 0;
             foreach (MenuItem menuItem in menuItems)
             {
-                if (menuItem.MenuItemId >= nextMenuItemId)
-                {
-                    nextMenuItemId = menuItem.MenuItemId + 1;
-                }
+                highestMenuItemId = Math.Max(highestMenuItemId, menuItem.MenuItemId);
             }
-            return nextMenuItemId;
+            return highestMenuItemId + 1;
         }
 
         public bool AddMenuItem(MenuItem menuItem, out string message)
@@ -39,7 +37,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             menuItems.Add(menuItem);
-            if (!SaveMenu())
+            if (!Save(menuItems))
             {
                 message = GetStorageErrorMessage("Menu item added, but menu could not be saved.");
                 return false;
@@ -122,7 +120,7 @@ namespace GourmetSpot.Services
             return true;
         }
 
-        private bool SaveMenu()
+        public bool Save(List<MenuItem> items)
         {
             storageErrorMessage = string.Empty;
             try
@@ -131,26 +129,28 @@ namespace GourmetSpot.Services
                 {
                     WriteIndented = true
                 };
-                string menuJson = JsonSerializer.Serialize(menuItems, jsonOptions);
+                string menuJson = JsonSerializer.Serialize(items, jsonOptions);
                 return FileManager.TryWriteAllText(menuFilePath, menuJson);
             }
             catch (Exception ex)
             {
-                storageErrorMessage = $"Unexpected error while preparing menu data: {ex.Message}";
+                storageErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException("Unexpected error while preparing menu data.", ex));
                 return false;
             }
         }
 
-        private void LoadMenu()
+        public List<MenuItem> Load()
         {
             LoadMessage = string.Empty;
             if (!FileManager.TryReadAllText(menuFilePath, out string menuJson))
             {
                 LoadMessage = FileManager.LastErrorMessage;
-                return;
+                return new List<MenuItem>();
             }
             try
             {
+                List<MenuItem> loadedMenuItems = new List<MenuItem>();
                 List<MenuItem?>? savedMenuItems = JsonSerializer.Deserialize<List<MenuItem?>>(menuJson);
                 if (savedMenuItems != null)
                 {
@@ -164,19 +164,25 @@ namespace GourmetSpot.Services
                         {
                             savedMenuItem.Recipe = new Dictionary<int, double>();
                         }
-                        menuItems.Add(savedMenuItem);
+                        loadedMenuItems.Add(savedMenuItem);
                     }
                 }
+                menuItems = loadedMenuItems;
+                return loadedMenuItems;
             }
             catch (JsonException ex)
             {
                 menuItems.Clear();
-                LoadMessage = $"Menu file contains invalid JSON and could not be loaded: {ex.Message}";
+                LoadMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException("Menu file contains invalid JSON and could not be loaded.", ex));
+                return new List<MenuItem>();
             }
             catch (Exception ex)
             {
                 menuItems.Clear();
-                LoadMessage = $"Unexpected error while loading menu: {ex.Message}";
+                LoadMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException("Unexpected error while loading menu.", ex));
+                return new List<MenuItem>();
             }
         }
 

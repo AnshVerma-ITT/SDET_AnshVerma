@@ -1,3 +1,5 @@
+using GourmetSpot.Exceptions;
+
 namespace GourmetSpot.Utilities
 {
     public static class FileManager
@@ -31,11 +33,13 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                errorMessage = $"Unable to create application folders: {ex.Message}";
+                errorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException("Unable to create application folders.", ex));
             }
             catch (Exception ex)
             {
-                errorMessage = $"Unexpected error while creating application folders: {ex.Message}";
+                errorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException("Unexpected error while creating application folders.", ex));
             }
             LastErrorMessage = errorMessage;
             return false;
@@ -55,15 +59,18 @@ namespace GourmetSpot.Utilities
             }
             catch (UnauthorizedAccessException ex)
             {
-                errorMessage = $"Application folder '{directoryPath}' is not writable: {ex.Message}";
+                errorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Application folder '{directoryPath}' is not writable.", ex));
             }
             catch (IOException ex)
             {
-                errorMessage = $"Unable to verify write access for folder '{directoryPath}': {ex.Message}";
+                errorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to verify write access for folder '{directoryPath}'.", ex));
             }
             catch (Exception ex)
             {
-                errorMessage = $"Unexpected error while checking folder '{directoryPath}': {ex.Message}";
+                errorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unexpected error while checking folder '{directoryPath}'.", ex));
             }
             return false;
         }
@@ -82,8 +89,10 @@ namespace GourmetSpot.Utilities
                         directoryMode | UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to update folder permission for '{directoryPath}'.", ex));
             }
         }
 
@@ -108,11 +117,13 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                LastErrorMessage = $"Unable to read file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to read file '{filePath}'.", ex));
             }
             catch (Exception ex)
             {
-                LastErrorMessage = $"Unexpected error while reading file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unexpected error while reading file '{filePath}'.", ex));
             }
             return false;
         }
@@ -128,11 +139,13 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                LastErrorMessage = $"Unable to write file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to write file '{filePath}'.", ex));
             }
             catch (Exception ex)
             {
-                LastErrorMessage = $"Unexpected error while writing file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unexpected error while writing file '{filePath}'.", ex));
             }
             return false;
         }
@@ -153,11 +166,13 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                LastErrorMessage = $"Unable to read file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to read file '{filePath}'.", ex));
             }
             catch (Exception ex)
             {
-                LastErrorMessage = $"Unexpected error while reading file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unexpected error while reading file '{filePath}'.", ex));
             }
             return false;
         }
@@ -173,11 +188,13 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                LastErrorMessage = $"Unable to write file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unable to write file '{filePath}'.", ex));
             }
             catch (Exception ex)
             {
-                LastErrorMessage = $"Unexpected error while writing file '{filePath}': {ex.Message}";
+                LastErrorMessage = ExceptionUtilities.GetMessage(
+                    new FileOperationException($"Unexpected error while writing file '{filePath}'.", ex));
             }
             return false;
         }

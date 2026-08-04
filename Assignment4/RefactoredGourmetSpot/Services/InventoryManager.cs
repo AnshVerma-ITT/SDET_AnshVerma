@@ -4,7 +4,7 @@ using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
-    public class InventoryManager : IInventoryManager
+    public class InventoryManager : IInventoryManager, IStoreManager<Ingredient>
     {
         private List<Ingredient> ingredients;
         private string inventoryFilePath = FileManager.InventoryFilePath;
@@ -14,20 +14,12 @@ namespace GourmetSpot.Services
         public InventoryManager()
         {
             ingredients = new List<Ingredient>();
-            LoadInventory();
+            ingredients = Load();
         }
 
         public int GetNextIngredientId()
         {
-            int nextIngredientId = 1;
-            foreach (Ingredient ingredient in ingredients)
-            {
-                if (ingredient.IngredientId >= nextIngredientId)
-                {
-                    nextIngredientId = ingredient.IngredientId + 1;
-                }
-            }
-            return nextIngredientId;
+            return ingredients.Count + 1;
         }
 
         public List<Ingredient> GetAllIngredients()
@@ -48,7 +40,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             ingredients.Add(ingredient);
-            if (!SaveInventory())
+            if (!Save(ingredients))
             {
                 message = GetStorageErrorMessage("Ingredient added, but inventory could not be saved.");
                 return false;
@@ -81,29 +73,6 @@ namespace GourmetSpot.Services
             return null;
         }
 
-        public bool AddIngredientQuantityByName(string ingredientName, double additionalQuantity, out string message)
-        {
-            Ingredient? ingredient = SearchIngredientByName(ingredientName);
-            if (ingredient == null)
-            {
-                message = "Ingredient not found.";
-                return false;
-            }
-            if (additionalQuantity < 0)
-            {
-                message = "Quantity cannot be negative.";
-                return false;
-            }
-            ingredient.Quantity += additionalQuantity;
-            if (!SaveInventory())
-            {
-                message = GetStorageErrorMessage("Ingredient quantity updated, but inventory could not be saved.");
-                return false;
-            }
-            message = "Ingredient quantity updated successfully.";
-            return true;
-        }
-
         public bool UpdateIngredientQuantityByName(string ingredientName, double newQuantity, out string message)
         {
             Ingredient? ingredient = SearchIngredientByName(ingredientName);
@@ -118,12 +87,12 @@ namespace GourmetSpot.Services
                 return false;
             }
             ingredient.Quantity += newQuantity;
-            if (!SaveInventory())
+            if (!Save(ingredients))
             {
-                message = GetStorageErrorMessage("Ingredient updated, but inventory could not be saved.");
+                message = GetStorageErrorMessage("Ingredient quantity updated, but inventory could not be saved.");
                 return false;
             }
-            message = "Ingredient updated successfully.";
+            message = "Ingredient quantity updated successfully.";
             return true;
         }
 
@@ -136,13 +105,38 @@ namespace GourmetSpot.Services
                 return false;
             }
             ingredients.Remove(ingredient);
-            if (!SaveInventory())
+            if (!Save(ingredients))
             {
                 message = GetStorageErrorMessage("Ingredient deleted, but inventory could not be saved.");
                 return false;
             }
             message = "Ingredient deleted successfully.";
             return true;
+        }
+
+        public Dictionary<int, double> CalculateRequiredIngredients(List<OrderItem> selectedMenuItems)
+        {
+            Dictionary<int, double> requiredIngredients = new Dictionary<int, double>();
+            foreach (OrderItem selectedMenuItem in selectedMenuItems)
+            {
+                if (selectedMenuItem.MenuItem.Recipe == null)
+                {
+                    continue;
+                }
+                foreach (var recipeIngredient in selectedMenuItem.MenuItem.Recipe)
+                {
+                    double requiredQuantity = recipeIngredient.Value * selectedMenuItem.Quantity;
+                    if (requiredIngredients.ContainsKey(recipeIngredient.Key))
+                    {
+                        requiredIngredients[recipeIngredient.Key] += requiredQuantity;
+                    }
+                    else
+                    {
+                        requiredIngredients.Add(recipeIngredient.Key, requiredQuantity);
+                    }
+                }
+            }
+            return requiredIngredients;
         }
 
         public bool HasEnoughIngredients(Dictionary<int, double> requiredIngredients, out string message)
@@ -177,7 +171,7 @@ namespace GourmetSpot.Services
                 Ingredient ingredient = SearchIngredientById(requiredIngredient.Key)!;
                 ingredient.Quantity -= requiredIngredient.Value;
             }
-            if (!SaveInventory())
+            if (!Save(ingredients))
             {
                 message = GetStorageErrorMessage("Inventory was updated, but it could not be saved.");
                 return false;
@@ -219,10 +213,10 @@ namespace GourmetSpot.Services
                    ingredient.Name.Trim().Equals(ingredientName.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool SaveInventory()
+        public bool Save(List<Ingredient> items)
         {
             List<string> inventoryLines = new List<string>();
-            foreach (Ingredient ingredient in ingredients)
+            foreach (Ingredient ingredient in items)
             {
                 string ingredientName = (ingredient.Name ?? "").Replace(",", " ");
                 string ingredientUnit = (ingredient.Unit ?? "").Replace(",", " ");
@@ -231,14 +225,15 @@ namespace GourmetSpot.Services
             return FileManager.TryWriteAllLines(inventoryFilePath, inventoryLines);
         }
 
-        private void LoadInventory()
+        public List<Ingredient> Load()
         {
             LoadMessage = string.Empty;
             if (!FileManager.TryReadAllLines(inventoryFilePath, out string[] inventoryLines))
             {
                 LoadMessage = FileManager.LastErrorMessage;
-                return;
+                return new List<Ingredient>();
             }
+            List<Ingredient> loadedIngredients = new List<Ingredient>();
             foreach (string inventoryLine in inventoryLines)
             {
                 string[] ingredientData = inventoryLine.Split(',');
@@ -257,8 +252,10 @@ namespace GourmetSpot.Services
                     ingredientData[1],
                     ingredientQuantity,
                     ingredientData[3]);
-                ingredients.Add(ingredient);
+                loadedIngredients.Add(ingredient);
             }
+            ingredients = loadedIngredients;
+            return loadedIngredients;
         }
 
         private static string GetStorageErrorMessage(string fallbackMessage)

@@ -1,21 +1,28 @@
 using System.Globalization;
+using GourmetSpot.Exceptions;
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.Services
 {
-    public class ReservationManager : IReservationManager
+    public class ReservationManager : IStoreManager<Reservation>
     {
         public const int ReservationWindowHours = 2;
 
         private const int MaximumAdvanceReservationMonths = 3;
-        private List<Reservation> reservations;
-        private List<int> restaurantTableNumbers;
+        public List<Reservation> reservations;
+        public List<int> restaurantTableNumbers;
         private string reservationsFilePath = FileManager.ReservationsFilePath;
 
         public string LoadMessage { get; private set; } = string.Empty;
-        public int ReservationWindowDurationHours => ReservationWindowHours;
+        public int ReservationWindowDurationHours
+        {
+            get
+            {
+                return ReservationWindowHours;
+            }
+        }
 
         public ReservationManager()
         {
@@ -25,20 +32,17 @@ namespace GourmetSpot.Services
             {
                 restaurantTableNumbers.Add(tableNumber);
             }
-            LoadReservations();
+            reservations = Load();
         }
 
         public int GetNextReservationId()
         {
-            int nextReservationId = 1;
+            int highestReservationId = 0;
             foreach (Reservation reservation in reservations)
             {
-                if (reservation.ReservationId >= nextReservationId)
-                {
-                    nextReservationId = reservation.ReservationId + 1;
-                }
+                highestReservationId = Math.Max(highestReservationId, reservation.ReservationId);
             }
-            return nextReservationId;
+            return highestReservationId + 1;
         }
 
         public List<Reservation> GetAllReservations()
@@ -58,7 +62,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             reservations.Add(reservation);
-            if (!SaveReservations())
+            if (!Save(reservations))
             {
                 message = GetStorageErrorMessage("Reservation created, but reservation data could not be saved.");
                 return false;
@@ -128,7 +132,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             reservation.Status = "Cancelled";
-            if (!SaveReservations())
+            if (!Save(reservations))
             {
                 message = GetStorageErrorMessage("Reservation cancelled, but reservation data could not be saved.");
                 return false;
@@ -217,10 +221,10 @@ namespace GourmetSpot.Services
             return reservationDateTime >= now && reservationDateTime <= maximumReservationDate;
         }
 
-        private bool SaveReservations()
+        public bool Save(List<Reservation> items)
         {
             List<string> reservationLines = new List<string>();
-            foreach (Reservation reservation in reservations)
+            foreach (Reservation reservation in items)
             {
                 string customerName = (reservation.CustomerName ?? "").Replace("|", " ");
                 string contactNumber = (reservation.ContactNumber ?? "").Replace("|", " ");
@@ -231,14 +235,31 @@ namespace GourmetSpot.Services
             return FileManager.TryWriteAllLines(reservationsFilePath, reservationLines);
         }
 
-        private void LoadReservations()
+        public List<Reservation> Load()
         {
             LoadMessage = string.Empty;
             if (!FileManager.TryReadAllLines(reservationsFilePath, out string[] reservationLines))
             {
                 LoadMessage = FileManager.LastErrorMessage;
-                return;
+                return new List<Reservation>();
             }
+            try
+            {
+                List<Reservation> loadedReservations = ParseReservations(reservationLines);
+                reservations = loadedReservations;
+                return loadedReservations;
+            }
+            catch (Exception ex)
+            {
+                LoadMessage = ExceptionUtilities.GetMessage(
+                    new ReservationException("Unexpected error while loading reservations.", ex));
+                return new List<Reservation>();
+            }
+        }
+
+        private List<Reservation> ParseReservations(string[] reservationLines)
+        {
+            List<Reservation> loadedReservations = new List<Reservation>();
             foreach (string reservationLine in reservationLines)
             {
                 if (string.IsNullOrWhiteSpace(reservationLine))
@@ -274,8 +295,9 @@ namespace GourmetSpot.Services
                     numberOfGuests,
                     reservationDateTime,
                     reservationStatus);
-                reservations.Add(reservation);
+                loadedReservations.Add(reservation);
             }
+            return loadedReservations;
         }
 
         private static string GetStorageErrorMessage(string fallbackMessage)

@@ -1,14 +1,15 @@
 using GourmetSpot.Models;
-using GourmetSpot.Services.Contracts;
+using GourmetSpot.Services;
+using GourmetSpot.UserInterface.Contracts;
 using GourmetSpot.Utilities;
 
 namespace GourmetSpot.UserInterface
 {
-    public class ReservationScreen
+    public class ReservationScreen : IDisplay
     {
-        private IReservationManager reservationManager;
+        public ReservationManager reservationManager;
 
-        public ReservationScreen(IReservationManager reservationManager)
+        public ReservationScreen(ReservationManager reservationManager)
         {
             this.reservationManager = reservationManager;
         }

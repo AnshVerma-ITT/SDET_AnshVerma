@@ -1,4 +1,5 @@
 using System.Globalization;
+using GourmetSpot.Exceptions;
 
 namespace GourmetSpot.Utilities
 {
@@ -23,26 +24,6 @@ namespace GourmetSpot.Utilities
         public static string ReadMenuChoice()
         {
             return ReadConsoleLine();
-        }
-
-        public static bool ReadYesNo(string message)
-        {
-            while (true)
-            {
-                Console.Write(message);
-                string choice = ReadConsoleLine().Trim();
-                if (choice.Equals("y", StringComparison.OrdinalIgnoreCase) ||
-                    choice.Equals("yes", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-                if (choice.Equals("n", StringComparison.OrdinalIgnoreCase) ||
-                    choice.Equals("no", StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-                Console.WriteLine("Please enter y or n.");
-            }
         }
 
         public static string ReadCustomerName()
@@ -166,11 +147,11 @@ namespace GourmetSpot.Utilities
             }
             catch (IOException ex)
             {
-                throw new IOException($"Unable to read console input: {ex.Message}", ex);
+                throw new InputException("Unable to read console input.", ex);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Unexpected error while reading console input: {ex.Message}", ex);
+                throw new InputException("Unexpected error while reading console input.", ex);
             }
         }
     }

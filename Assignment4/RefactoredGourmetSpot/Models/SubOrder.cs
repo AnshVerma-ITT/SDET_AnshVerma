@@ -4,19 +4,13 @@ namespace GourmetSpot.Models
     {
         public int SubOrderNumber { get; set; }
         public DateTime OrderedAt { get; set; }
-        private readonly List<OrderItem> items;
-        public IReadOnlyList<OrderItem> Items => items;
+        public List<OrderItem> Items { get; set; }
 
         public SubOrder(int subOrderNumber, DateTime orderedAt)
         {
             SubOrderNumber = subOrderNumber;
             OrderedAt = orderedAt;
-            items = new List<OrderItem>();
-        }
-
-        public void AddItem(OrderItem orderItem)
-        {
-            items.Add(orderItem);
+            Items = new List<OrderItem>();
         }
     }
 }
