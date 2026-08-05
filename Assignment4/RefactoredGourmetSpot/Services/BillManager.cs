@@ -1,3 +1,4 @@
+using GourmetSpot.Exceptions;
 using GourmetSpot.Models;
 using GourmetSpot.Services.Contracts;
 using GourmetSpot.Utilities;
@@ -10,20 +11,35 @@ namespace GourmetSpot.Services
 
         public Bill GenerateBill(Order order)
         {
-            Bill bill = CreateBill(order);
-            if (SaveBill(bill, out string? savedFilePath, out string saveMessage))
+            try
             {
-                bill.IsSaved = true;
-                bill.SavedFilePath = savedFilePath;
-                bill.SaveMessage = saveMessage;
+                if (order == null)
+                {
+                    throw new BillException("Bill cannot be generated because the order is missing.");
+                }
+                Bill bill = CreateBill(order);
+                if (SaveBill(bill, out string? savedFilePath, out string saveMessage))
+                {
+                    bill.IsSaved = true;
+                    bill.SavedFilePath = savedFilePath;
+                    bill.SaveMessage = saveMessage;
+                }
+                else
+                {
+                    bill.IsSaved = false;
+                    bill.SavedFilePath = null;
+                    bill.SaveMessage = saveMessage;
+                }
+                return bill;
             }
-            else
+            catch (GourmetSpotException)
             {
-                bill.IsSaved = false;
-                bill.SavedFilePath = null;
-                bill.SaveMessage = saveMessage;
+                throw;
             }
-            return bill;
+            catch (Exception exception)
+            {
+                throw new BillException("Bill generation failed.", exception);
+            }
         }
 
         public Bill CreateBill(Order order)
@@ -84,7 +100,7 @@ namespace GourmetSpot.Services
             {
                 foreach (SubOrder subOrder in bill.SubOrders)
                 {
-                    billLines.Add(GetSubOrderHeading(subOrder));
+                    billLines.Add(FormatSubOrderHeading(subOrder));
                     foreach (OrderItem orderItem in subOrder.Items)
                     {
                         billLines.Add($"{orderItem.MenuItem.Name} x {orderItem.Quantity} = ₹{CalculateItemTotalPrice(orderItem)}");
@@ -138,7 +154,7 @@ namespace GourmetSpot.Services
             return copiedSubOrders;
         }
 
-        private string GetSubOrderHeading(SubOrder subOrder)
+        private string FormatSubOrderHeading(SubOrder subOrder)
         {
             if (subOrder.OrderedAt == DateTime.MinValue)
             {

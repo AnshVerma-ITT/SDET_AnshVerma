@@ -1,4 +1,4 @@
-namespace Assignment1_OOP_DailyActivities.Model
+namespace DailyActivityTracker.Model
 {
     public abstract class TaskItem
     {

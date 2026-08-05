@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Assignment1_OOP_DailyActivities.Model;
+using DailyActivityTracker.Model;
 
-namespace Assignment1_OOP_DailyActivities.Services
+namespace DailyActivityTracker.Services
 {
     public interface ITaskService
     {

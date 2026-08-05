@@ -9,7 +9,8 @@ namespace GourmetSpot.Services
     public class ReservationManager : IStoreManager<Reservation>
     {
         public const int ReservationWindowHours = 2;
-
+        public const int NoofTables = 10;
+        public const int NoofdgitsInContactNumber = 10;
         private const int MaximumAdvanceReservationMonths = 3;
         public List<Reservation> reservations;
         public List<int> restaurantTableNumbers;
@@ -28,7 +29,7 @@ namespace GourmetSpot.Services
         {
             reservations = new List<Reservation>();
             restaurantTableNumbers = new List<int>();
-            for (int tableNumber = 1; tableNumber <= 10; tableNumber++)
+            for (int tableNumber = 1; tableNumber <= NoofTables; tableNumber++)
             {
                 restaurantTableNumbers.Add(tableNumber);
             }
@@ -37,12 +38,7 @@ namespace GourmetSpot.Services
 
         public int GetNextReservationId()
         {
-            int highestReservationId = 0;
-            foreach (Reservation reservation in reservations)
-            {
-                highestReservationId = Math.Max(highestReservationId, reservation.ReservationId);
-            }
-            return highestReservationId + 1;
+            return reservations.Count + 1;
         }
 
         public List<Reservation> GetAllReservations()
@@ -87,7 +83,7 @@ namespace GourmetSpot.Services
             foreach (Reservation reservation in reservations)
             {
                 bool sameTable = reservation.TableNumber == tableNumber;
-                bool reservationIsBooked = string.Equals(reservation.Status, "Booked", StringComparison.OrdinalIgnoreCase);
+                bool reservationIsBooked = reservation.Status == ReservationStatus.Booked;
                 bool reservationTimeOverlaps = requestedStartTime < reservation.ReservationDateTime.AddHours(ReservationWindowHours) &&
                                                reservation.ReservationDateTime < requestedEndTime;
                 if (sameTable && reservationIsBooked && reservationTimeOverlaps)
@@ -131,7 +127,7 @@ namespace GourmetSpot.Services
                 message = "Reservation not found.";
                 return false;
             }
-            reservation.Status = "Cancelled";
+            reservation.Status = ReservationStatus.Cancelled;
             if (!Save(reservations))
             {
                 message = GetStorageErrorMessage("Reservation cancelled, but reservation data could not be saved.");
@@ -158,9 +154,9 @@ namespace GourmetSpot.Services
                 message = "Contact number must contain exactly 10 digits.";
                 return false;
             }
-            if (reservation.TableNumber <= 0)
+            if (reservation.TableNumber <= 0 || reservation.TableNumber > NoofTables)
             {
-                message = "Table number must be greater than zero.";
+                message = "Table number must be between 1 and 10.";
                 return false;
             }
             if (reservation.NumberOfGuests <= 0)
@@ -200,7 +196,7 @@ namespace GourmetSpot.Services
                 return false;
             }
             string trimmedContactNumber = contactNumber.Trim();
-            if (trimmedContactNumber.Length != 10)
+            if (trimmedContactNumber.Length != NoofdgitsInContactNumber)
             {
                 return false;
             }
@@ -228,7 +224,7 @@ namespace GourmetSpot.Services
             {
                 string customerName = (reservation.CustomerName ?? "").Replace("|", " ");
                 string contactNumber = (reservation.ContactNumber ?? "").Replace("|", " ");
-                string reservationStatus = (reservation.Status ?? "Booked").Replace("|", " ");
+                string reservationStatus = reservation.Status.ToString();
                 reservationLines.Add(
                     $"{reservation.ReservationId}|{customerName}|{contactNumber}|{reservation.TableNumber}|{reservation.NumberOfGuests}|{reservation.ReservationDateTime:O}|{reservationStatus}");
             }
@@ -284,7 +280,11 @@ namespace GourmetSpot.Services
                 {
                     continue;
                 }
-                string reservationStatus = reservationData[6].Trim();
+                ReservationStatus reservationStatus;
+                if (!Enum.TryParse(reservationData[6].Trim(), out reservationStatus))
+                {
+                    reservationStatus = ReservationStatus.Booked;
+                }
                 string customerName = reservationData[1].Trim();
                 string contactNumber = reservationData[2].Trim();
                 Reservation reservation = new Reservation(

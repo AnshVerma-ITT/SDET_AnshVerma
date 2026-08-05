@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Assignment1_OOP_DailyActivities.Model;
-using Assignment1_OOP_DailyActivities.Utilities;
+using DailyActivityTracker.Model;
+using DailyActivityTracker.Utilities;
 
-namespace Assignment1_OOP_DailyActivities.Services
+namespace DailyActivityTracker.Services
 {
     public class TaskService : ITaskService
     {

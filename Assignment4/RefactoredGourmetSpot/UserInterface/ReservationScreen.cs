@@ -14,11 +14,11 @@ namespace GourmetSpot.UserInterface
             this.reservationManager = reservationManager;
         }
 
-        public void Show()
+        public void Display()
         {
             while (true)
             {
-                DisplayReservationMenu();
+                DisplayList();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -43,7 +43,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        private void DisplayReservationMenu()
+        public void DisplayList()
         {
             Console.WriteLine();
             Console.WriteLine("===== Reservation Management =====");

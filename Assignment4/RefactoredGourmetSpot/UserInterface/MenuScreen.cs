@@ -17,11 +17,11 @@ namespace GourmetSpot.UserInterface
             this.inventoryManager = inventoryManager;
         }
 
-        public void Show()
+        public void Display()
         {
             while (true)
             {
-                DisplayMenuOptions();
+                DisplayList();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -43,7 +43,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        private void DisplayMenuOptions()
+        public void DisplayList()
         {
             Console.WriteLine();
             Console.WriteLine("===== Menu Management =====");
