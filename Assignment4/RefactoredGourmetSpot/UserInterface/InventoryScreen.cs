@@ -18,7 +18,7 @@ namespace GourmetSpot.UserInterface
         {
             while (true)
             {
-                DisplayList();
+                DisplayMenu();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -46,7 +46,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        public void DisplayList()
+        public void DisplayMenu()
         {
             Console.WriteLine();
             Console.WriteLine("===== Inventory Menu =====");

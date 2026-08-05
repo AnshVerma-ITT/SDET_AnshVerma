@@ -29,7 +29,7 @@ namespace GourmetSpot.UserInterface
         {
             while (true)
             {
-                DisplayList();
+                DisplayMenu();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -57,7 +57,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        public void DisplayList()
+        public void DisplayMenu()
         {
             Console.WriteLine();
             Console.WriteLine("===== Order Management =====");
@@ -213,7 +213,7 @@ namespace GourmetSpot.UserInterface
         {
             List<OrderItem> selectedMenuItems = new();
             Console.WriteLine($"\n--- {heading} ---");
-            DisplayMenu();
+            DisplayMenuItems();
             while (true)
             {
                 int menuItemId = ConsoleInput.ReadInt("Enter Menu Item ID (0 to finish): ");
@@ -275,7 +275,7 @@ namespace GourmetSpot.UserInterface
             Console.WriteLine($"Order Subtotal : ₹{bill.Subtotal}");
         }
 
-        private void DisplayMenu()
+        private void DisplayMenuItems()
         {
             List<MenuItem> menuItems = menuManager.GetAllMenuItems();
             if (menuItems.Count == 0)
