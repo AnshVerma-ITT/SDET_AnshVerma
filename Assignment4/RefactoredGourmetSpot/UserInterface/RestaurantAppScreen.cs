@@ -33,25 +33,25 @@ namespace GourmetSpot.UserInterface
             reservationScreen = new ReservationScreen(reservationManager);
         }
 
-        public void Show()
+        public void Display()
         {
             while (true)
             {
-                DisplayMainMenu();
+                DisplayList();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
                     case "1":
-                        inventoryScreen.Show();
+                        inventoryScreen.Display();
                         break;
                     case "2":
-                        menuScreen.Show();
+                        menuScreen.Display();
                         break;
                     case "3":
-                        orderScreen.Show();
+                        orderScreen.Display();
                         break;
                     case "4":
-                        reservationScreen.Show();
+                        reservationScreen.Display();
                         break;
                     case "5":
                         Console.WriteLine("Thank you for using the Restaurant Management System.");
@@ -62,8 +62,8 @@ namespace GourmetSpot.UserInterface
                 }
             }
         }
-
-        private void DisplayMainMenu()
+        
+        public void DisplayList()
         {
             Console.WriteLine();
             Console.WriteLine("====== The Gourmet Spot Restaurant Management ======");

@@ -1,7 +1,7 @@
-using Assignment1_OOP_DailyActivities.Services;
-using Assignment1_OOP_DailyActivities.UserInterface;
+using DailyActivityTracker.Services;
+using DailyActivityTracker.UserInterface;
 
-namespace Assignment1_OOP_DailyActivities
+namespace DailyActivityTracker
 {
     internal class Program
     {

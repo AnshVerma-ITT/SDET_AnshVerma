@@ -1,6 +1,6 @@
 using System;
 
-namespace Assignment1_OOP_DailyActivities.Utilities
+namespace DailyActivityTracker.Utilities
 {
     public class Validator
     {

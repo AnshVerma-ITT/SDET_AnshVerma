@@ -25,11 +25,11 @@ namespace GourmetSpot.UserInterface
             this.billManager = billManager;
         }
 
-        public void Show()
+        public void Display()
         {
             while (true)
             {
-                DisplayOrderMenu();
+                DisplayList();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -57,7 +57,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        private void DisplayOrderMenu()
+        public void DisplayList()
         {
             Console.WriteLine();
             Console.WriteLine("===== Order Management =====");
@@ -202,7 +202,7 @@ namespace GourmetSpot.UserInterface
             Console.WriteLine("\nActive Table Orders:");
             foreach (Order order in activeTableOrders)
             {
-                Bill bill = billManager.CreateBill(order);
+                Bill bill = billManager.GenerateBill(order);
                 Console.WriteLine(
                     $"Table {order.TableNumber} - Order {order.OrderId} - {order.CustomerName} - Suborders: {order.SubOrders.Count} - Current Subtotal: ₹{bill.Subtotal}");
             }
@@ -250,7 +250,7 @@ namespace GourmetSpot.UserInterface
 
         private void DisplayOrder(Order order)
         {
-            Bill bill = billManager.CreateBill(order);
+            Bill bill = billManager.GenerateBill(order);
             Console.WriteLine($"\nOrder ID : {order.OrderId}");
             Console.WriteLine($"Customer Name : {order.CustomerName}");
             if (order.TableNumber > 0)

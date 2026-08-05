@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using Assignment1_OOP_DailyActivities.Model;
+using DailyActivityTracker.Model;
 
-namespace Assignment1_OOP_DailyActivities.Utilities
+namespace DailyActivityTracker.Utilities
 {
     public class JsonTaskFile
     {

@@ -8,7 +8,7 @@ namespace GourmetSpot.Models
         public int TableNumber { get; set; }
         public int NumberOfGuests { get; set; }
         public DateTime ReservationDateTime { get; set; }
-        public string Status { get; set; }
+        public ReservationStatus Status { get; set; }
 
         public Reservation(
             int reservationId,
@@ -17,7 +17,7 @@ namespace GourmetSpot.Models
             int tableNumber,
             int numberOfGuests,
             DateTime reservationDateTime,
-            string status = "Booked")
+            ReservationStatus status = ReservationStatus.Booked)
         {
             ReservationId = reservationId;
             CustomerName = customerName;

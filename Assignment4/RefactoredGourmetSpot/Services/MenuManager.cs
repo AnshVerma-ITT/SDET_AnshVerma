@@ -22,12 +22,7 @@ namespace GourmetSpot.Services
 
         public int GetNextMenuItemId()
         {
-            int highestMenuItemId = 0;
-            foreach (MenuItem menuItem in menuItems)
-            {
-                highestMenuItemId = Math.Max(highestMenuItemId, menuItem.MenuItemId);
-            }
-            return highestMenuItemId + 1;
+            return menuItems.Count+ 1;
         }
 
         public bool AddMenuItem(MenuItem menuItem, out string message)

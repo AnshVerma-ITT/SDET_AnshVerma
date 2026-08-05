@@ -11,7 +11,7 @@ namespace GourmetSpot
             try
             {
                 RestaurantAppScreen restaurantAppScreen = new RestaurantAppScreen();
-                restaurantAppScreen.Show();
+                restaurantAppScreen.Display();
             }
             catch (GourmetSpotException exception)
             {

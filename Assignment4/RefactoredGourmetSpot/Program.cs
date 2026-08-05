@@ -1,10 +1,8 @@
-﻿using GourmetSpot.Exceptions;
-
-namespace GourmetSpot
+﻿namespace GourmetSpot
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             GourmetSpotApp.RunApplication();
         }

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Assignment1_OOP_DailyActivities.Model;
-using Assignment1_OOP_DailyActivities.Services;
-using Assignment1_OOP_DailyActivities.Utilities;
+using DailyActivityTracker.Model;
+using DailyActivityTracker.Services;
+using DailyActivityTracker.Utilities;
 
-namespace Assignment1_OOP_DailyActivities.UserInterface
+namespace DailyActivityTracker.UserInterface
 {
     public class ConsoleMenu
     {
