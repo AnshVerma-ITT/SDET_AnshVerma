@@ -21,7 +21,7 @@ namespace GourmetSpot.UserInterface
         {
             while (true)
             {
-                DisplayList();
+                DisplayMenu();
                 string userChoice = ConsoleInput.ReadMenuChoice();
                 switch (userChoice)
                 {
@@ -29,7 +29,7 @@ namespace GourmetSpot.UserInterface
                         AddMenuItem();
                         break;
                     case "2":
-                        DisplayMenu();
+                        DisplayMenuList();
                         break;
                     case "3":
                         SearchMenuItemByName();
@@ -43,7 +43,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        public void DisplayList()
+        public void DisplayMenu()
         {
             Console.WriteLine();
             Console.WriteLine("===== Menu Management =====");
@@ -116,7 +116,7 @@ namespace GourmetSpot.UserInterface
             }
         }
 
-        private void DisplayMenu()
+        private void DisplayMenuList()
         {
             List<MenuItem> menuItems = menuManager.GetAllMenuItems();
             if (menuItems.Count == 0)
