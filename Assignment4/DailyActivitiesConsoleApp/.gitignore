@@ -1,0 +1,15 @@
+[Bb]in/
+[Oo]bj/
+
+# .NET project files intentionally excluded
+*.csproj
+
+# User-specific IDE files
+*.user
+*.suo
+.vs/
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
