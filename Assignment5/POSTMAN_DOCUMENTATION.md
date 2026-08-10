@@ -82,8 +82,8 @@ The actual API key is stored as a variable and is not included in this documenta
 
 The functional collection run was completed successfully with:
 
-- 39 tests
-- 39 passed
+- 42 tests
+- 42 passed
 - 0 failed
 - 0 errors
 
