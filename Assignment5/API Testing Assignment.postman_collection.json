@@ -351,6 +351,102 @@
       ]
     },
     {
+      "name": "08 - Mock API",
+      "item": [
+        {
+          "name": "08.1 GET Mock Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response contains message\", function () {\r",
+                  "    const response = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(response).to.have.property(\"message\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response contains users\", function () {\r",
+                  "    const response = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(response.users).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Users array is not empty\", function () {\r",
+                  "    const response = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(response.users.length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Ansh\",\r\n    \"job\": \"SDET\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{mockUrl}}/api/users",
+              "host": [
+                "{{mockUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "description": "Returns predefined sample JSON data using a Postman mock server."
+          },
+          "response": [
+            {
+              "name": "08.1 GET Mock Users",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"message\": \"Mock API response\",\r\n    \"users\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"Ansh\",\r\n            \"role\": \"SDET\"\r\n        },\r\n        {\r\n            \"id\": 2,\r\n            \"name\": \"Test User\",\r\n            \"role\": \"QA Engineer\"\r\n        }\r\n    ]\r\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "07 - API Chaining",
       "item": [
         {
@@ -452,14 +548,9 @@
             }
           },
           "response": []
-        }
-      ]
-    },
-    {
-      "name": "08 - Mock API",
-      "item": [
+        },
         {
-          "name": "08.1 GET Mock Users",
+          "name": "07.3 - Get User Using Chained Variable",
           "event": [
             {
               "listen": "test",
@@ -469,22 +560,17 @@
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Response contains message\", function () {\r",
+                  "pm.test(\"Response contains data\", function () {\r",
                   "    const response = pm.response.json();\r",
                   "\r",
-                  "    pm.expect(response).to.have.property(\"message\");\r",
+                  "    pm.expect(response).to.have.property(\"data\");\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Response contains users\", function () {\r",
+                  "pm.test(\"Returned user ID matches userId\", function () {\r",
                   "    const response = pm.response.json();\r",
                   "\r",
-                  "    pm.expect(response.users).to.be.an(\"array\");\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Users array is not empty\", function () {\r",
-                  "    const response = pm.response.json();\r",
-                  "\r",
-                  "    pm.expect(response.users.length).to.be.greaterThan(0);\r",
+                  "    pm.expect(String(response.data.id))\r",
+                  "        .to.eql(String(pm.collectionVariables.get(\"userId\")));\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -493,61 +579,28 @@
               }
             }
           ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Ansh\",\r\n    \"job\": \"SDET\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
               }
-            },
+            ],
             "url": {
-              "raw": "{{mockUrl}}/api/users",
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
               "host": [
-                "{{mockUrl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "users"
+                "users",
+                "{{userId}}"
               ]
-            },
-            "description": "Returns predefined sample JSON data using a Postman mock server."
-          },
-          "response": [
-            {
-              "name": "08.1 GET Mock Users",
-              "originalRequest": {
-                "method": "GET",
-                "header": []
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "description": "",
-                  "type": "text"
-                }
-              ],
-              "cookie": [
-                {
-                  "expires": "Invalid Date",
-                  "domain": "",
-                  "path": ""
-                }
-              ],
-              "body": "{\r\n    \"message\": \"Mock API response\",\r\n    \"users\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"Ansh\",\r\n            \"role\": \"SDET\"\r\n        },\r\n        {\r\n            \"id\": 2,\r\n            \"name\": \"Test User\",\r\n            \"role\": \"QA Engineer\"\r\n        }\r\n    ]\r\n}"
             }
-          ]
+          },
+          "response": []
         }
       ]
     },
