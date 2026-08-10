@@ -4,18 +4,17 @@
 
 ## Collection
 
-The Postman collection created for this assignment.
+The Postman collection created for this assignment demonstrates API testing using the ReqRes API and Postman.
 
 ## Published API Documentation
 
-[View API Testing Assignment Documentation]
-https://ansh-verma-e52fd6d9-7492431.postman.co/workspace/583726e8-097e-4bed-8ae6-75188a363051/documentation/57182481-4733996b-fc49-4b3d-bef2-4a9c9b7d648f
+[View API Testing Assignment Documentation](https://ansh-verma-e52fd6d9-7492431.postman.co/workspace/583726e8-097e-4bed-8ae6-75188a363051/documentation/57182481-4733996b-fc49-4b3d-bef2-4a9c9b7d648f)
 
 ## API Used
 
 ReqRes API:
 
-https://reqres.in/
+[https://reqres.in/](https://reqres.in/)
 
 ## Authentication
 
@@ -89,3 +88,9 @@ The functional collection run was completed successfully with:
 - 0 errors
 
 A separate performance/parallel execution was also performed using 2 virtual users.
+
+## Parallel Execution
+
+A performance test was executed using **2 virtual users** to demonstrate parallel execution.
+
+![Parallel Execution Test Results](./parallel-execution.png)
