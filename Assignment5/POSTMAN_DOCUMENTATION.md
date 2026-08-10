@@ -91,6 +91,7 @@ A separate performance/parallel execution was also performed using 2 virtual use
 
 ## Parallel Execution
 
-A performance test was executed using **2 virtual users** to demonstrate parallel execution.
+A performance test was executed using **2 virtual users** and **NewMan** to demonstrate parallel execution.
 
-![Parallel Execution Test Results](./parallel-execution.png)
+![Parallel Execution Test Results](./virtualuser_parallel-execution.png)
+![Parallel Execution Test Results](./newman_parallel-execution.png)
