@@ -142,4 +142,7 @@ A separate performance test was executed using **2 virtual users** to demonstrat
 The Newman execution and the 2-virtual-user performance execution are treated as separate execution activities:
 
 - **Newman** — command-line collection execution
+![Parallel Execution - Newman](./newman_parallel-execution.png)
+
 - **2 Virtual Users** — concurrent/performance execution
+![Parallel Execution - 2 Virtual Users](./virtualuser_parallel-execution.png)
