@@ -24,7 +24,7 @@ The API key is passed through the request header:
 
 `x-api-key`
 
-Authorization using the API key is configured through Postman's **Authorization** tab for the main API requests.
+Authorization is using Inherit from parent where x-api-key along with the API key is present
 
 The actual API key is stored as a variable and is not included in this documentation.
 
