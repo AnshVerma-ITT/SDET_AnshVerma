@@ -7,7 +7,7 @@
 | Project Name | Playwright API Framework Assignment |
 | Application Type | API Automation Testing Framework |
 | API Under Test | ReqRes |
-| Developed By | Rahul Verma |
+| Developed By | Ansh Verma |
 | Language | C# |
 | Test Framework | NUnit |
 | Automation Tool | Playwright |
