@@ -4,33 +4,35 @@ using GourmetSpot.Tests.Helpers;
 
 namespace GourmetSpot.Tests.Services
 {
-    public class InventoryManagerTests : ManagerTestBase<InventoryManager>
+    public class InventoryManagerTests
     {
         [Test]
         public void GetNextIngredientId_WhenIngredientsExist_ReturnsCountPlusOne()
         {
-            Console.WriteLine(
-    $"{TestContext.CurrentContext.Test.Name} | Thread: {Environment.CurrentManagedThreadId}");
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             List<Ingredient> savedIngredients = new List<Ingredient>
             {
                 TestData.CreateIngredient()
             };
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 savedIngredients);
-            int nextId = Manager.GetNextIngredientId();
+            int nextId = manager.GetNextIngredientId();
             Assert.That(nextId, Is.EqualTo(savedIngredients.Count + TestData.FirstId), "GetNextIngredientId should return current ingredient count plus one.");
         }
 
         [Test]
         public void GetAllIngredients_WhenIngredientsExist_ReturnsCopy()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
             List<Ingredient> savedIngredients = new List<Ingredient> { ingredient };
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 savedIngredients);
-            List<Ingredient> ingredients = Manager.GetAllIngredients();
+            List<Ingredient> ingredients = manager.GetAllIngredients();
             Assert.That(ingredients, Is.Not.SameAs(savedIngredients), "GetAllIngredients should return a new list instead of the internal list.");
             Assert.That(ingredients, Has.Count.EqualTo(savedIngredients.Count), "GetAllIngredients should include all saved ingredients.");
             Assert.That(ingredients[TestData.FirstIndex], Is.SameAs(ingredient), "GetAllIngredients should return the saved ingredient item.");
@@ -39,11 +41,13 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void AddIngredient_WhenNameAlreadyExists_ReturnsFalse()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            bool added = Manager.AddIngredient(
+            bool added = manager.AddIngredient(
                 TestData.CreateIngredient(
                     ingredientId: TestData.SecondId,
                     name: TestData.DifferentCaseWithSpaces(ingredient.Name),
@@ -56,8 +60,9 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void AddIngredient_WhenQuantityIsNegative_ReturnsFalse()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.NegativeQuantity);
-            bool added = Manager.AddIngredient(ingredient, out string message);
+            bool added = manager.AddIngredient(ingredient, out string message);
             Assert.That(added, Is.False, "AddIngredient should reject negative ingredient quantity.");
             Assert.That(message, Is.Not.Empty, "AddIngredient should return a validation message for negative quantity.");
         }
@@ -65,22 +70,26 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void SearchIngredientById_WhenIdExists_ReturnsIngredient()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            Ingredient? foundIngredient = Manager.SearchIngredientById(ingredient.IngredientId);
+            Ingredient? foundIngredient = manager.SearchIngredientById(ingredient.IngredientId);
             Assert.That(foundIngredient, Is.SameAs(ingredient), "SearchIngredientById should return the ingredient with the matching id.");
         }
 
         [Test]
         public void SearchIngredientByName_WhenNameMatchesIgnoringCase_ReturnsIngredient()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            Ingredient? foundIngredient = Manager.SearchIngredientByName(
+            Ingredient? foundIngredient = manager.SearchIngredientByName(
                 TestData.DifferentCaseWithSpaces(ingredient.Name));
             Assert.That(foundIngredient, Is.SameAs(ingredient), "SearchIngredientByName should match ingredient names ignoring case and spaces.");
         }
@@ -88,11 +97,13 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void UpdateIngredientQuantityByName_WhenQuantityIsNegative_ReturnsFalse()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            bool updated = Manager.UpdateIngredientQuantityByName(
+            bool updated = manager.UpdateIngredientQuantityByName(
                 TestData.DifferentCaseWithSpaces(ingredient.Name),
                 TestData.NegativeQuantity,
                 out string message);
@@ -103,10 +114,12 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void DeleteIngredientByName_WhenIngredientDoesNotExist_ReturnsFalse()
         {
-            SetField(
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient>());
-            bool deleted = Manager.DeleteIngredientByName(TestData.MissingName, out string message);
+            bool deleted = manager.DeleteIngredientByName(TestData.MissingName, out string message);
             Assert.That(deleted, Is.False, "DeleteIngredientByName should return false when the ingredient does not exist.");
             Assert.That(message, Is.Not.Empty, "DeleteIngredientByName should return a message when the ingredient is missing.");
         }
@@ -114,6 +127,7 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void CalculateRequiredIngredients_WhenItemsHaveRecipes_CombinesQuantities()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             int itemQuantity = TestData.OrderQuantity;
             MenuItem menuItem = TestData.CreateMenuItem(
                 recipe:
@@ -122,7 +136,7 @@ namespace GourmetSpot.Tests.Services
                     { TestData.FirstId, TestData.RequiredQuantity },
                     { TestData.SecondId, TestData.SecondRequiredQuantity }
                 });
-            Dictionary<int, double> requiredIngredients = Manager.CalculateRequiredIngredients(
+            Dictionary<int, double> requiredIngredients = manager.CalculateRequiredIngredients(
                 new List<OrderItem> { TestData.CreateOrderItem(menuItem, itemQuantity) });
             Assert.That(
                 requiredIngredients[TestData.FirstId],
@@ -137,11 +151,13 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void HasEnoughIngredients_WhenStockIsAvailable_ReturnsTrue()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            bool hasEnough = Manager.HasEnoughIngredients(
+            bool hasEnough = manager.HasEnoughIngredients(
                 new Dictionary<int, double> { { ingredient.IngredientId, ingredient.Quantity } },
                 out string message);
             Assert.That(hasEnough, Is.True, "HasEnoughIngredients should return true when stock exactly meets required quantity.");
@@ -151,11 +167,13 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void HasEnoughIngredients_WhenStockIsLow_ReturnsFalse()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.LowStockQuantity);
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            bool hasEnough = Manager.HasEnoughIngredients(
+            bool hasEnough = manager.HasEnoughIngredients(
                 new Dictionary<int, double>
                 {
                     { ingredient.IngredientId, ingredient.Quantity + TestData.SingleQuantity }
@@ -168,11 +186,14 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void UseIngredients_WhenStockIsLow_ReturnsFalse()
         {
+            InventoryManager manager = TestDataSetter.CreateWithoutConstructor<InventoryManager>();
             Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.LowStockQuantity);
-            SetField(
+            double originalQuantity = ingredient.Quantity;
+            TestDataSetter.SetField(
+                manager,
                 "ingredients",
                 new List<Ingredient> { ingredient });
-            bool used = Manager.UseIngredients(
+            bool used = manager.UseIngredients(
                 new Dictionary<int, double>
                 {
                     { ingredient.IngredientId, ingredient.Quantity + TestData.SingleQuantity }
@@ -180,6 +201,7 @@ namespace GourmetSpot.Tests.Services
                 out string message);
             Assert.That(used, Is.False, "UseIngredients should return false when stock is insufficient.");
             Assert.That(message, Is.Not.Empty, "UseIngredients should return a message when stock cannot be used.");
+            Assert.That(ingredient.Quantity, Is.EqualTo(originalQuantity), "UseIngredients should not change stock quantity when stock is insufficient.");
         }
     }
 }

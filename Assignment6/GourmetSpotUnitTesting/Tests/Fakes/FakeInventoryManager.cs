@@ -3,18 +3,6 @@ using GourmetSpot.Services.Contracts;
 
 namespace GourmetSpot.Tests.Fakes
 {
-    /// <summary>
-    /// Minimal in-memory <see cref="IInventoryManager"/> double used to isolate
-    /// <c>OrderManager</c> tests from the real <c>InventoryManager</c>.
-    ///
-    /// Only members that OrderManagerTests actually exercises
-    /// (<see cref="SearchIngredientById"/>, <see cref="CalculateRequiredIngredients"/>,
-    /// <see cref="UseIngredients"/>) are implemented. The rest intentionally
-    /// throw <see cref="NotSupportedException"/> so this fake never grows a
-    /// second, independently-maintained copy of InventoryManager's business
-    /// rules (validation, stock checks, etc.) that the real unit tests for
-    /// InventoryManager already cover.
-    /// </summary>
     internal class FakeInventoryManager : IInventoryManager
     {
         private readonly List<Ingredient> ingredients;
@@ -25,8 +13,61 @@ namespace GourmetSpot.Tests.Fakes
             this.ingredients = ingredients;
         }
 
-        public Ingredient? SearchIngredientById(int ingredientId) =>
-            ingredients.Find(ingredient => ingredient.IngredientId == ingredientId);
+        public int GetNextIngredientId()
+        {
+            return ingredients.Count + 1;
+        }
+
+        public List<Ingredient> GetAllIngredients()
+        {
+            return new List<Ingredient>(ingredients);
+        }
+
+        public bool AddIngredient(Ingredient ingredient, out string message)
+        {
+            ingredients.Add(ingredient);
+            message = string.Empty;
+            return true;
+        }
+
+        public Ingredient? SearchIngredientById(int ingredientId)
+        {
+            foreach (Ingredient ingredient in ingredients)
+            {
+                if (ingredient.IngredientId == ingredientId)
+                {
+                    return ingredient;
+                }
+            }
+            return null;
+        }
+
+        public Ingredient? SearchIngredientByName(string ingredientName)
+        {
+            foreach (Ingredient ingredient in ingredients)
+            {
+                if (ingredient.Name.Equals(ingredientName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ingredient;
+                }
+            }
+            return null;
+        }
+
+        public bool UpdateIngredientQuantityByName(
+            string ingredientName,
+            double newQuantity,
+            out string message)
+        {
+            message = string.Empty;
+            return false;
+        }
+
+        public bool DeleteIngredientByName(string ingredientName, out string message)
+        {
+            message = string.Empty;
+            return false;
+        }
 
         public Dictionary<int, double> CalculateRequiredIngredients(List<OrderItem> selectedMenuItems)
         {
@@ -36,15 +77,44 @@ namespace GourmetSpot.Tests.Fakes
                 foreach (var recipeIngredient in selectedMenuItem.MenuItem.Recipe)
                 {
                     double requiredQuantity = recipeIngredient.Value * selectedMenuItem.Quantity;
-                    requiredIngredients[recipeIngredient.Key] =
-                        requiredIngredients.GetValueOrDefault(recipeIngredient.Key) + requiredQuantity;
+                    if (requiredIngredients.ContainsKey(recipeIngredient.Key))
+                    {
+                        requiredIngredients[recipeIngredient.Key] += requiredQuantity;
+                    }
+                    else
+                    {
+                        requiredIngredients.Add(recipeIngredient.Key, requiredQuantity);
+                    }
                 }
             }
             return requiredIngredients;
         }
 
-        public bool UseIngredients(Dictionary<int, double> requiredIngredients, out string message)
+        public bool HasEnoughIngredients(
+            Dictionary<int, double> requiredIngredients,
+            out string message)
         {
+            foreach (var requiredIngredient in requiredIngredients)
+            {
+                Ingredient? ingredient = SearchIngredientById(requiredIngredient.Key);
+                if (ingredient == null || ingredient.Quantity < requiredIngredient.Value)
+                {
+                    message = "Insufficient stock.";
+                    return false;
+                }
+            }
+            message = string.Empty;
+            return true;
+        }
+
+        public bool UseIngredients(
+            Dictionary<int, double> requiredIngredients,
+            out string message)
+        {
+            if (!HasEnoughIngredients(requiredIngredients, out message))
+            {
+                return false;
+            }
             foreach (var requiredIngredient in requiredIngredients)
             {
                 SearchIngredientById(requiredIngredient.Key)!.Quantity -= requiredIngredient.Value;
@@ -52,26 +122,5 @@ namespace GourmetSpot.Tests.Fakes
             message = string.Empty;
             return true;
         }
-
-        public int GetNextIngredientId() =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(GetNextIngredientId)}.");
-
-        public List<Ingredient> GetAllIngredients() =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(GetAllIngredients)}.");
-
-        public bool AddIngredient(Ingredient ingredient, out string message) =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(AddIngredient)}.");
-
-        public Ingredient? SearchIngredientByName(string ingredientName) =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(SearchIngredientByName)}.");
-
-        public bool UpdateIngredientQuantityByName(string ingredientName, double newQuantity, out string message) =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(UpdateIngredientQuantityByName)}.");
-
-        public bool DeleteIngredientByName(string ingredientName, out string message) =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(DeleteIngredientByName)}.");
-
-        public bool HasEnoughIngredients(Dictionary<int, double> requiredIngredients, out string message) =>
-            throw new NotSupportedException($"{nameof(FakeInventoryManager)} does not support {nameof(HasEnoughIngredients)}.");
     }
 }

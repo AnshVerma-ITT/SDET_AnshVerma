@@ -5,7 +5,7 @@ public static class FileHelper
     public static string FindFile(string relativePath)
     {
         var path = FindFileOrEmpty(relativePath);
-        if (path == "")
+        if (string.IsNullOrWhiteSpace(path))
         {
             throw new FileNotFoundException("File not found: " + relativePath);
         }

@@ -4,7 +4,7 @@ namespace PlaywrightApiFramework.ReqRes.Configuration;
 
 public class ReqResSettings
 {
-    public string EmailDomain { get; set; } = "@reqres.in";
+    public string EmailDomain { get; private set; } = "@reqres.in";
 
     public static ReqResSettings Load()
     {

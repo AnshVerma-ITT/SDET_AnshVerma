@@ -1,6 +1,6 @@
 namespace PlaywrightApiFramework.Framework.Constants;
 
-public static class ApiConstants
+public static class ContentTypes
 {
     public const string ContentTypeHeader = "Content-Type";
     public const string ApplicationJson = "application/json";

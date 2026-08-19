@@ -4,36 +4,38 @@ using GourmetSpot.Tests.Helpers;
 
 namespace GourmetSpot.Tests.Services
 {
-    public class MenuManagerTests : ManagerTestBase<MenuManager>
+    public class MenuManagerTests
     {
         [Test]
         public void GetNextMenuItemId_WhenMenuItemsExist_ReturnsCountPlusOne()
         {
-            Console.WriteLine(
-    $"{TestContext.CurrentContext.Test.Name} | Thread: {Environment.CurrentManagedThreadId}");
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             List<MenuItem> savedMenuItems = new List<MenuItem>
             {
                 TestData.CreateMenuItem()
             };
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "menuItems",
                 savedMenuItems);
-            int nextId = Manager.GetNextMenuItemId();
+            int nextId = manager.GetNextMenuItemId();
             Assert.That(nextId, Is.EqualTo(savedMenuItems.Count + TestData.FirstId), "GetNextMenuItemId should return current menu item count plus one.");
         }
 
         [Test]
         public void CreateRecipe_WhenCalled_ReturnsEmptyDictionary()
         {
-            Dictionary<int, double> recipe = Manager.CreateRecipe();
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
+            Dictionary<int, double> recipe = manager.CreateRecipe();
             Assert.That(recipe, Is.Empty, "CreateRecipe should return an empty recipe dictionary.");
         }
 
         [Test]
         public void AddRecipeIngredient_WhenIngredientIsNew_AddsIngredient()
         {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             Dictionary<int, double> recipe = new Dictionary<int, double>();
-            Manager.AddRecipeIngredient(
+            manager.AddRecipeIngredient(
                 recipe,
                 TestData.FirstId,
                 TestData.RequiredQuantity);
@@ -43,11 +45,12 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void AddRecipeIngredient_WhenIngredientAlreadyExists_AddsQuantity()
         {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             Dictionary<int, double> recipe = new Dictionary<int, double>
             {
                 { TestData.FirstId, TestData.RequiredQuantity }
             };
-            Manager.AddRecipeIngredient(
+            manager.AddRecipeIngredient(
                 recipe,
                 TestData.FirstId,
                 TestData.ExtraRequiredQuantity);
@@ -60,22 +63,26 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void SearchMenuItemById_WhenIdExists_ReturnsMenuItem()
         {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             MenuItem menuItem = TestData.CreateMenuItem();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "menuItems",
                 new List<MenuItem> { menuItem });
-            MenuItem? foundMenuItem = Manager.SearchMenuItemById(menuItem.MenuItemId);
+            MenuItem? foundMenuItem = manager.SearchMenuItemById(menuItem.MenuItemId);
             Assert.That(foundMenuItem, Is.SameAs(menuItem), "SearchMenuItemById should return the menu item with the matching id.");
         }
 
         [Test]
         public void SearchMenuItemByName_WhenNameMatchesIgnoringCase_ReturnsMenuItem()
         {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             MenuItem menuItem = TestData.CreateMenuItem();
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "menuItems",
                 new List<MenuItem> { menuItem });
-            MenuItem? foundMenuItem = Manager.SearchMenuItemByName(
+            MenuItem? foundMenuItem = manager.SearchMenuItemByName(
                 TestData.DifferentCaseWithSpaces(menuItem.Name));
             Assert.That(foundMenuItem, Is.SameAs(menuItem), "SearchMenuItemByName should match menu item names ignoring case and spaces.");
         }
@@ -83,12 +90,14 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void GetAllMenuItems_WhenMenuItemsExist_ReturnsCopy()
         {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
             MenuItem menuItem = TestData.CreateMenuItem();
             List<MenuItem> savedMenuItems = new List<MenuItem> { menuItem };
-            SetField(
+            TestDataSetter.SetField(
+                manager,
                 "menuItems",
                 savedMenuItems);
-            List<MenuItem> menuItems = Manager.GetAllMenuItems();
+            List<MenuItem> menuItems = manager.GetAllMenuItems();
             Assert.That(menuItems, Is.Not.SameAs(savedMenuItems), "GetAllMenuItems should return a new list instead of the internal list.");
             Assert.That(menuItems, Has.Count.EqualTo(savedMenuItems.Count), "GetAllMenuItems should include all saved menu items.");
             Assert.That(menuItems[TestData.FirstIndex], Is.SameAs(menuItem), "GetAllMenuItems should return the saved menu item.");
@@ -97,7 +106,8 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void AddMenuItem_WhenNameIsEmpty_ReturnsFalse()
         {
-            bool added = Manager.AddMenuItem(
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
+            bool added = manager.AddMenuItem(
                 TestData.CreateMenuItem(name: TestData.EmptyName),
                 out string message);
             Assert.That(added, Is.False, "AddMenuItem should reject an empty menu item name.");
@@ -105,9 +115,21 @@ namespace GourmetSpot.Tests.Services
         }
 
         [Test]
+        public void AddMenuItem_WhenNameIsWhiteSpace_ReturnsFalse()
+        {
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
+            bool added = manager.AddMenuItem(
+                TestData.CreateMenuItem(name: TestData.WhiteSpaceName),
+                out string message);
+            Assert.That(added, Is.False, "AddMenuItem should reject a whitespace menu item name.");
+            Assert.That(message, Is.Not.Empty, "AddMenuItem should return a validation message for whitespace name.");
+        }
+
+        [Test]
         public void AddMenuItem_WhenPriceIsZero_ReturnsFalse()
         {
-            bool added = Manager.AddMenuItem(
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
+            bool added = manager.AddMenuItem(
                 TestData.CreateMenuItem(price: TestData.ZeroPrice),
                 out string message);
             Assert.That(added, Is.False, "AddMenuItem should reject zero price.");
@@ -117,7 +139,8 @@ namespace GourmetSpot.Tests.Services
         [Test]
         public void AddMenuItem_WhenRecipeIsNull_ReturnsFalse()
         {
-            bool added = Manager.AddMenuItem(
+            MenuManager manager = TestDataSetter.CreateWithoutConstructor<MenuManager>();
+            bool added = manager.AddMenuItem(
                 TestData.CreateMenuItemWithNullRecipe(),
                 out string message);
             Assert.That(added, Is.False, "AddMenuItem should reject a null recipe.");

@@ -8,10 +8,10 @@ namespace PlaywrightApiFramework.Tests.Base;
 
 public class ApiTestBase
 {
-    public ApiFixture Fixture { get; set; }
-    public UserService UserService { get; set; }
-    public ReqResSettings ReqResConfig { get; set; }
-    public UserScenarioData TestData { get; set; }
+    protected ApiFixture Fixture { get; private set; }
+    protected UserService UserService { get; private set; }
+    protected ReqResSettings ReqResConfig { get; private set; }
+    protected UserScenarioData TestData { get; private set; }
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()

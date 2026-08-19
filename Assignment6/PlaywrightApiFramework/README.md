@@ -31,9 +31,11 @@ ReqRes-specific code is kept inside the ReqRes folder.
 
 Test scenarios are kept inside the Tests folder.
 
-AppSettings loads the base URL, API key, and authorization header name from the .env file.
+AppSettings loads the base URL, header name, and header value from the .env file.
 
-AuthManager creates common request headers using the configured authorization header name.
+AppSettings also validates that BASE_URL, HEADER_NAME, and HEADER_VALUE are present before tests start.
+
+AuthManager creates request headers using the configured header name and header value.
 
 ApiFixture creates and closes the Playwright API request context using NUnit OneTimeSetUp and OneTimeTearDown.
 
@@ -47,7 +49,11 @@ ReportHelper prints clear terminal report lines during test execution.
 
 ## Mentor Change Summary
 
-Authorization header name was moved to configuration so x-api-key can be changed later without code changes.
+Header name and header value were moved to configuration so the framework is not tied only to x-api-key.
+
+AppSettings now validates required configuration after loading the .env values.
+
+ApiConstants was renamed to ContentTypes because it only stores content type values and Content-Type.
 
 ApiClient now uses a contentType variable with if-else handling for JSON, XML, form-data, and raw text requests.
 
@@ -61,7 +67,7 @@ HTTP response status values now use HttpStatusCode based constants.
 
 Only reusable content types and Content-Type header value are kept in framework constants.
 
-Models were simplified back to one ReqRes model file: User.cs.
+Models were kept simple: UserRequest is used for create/update/patch request body and User is used for response validation.
 
 UserDataProvider and UserScenarioData are kept in Tests/DataProviders because they support NUnit test data management.
 
@@ -121,16 +127,18 @@ ApiClient handles these content types using the contentType variable:
 
 | Content Type Constant | Actual Value | Used For |
 | --- | --- | --- |
-| ApiConstants.ApplicationJson | application/json | Normal JSON request body |
-| ApiConstants.ApplicationXml | application/xml | XML request body |
-| ApiConstants.FormData | multipart/form-data | Form-data request body |
-| ApiConstants.TextPlain | text/plain | Raw text request body |
+| ContentTypes.ApplicationJson | application/json | Normal JSON request body |
+| ContentTypes.ApplicationXml | application/xml | XML request body |
+| ContentTypes.FormData | multipart/form-data | Form-data request body |
+| ContentTypes.TextPlain | text/plain | Raw text request body |
 
 ## Model Files
 
 | File | Purpose |
 | --- | --- |
-| ReqRes/Models/User.cs | Single simple model used for create, update, patch, and create-response validation. Contains Id, Name, Job, Email, CreatedAt, and UpdatedAt. |
+| ReqRes/Models/UserRequest.cs | Request body for create, update, patch, and dynamic user tests. Contains Name and Job. |
+| ReqRes/Models/RegisterRequest.cs | Request body for register API. Contains Email. |
+| ReqRes/Models/User.cs | Response validation model. Contains Id, Name, Job, Email, CreatedAt, and UpdatedAt. |
 
 GET list, GET single user, and error response bodies are read directly with JsonHelper because those responses have nested JSON.
 
@@ -190,23 +198,13 @@ This proves that data from one API response can be reused in another API request
 
 ### 6. Parallel Execution
 
-The framework executes multiple API requests together using Task.WhenAll.
-
-The parallel test sends:
-
-GET /api/users?page=1
-
-GET /api/users/2
-
-GET /api/users/3
-
-All three responses are validated after the parallel execution completes.
+The framework uses NUnit Parallelizable attribute to allow API tests to run in parallel.
 
 ### 7. Terminal Reporting
 
 Each test prints useful execution details in the terminal.
 
-The report output includes test name, request endpoint, response status code, response status text, chained user id, and parallel request results.
+The report output includes test name, request endpoint, response status code, response status text, and chained user id.
 
 ## Test Cases Implemented
 
@@ -224,11 +222,10 @@ The report output includes test name, request endpoint, response status code, re
 | 10 | Raw text content type request | POST | /api/users | 201 |
 | 11 | Dynamic random data request | POST | /api/users | 201 |
 | 12 | API chaining | GET + GET | /api/users?page=2 and /api/users/{id} | 200 |
-| 13 | Parallel execution | GET | Multiple user endpoints | 200 |
-| 14 | Missing user negative test | GET | /api/users/23 | 404 |
-| 15 | Register without password | POST | /api/register | 400 |
-| 16 | Missing API key negative test | GET | /api/users/2 | 401 |
-| 17 | Created user persistence failure | POST + GET | /api/users and /api/users/{id} | Expected failure |
+| 13 | Missing user negative test | GET | /api/users/23 | 404 |
+| 14 | Register without password | POST | /api/register | 400 |
+| 15 | Missing API key negative test | GET | /api/users/2 | 401 |
+| 16 | ReqRes saves created user | POST + GET | /api/users and /api/users/{id} | Expected failure |
 
 ## C# and Testing Concepts Used
 
@@ -248,7 +245,7 @@ Dictionary<TKey, TValue>
 
 Async and Await
 
-Task.WhenAll
+Parallelizable
 
 Conditional Statements
 
@@ -290,12 +287,12 @@ Open the project in Visual Studio or Visual Studio Code.
 
 Open the .env file.
 
-Add your ReqRes API key:
+Add your ReqRes header name and API key value:
 
 ```text
 BASE_URL=https://reqres.in
-API_KEY=your_actual_api_key_here
-AUTH_HEADER_NAME=x-api-key
+HEADER_NAME=x-api-key
+HEADER_VALUE=your_actual_api_key_here
 REQRES_EMAIL_DOMAIN=@reqres.in
 ```
 
@@ -338,21 +335,10 @@ STEP: Use chained user id in second request
 GET /api/users/7 -> 200 OK
 ```
 
-The parallel execution report should show:
-
-```text
-========== Parallel execution ==========
-STEP: Create three API requests before waiting for result
-STEP: Await all requests together using Task.WhenAll
-Parallel request 1 - GET /api/users?page=1 -> 200 OK
-Parallel request 2 - GET /api/users/2 -> 200 OK
-Parallel request 3 - GET /api/users/3 -> 200 OK
-```
-
 Final summary with the intentional persistence failure should show:
 
 ```text
-Test summary: total: 19, failed: 1, succeeded: 18, skipped: 0
+Test summary: total: 18, failed: 1, succeeded: 17, skipped: 0
 ```
 
 ## Expected Output
@@ -375,7 +361,7 @@ The persistence failure test shows that ReqRes created users are not actually st
 
 API chaining reuses data from one response in another request.
 
-Parallel execution sends multiple API requests together.
+Parallel execution is handled by NUnit Parallelizable.
 
 The terminal displays a readable test execution report.
 

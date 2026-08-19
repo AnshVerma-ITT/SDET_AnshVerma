@@ -10,18 +10,18 @@ public static class UserDataProvider
         return TestDataHelper.ReadJson<UserScenarioData>("ReqRes/DataFiles/user-scenarios.json");
     }
 
-    public static List<User> JsonUsers()
+    public static List<UserRequest> JsonUsers()
     {
-        return TestDataHelper.ReadJsonList<User>("ReqRes/DataFiles/users.json");
+        return TestDataHelper.ReadJsonList<UserRequest>("ReqRes/DataFiles/users.json");
     }
 
-    public static List<User> CsvUsers()
+    public static List<UserRequest> CsvUsers()
     {
         var rows = TestDataHelper.ReadCsv("ReqRes/DataFiles/users.csv");
-        var users = new List<User>();
+        var users = new List<UserRequest>();
         foreach (var row in rows)
         {
-            users.Add(new User
+            users.Add(new UserRequest
             {
                 Name = row["name"],
                 Job = row["job"]

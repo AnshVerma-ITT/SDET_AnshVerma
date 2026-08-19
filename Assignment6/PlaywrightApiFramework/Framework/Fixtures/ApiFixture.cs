@@ -19,7 +19,7 @@ public class ApiFixture
         Request = await Playwright.APIRequest.NewContextAsync(new()
         {
             BaseURL = Settings.BaseUrl,
-            ExtraHTTPHeaders = AuthManager.GetHeaders(Settings.AuthHeaderName, Settings.ApiKey),
+            ExtraHTTPHeaders = AuthManager.GetHeaders(Settings.HeaderName, Settings.HeaderValue),
             Timeout = PlaywrightConfig.Timeout
         });
         Client = new ApiClient(Request);
