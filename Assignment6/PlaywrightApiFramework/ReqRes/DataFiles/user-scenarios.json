@@ -1,0 +1,30 @@
+{
+  "pageOne": 1,
+  "pageTwo": 2,
+  "existingUserId": 2,
+  "secondExistingUserId": 3,
+  "missingUserId": 23,
+  "updateUser": {
+    "name": "Rahul Updated",
+    "job": "Automation Tester"
+  },
+  "patchUser": {
+    "name": "Rahul",
+    "job": "Lead QA"
+  },
+  "jsonContentUser": {
+    "name": "Json User",
+    "job": "Tester"
+  },
+  "persistenceUser": {
+    "name": "Persistence User",
+    "job": "Tester"
+  },
+  "xmlBody": "<user><name>Xml User</name><job>Tester</job></user>",
+  "formDataUser": {
+    "name": "Form User",
+    "job": "Tester"
+  },
+  "rawTextBody": "name=Raw User&job=Tester",
+  "registerEmailWithoutPassword": "sydney@fife"
+}

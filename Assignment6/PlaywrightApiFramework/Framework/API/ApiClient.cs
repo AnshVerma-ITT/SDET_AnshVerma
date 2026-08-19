@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using PlaywrightApiFramework.Framework.Constants;
 
 namespace PlaywrightApiFramework.Framework.API;
 
@@ -16,81 +17,90 @@ public class ApiClient
         return await RequestContext.GetAsync(url);
     }
 
-    public async Task<IAPIResponse> PostJsonAsync(string url, object body)
+    public async Task<IAPIResponse> DeleteAsync(string url)
     {
-        return await RequestContext.PostAsync(url, new()
-        {
-            DataObject = body,
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" }
-            }
-        });
+        return await RequestContext.DeleteAsync(url);
     }
 
-    public async Task<IAPIResponse> PostXmlAsync(string url, string xmlBody)
+    public async Task DisposeAsync()
     {
-        return await RequestContext.PostAsync(url, new()
-        {
-            Data = xmlBody,
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/xml" }
-            }
-        });
+        await RequestContext.DisposeAsync();
     }
 
-    public async Task<IAPIResponse> PostFormDataAsync(string url, Dictionary<string, string> fields)
+    public async Task<IAPIResponse> PostAsync(string url, object body, string contentType)
+    {
+        return await SendAsync("POST", url, body, contentType);
+    }
+
+    public async Task<IAPIResponse> PutAsync(string url, object body, string contentType)
+    {
+        return await SendAsync("PUT", url, body, contentType);
+    }
+
+    public async Task<IAPIResponse> PatchAsync(string url, object body, string contentType)
+    {
+        return await SendAsync("PATCH", url, body, contentType);
+    }
+
+    async Task<IAPIResponse> SendAsync(string method, string url, object body, string contentType)
+    {
+        var options = CreateRequestOptions(method, body, contentType);
+        return await RequestContext.FetchAsync(url, options);
+    }
+
+    APIRequestContextOptions CreateRequestOptions(string method, object body, string contentType)
+    {
+        var options = new APIRequestContextOptions
+        {
+            Method = method
+        };
+        if (contentType == ApiConstants.ApplicationJson)
+        {
+            options.Headers = GetContentTypeHeader(contentType);
+            options.DataObject = body;
+        }
+        else if (contentType == ApiConstants.ApplicationXml)
+        {
+            options.Headers = GetContentTypeHeader(contentType);
+            options.Data = body.ToString();
+        }
+        else if (contentType == ApiConstants.FormData)
+        {
+            var formData = RequestContext.CreateFormData();
+            foreach (var field in (Dictionary<string, string>)body)
+            {
+                formData.Set(field.Key, field.Value);
+            }
+            options.Multipart = formData;
+        }
+        else if (contentType == ApiConstants.TextPlain)
+        {
+            options.Headers = GetContentTypeHeader(contentType);
+            options.Data = body.ToString();
+        }
+        else
+        {
+            options.Headers = GetContentTypeHeader(contentType);
+            options.Data = body.ToString();
+        }
+        return options;
+    }
+
+    IFormData CreateFormData(Dictionary<string, string> fields)
     {
         var formData = RequestContext.CreateFormData();
         foreach (var field in fields)
         {
             formData.Set(field.Key, field.Value);
         }
-        return await RequestContext.PostAsync(url, new()
-        {
-            Multipart = formData
-        });
+        return formData;
     }
 
-    public async Task<IAPIResponse> PostRawTextAsync(string url, string text)
+    Dictionary<string, string> GetContentTypeHeader(string contentType)
     {
-        return await RequestContext.PostAsync(url, new()
+        return new Dictionary<string, string>
         {
-            Data = text,
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "text/plain" }
-            }
-        });
-    }
-
-    public async Task<IAPIResponse> PutJsonAsync(string url, object body)
-    {
-        return await RequestContext.PutAsync(url, new()
-        {
-            DataObject = body,
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" }
-            }
-        });
-    }
-
-    public async Task<IAPIResponse> PatchJsonAsync(string url, object body)
-    {
-        return await RequestContext.PatchAsync(url, new()
-        {
-            DataObject = body,
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" }
-            }
-        });
-    }
-
-    public async Task<IAPIResponse> DeleteAsync(string url)
-    {
-        return await RequestContext.DeleteAsync(url);
+            { ApiConstants.ContentTypeHeader, contentType }
+        };
     }
 }

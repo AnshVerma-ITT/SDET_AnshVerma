@@ -1,19 +1,22 @@
 using System.Text.Json;
 using PlaywrightApiFramework.Framework.Utilities;
 
-namespace PlaywrightApiFramework.Framework.TestData;
+namespace PlaywrightApiFramework.Framework.Data;
 
 public static class TestDataHelper
 {
+    public static T ReadJson<T>(string relativePath)
+    {
+        var path = FileHelper.FindFile(relativePath);
+        var json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<T>(json, GetJsonOptions())!;
+    }
+
     public static List<T> ReadJsonList<T>(string relativePath)
     {
         var path = FileHelper.FindFile(relativePath);
         var json = File.ReadAllText(path);
-
-        return JsonSerializer.Deserialize<List<T>>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        }) ?? new List<T>();
+        return JsonSerializer.Deserialize<List<T>>(json, GetJsonOptions()) ?? new List<T>();
     }
 
     public static List<Dictionary<string, string>> ReadCsv(string relativePath)
@@ -37,5 +40,13 @@ public static class TestDataHelper
             data.Add(row);
         }
         return data;
+    }
+
+    static JsonSerializerOptions GetJsonOptions()
+    {
+        return new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
     }
 }

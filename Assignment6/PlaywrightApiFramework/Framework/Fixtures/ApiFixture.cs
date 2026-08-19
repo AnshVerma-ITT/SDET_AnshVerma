@@ -19,10 +19,20 @@ public class ApiFixture
         Request = await Playwright.APIRequest.NewContextAsync(new()
         {
             BaseURL = Settings.BaseUrl,
-            ExtraHTTPHeaders = AuthManager.GetHeaders(Settings.ApiKey),
+            ExtraHTTPHeaders = AuthManager.GetHeaders(Settings.AuthHeaderName, Settings.ApiKey),
             Timeout = PlaywrightConfig.Timeout
         });
         Client = new ApiClient(Request);
+    }
+
+    public async Task<ApiClient> CreateClientWithoutAuthAsync()
+    {
+        var request = await Playwright.APIRequest.NewContextAsync(new()
+        {
+            BaseURL = Settings.BaseUrl,
+            Timeout = PlaywrightConfig.Timeout
+        });
+        return new ApiClient(request);
     }
 
     public async Task StopAsync()
