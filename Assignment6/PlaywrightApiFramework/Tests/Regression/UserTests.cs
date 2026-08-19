@@ -1,269 +1,291 @@
-using PlaywrightApiFramework.Framework.Fixtures;
+using PlaywrightApiFramework.Framework.Assertions;
+using PlaywrightApiFramework.Framework.Constants;
 using PlaywrightApiFramework.Framework.Reporting;
-using PlaywrightApiFramework.Framework.TestData;
 using PlaywrightApiFramework.Framework.Utilities;
+using PlaywrightApiFramework.ReqRes.Endpoints;
 using PlaywrightApiFramework.ReqRes.Models;
-using PlaywrightApiFramework.ReqRes.Services;
+using PlaywrightApiFramework.Tests.Base;
+using PlaywrightApiFramework.Tests.DataProviders;
 using NUnit.Framework;
 
 namespace PlaywrightApiFramework.Tests.Regression;
 
 [TestFixture]
-public class UserTests
+public class UserTests : ApiTestBase
 {
-    public ApiFixture Fixture { get; set; }
-    public UserService UserService { get; set; }
-
-    [OneTimeSetUp]
-    public async Task OneTimeSetUp()
-    {
-        Fixture = new ApiFixture();
-        await Fixture.StartAsync();
-        UserService = new UserService(Fixture.Client);
-    }
-
-    [OneTimeTearDown]
-    public async Task OneTimeTearDown()
-    {
-        await Fixture.StopAsync();
-    }
-
-    public static List<User> JsonUsers()
-    {
-        return TestDataHelper.ReadJsonList<User>("ReqRes/TestData/users.json");
-    }
-
-    public static List<User> CsvUsers()
-    {
-        var rows = TestDataHelper.ReadCsv("ReqRes/TestData/users.csv");
-        var users = new List<User>();
-        foreach (var row in rows)
-        {
-            users.Add(new User
-            {
-                Name = row["name"],
-                Job = row["job"]
-            });
-        }
-        return users;
-    }
-
-    [TestCaseSource(nameof(JsonUsers))]
+    [TestCaseSource(typeof(UserDataProvider), nameof(UserDataProvider.JsonUsers))]
     public async Task CreateUser_WithJsonDataProvider_ShouldValidateBodyAndHeaders(User user)
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("Create user using JSON test data");
         ReportHelper.PrintValue("Request body name", user.Name);
         ReportHelper.PrintValue("Request body job", user.Job);
         var response = await UserService.CreateUser(user);
-        var json = await JsonHelper.GetJson(response);
-        var contentType = JsonHelper.GetHeader(response, "content-type");
-        ReportHelper.PrintResponse("POST /api/users", response);
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        var contentType = JsonHelper.GetHeader(response, ApiConstants.ContentTypeHeader);
+        ReportHelper.PrintResponse("POST " + endpoint, response);
         ReportHelper.PrintValue("Response content-type", contentType);
-        ReportHelper.PrintValue("Response id", JsonHelper.GetString(json, "id"));
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(contentType, Does.Contain("application/json"));
-        Assert.That(JsonHelper.GetString(json, "name"), Is.EqualTo(user.Name));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo(user.Job));
-        Assert.That(JsonHelper.GetString(json, "id"), Is.Not.Empty);
-        Assert.That(JsonHelper.GetString(json, "createdAt"), Is.Not.Empty);
+        ReportHelper.PrintValue("Response id", userResponse.Id);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.HeaderContains(contentType, ApiConstants.ContentTypeHeader, ApiConstants.ApplicationJson);
+        ApiAssert.FieldEquals(userResponse.Name, user.Name, nameof(userResponse.Name));
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
+        ApiAssert.FieldNotEmpty(userResponse.Id, nameof(userResponse.Id));
+        ApiAssert.FieldNotEmpty(userResponse.CreatedAt, nameof(userResponse.CreatedAt));
     }
 
-    [TestCaseSource(nameof(CsvUsers))]
+    [TestCaseSource(typeof(UserDataProvider), nameof(UserDataProvider.CsvUsers))]
     public async Task CreateUser_WithCsvDataProvider_ShouldValidateBody(User user)
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("Create user using CSV test data");
         ReportHelper.PrintValue("Request body name", user.Name);
         ReportHelper.PrintValue("Request body job", user.Job);
         var response = await UserService.CreateUser(user);
-        var json = await JsonHelper.GetJson(response);
-        ReportHelper.PrintResponse("POST /api/users", response);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(JsonHelper.GetString(json, "name"), Is.EqualTo(user.Name));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo(user.Job));
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        ReportHelper.PrintResponse("POST " + endpoint, response);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.FieldEquals(userResponse.Name, user.Name, nameof(userResponse.Name));
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
     }
 
     [Test]
     public async Task GetUsers_PageTwo_ShouldValidateBodyAndHeaders()
     {
+        var endpoint = UserEndpoints.UsersPage(TestData.PageTwo);
         ReportHelper.PrintTest("Get users page 2");
-        var response = await UserService.GetUsers(2);
-        var json = await JsonHelper.GetJson(response);
-        var contentType = JsonHelper.GetHeader(response, "content-type");
-        var firstUser = json.GetProperty("data")[0];
-        ReportHelper.PrintResponse("GET /api/users?page=2", response);
+        var response = await UserService.GetUsers(TestData.PageTwo);
+        var usersResponse = await JsonHelper.GetJson(response);
+        var contentType = JsonHelper.GetHeader(response, ApiConstants.ContentTypeHeader);
+        var users = usersResponse.GetProperty("data");
+        var firstUser = users[0];
+        var page = JsonHelper.GetInt(usersResponse, "page");
+        var firstUserId = JsonHelper.GetInt(firstUser, "id");
+        var firstUserEmail = JsonHelper.GetString(firstUser, "email");
+        var firstUserFirstName = JsonHelper.GetString(firstUser, "first_name");
+        ReportHelper.PrintResponse("GET " + endpoint, response);
         ReportHelper.PrintValue("Response content-type", contentType);
-        ReportHelper.PrintValue("Page", JsonHelper.GetInt(json, "page"));
-        ReportHelper.PrintValue("First user email", firstUser.GetProperty("email").GetString() ?? "");
-        Assert.That(response.Status, Is.EqualTo(200));
-        Assert.That(contentType, Does.Contain("application/json"));
-        Assert.That(JsonHelper.GetInt(json, "page"), Is.EqualTo(2));
-        Assert.That(json.GetProperty("data").GetArrayLength(), Is.GreaterThan(0));
-        Assert.That(firstUser.GetProperty("id").GetInt32(), Is.GreaterThan(0));
-        Assert.That(firstUser.GetProperty("email").GetString(), Does.Contain("@reqres.in"));
-        Assert.That(firstUser.GetProperty("first_name").GetString(), Is.Not.Empty);
+        ReportHelper.PrintValue("Page", page);
+        ReportHelper.PrintValue("First user email", firstUserEmail);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Ok);
+        ApiAssert.HeaderContains(contentType, ApiConstants.ContentTypeHeader, ApiConstants.ApplicationJson);
+        ApiAssert.FieldEquals(page, TestData.PageTwo, "page");
+        ApiAssert.ArrayNotEmpty(users.GetArrayLength(), "data");
+        ApiAssert.GreaterThanZero(firstUserId, "id");
+        ApiAssert.FieldContains(firstUserEmail, ReqResConfig.EmailDomain, "email");
+        ApiAssert.FieldNotEmpty(firstUserFirstName, "first_name");
     }
 
     [Test]
     public async Task UpdateUser_WithPut_ShouldReturnUpdatedUser()
     {
+        var endpoint = UserEndpoints.SingleUser(TestData.ExistingUserId);
+        var user = TestData.UpdateUser;
         ReportHelper.PrintTest("Update user using PUT");
-        var user = new User
-        {
-            Name = "Rahul Updated",
-            Job = "Automation Tester"
-        };
         ReportHelper.PrintValue("Request body name", user.Name);
         ReportHelper.PrintValue("Request body job", user.Job);
-        var response = await UserService.UpdateUser(2, user);
-        var json = await JsonHelper.GetJson(response);
-        ReportHelper.PrintResponse("PUT /api/users/2", response);
-        ReportHelper.PrintValue("Updated at", JsonHelper.GetString(json, "updatedAt"));
-        Assert.That(response.Status, Is.EqualTo(200));
-        Assert.That(JsonHelper.GetString(json, "name"), Is.EqualTo(user.Name));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo(user.Job));
-        Assert.That(JsonHelper.GetString(json, "updatedAt"), Is.Not.Empty);
+        var response = await UserService.UpdateUser(TestData.ExistingUserId, user);
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        ReportHelper.PrintResponse("PUT " + endpoint, response);
+        ReportHelper.PrintValue("Updated at", userResponse.UpdatedAt);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Ok);
+        ApiAssert.FieldEquals(userResponse.Name, user.Name, nameof(userResponse.Name));
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
+        ApiAssert.FieldNotEmpty(userResponse.UpdatedAt, nameof(userResponse.UpdatedAt));
     }
 
     [Test]
     public async Task PatchUser_ShouldReturnChangedAttribute()
     {
+        var endpoint = UserEndpoints.SingleUser(TestData.ExistingUserId);
+        var user = TestData.PatchUser;
         ReportHelper.PrintTest("Patch user job");
-        var body = new
-        {
-            job = "Lead QA"
-        };
-        var response = await UserService.PatchUser(2, body);
-        var json = await JsonHelper.GetJson(response);
-        ReportHelper.PrintResponse("PATCH /api/users/2", response);
-        ReportHelper.PrintValue("Updated job", JsonHelper.GetString(json, "job"));
-        Assert.That(response.Status, Is.EqualTo(200));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo("Lead QA"));
-        Assert.That(JsonHelper.GetString(json, "updatedAt"), Is.Not.Empty);
+        var response = await UserService.PatchUser(TestData.ExistingUserId, user);
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        ReportHelper.PrintResponse("PATCH " + endpoint, response);
+        ReportHelper.PrintValue("Updated job", userResponse.Job);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Ok);
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
+        ApiAssert.FieldNotEmpty(userResponse.UpdatedAt, nameof(userResponse.UpdatedAt));
     }
 
     [Test]
     public async Task DeleteUser_ShouldReturnNoContent()
     {
+        var endpoint = UserEndpoints.SingleUser(TestData.ExistingUserId);
         ReportHelper.PrintTest("Delete user");
-        var response = await UserService.DeleteUser(2);
+        var response = await UserService.DeleteUser(TestData.ExistingUserId);
         var body = await response.TextAsync();
-        ReportHelper.PrintResponse("DELETE /api/users/2", response);
+        ReportHelper.PrintResponse("DELETE " + endpoint, response);
         ReportHelper.PrintValue("Response body length", body.Length);
-        Assert.That(response.Status, Is.EqualTo(204));
-        Assert.That(body, Is.EqualTo(""));
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.NoContent);
+        ApiAssert.EmptyBody(body, endpoint);
     }
 
     [Test]
     public async Task JsonContentType_ShouldCreateUser()
     {
+        var endpoint = UserEndpoints.Users;
+        var user = TestData.JsonContentUser;
         ReportHelper.PrintTest("JSON content type request");
-        var user = new
-        {
-            name = "Json User",
-            job = "Tester"
-        };
-        var response = await Fixture.Client.PostJsonAsync("/api/users", user);
-        var json = await JsonHelper.GetJson(response);
-        ReportHelper.PrintResponse("POST /api/users JSON", response);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(JsonHelper.GetString(json, "name"), Is.EqualTo("Json User"));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo("Tester"));
+        var response = await UserService.CreateUser(user, ApiConstants.ApplicationJson);
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        ReportHelper.PrintResponse("POST " + endpoint + " JSON", response);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.FieldEquals(userResponse.Name, user.Name, nameof(userResponse.Name));
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
     }
 
     [Test]
     public async Task XmlContentType_ShouldCreateUser()
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("XML content type request");
-        var xml = "<user><name>Xml User</name><job>Tester</job></user>";
-        var response = await Fixture.Client.PostXmlAsync("/api/users", xml);
-        var contentType = JsonHelper.GetHeader(response, "content-type");
-        ReportHelper.PrintResponse("POST /api/users XML", response);
+        var response = await UserService.CreateUserWithXml(TestData.XmlBody);
+        var contentType = JsonHelper.GetHeader(response, ApiConstants.ContentTypeHeader);
+        ReportHelper.PrintResponse("POST " + endpoint + " XML", response);
         ReportHelper.PrintValue("Response content-type", contentType);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(contentType, Does.Contain("application/json"));
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.HeaderContains(contentType, ApiConstants.ContentTypeHeader, ApiConstants.ApplicationJson);
     }
 
     [Test]
     public async Task FormDataContentType_ShouldCreateUser()
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("Form-data content type request");
-        var fields = new Dictionary<string, string>
-        {
-            { "name", "Form User" },
-            { "job", "Tester" }
-        };
-        var response = await Fixture.Client.PostFormDataAsync("/api/users", fields);
-        var contentType = JsonHelper.GetHeader(response, "content-type");
-        ReportHelper.PrintResponse("POST /api/users form-data", response);
+        var response = await UserService.CreateUserWithFormData(TestData.FormDataUser);
+        var contentType = JsonHelper.GetHeader(response, ApiConstants.ContentTypeHeader);
+        ReportHelper.PrintResponse("POST " + endpoint + " form-data", response);
         ReportHelper.PrintValue("Response content-type", contentType);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(contentType, Does.Contain("application/json"));
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.HeaderContains(contentType, ApiConstants.ContentTypeHeader, ApiConstants.ApplicationJson);
     }
 
     [Test]
     public async Task RawTextContentType_ShouldCreateUser()
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("Raw text content type request");
-        var response = await Fixture.Client.PostRawTextAsync("/api/users", "name=Raw User&job=Tester");
-        var contentType = JsonHelper.GetHeader(response, "content-type");
-        ReportHelper.PrintResponse("POST /api/users raw text", response);
+        var response = await UserService.CreateUserWithRawText(TestData.RawTextBody);
+        var contentType = JsonHelper.GetHeader(response, ApiConstants.ContentTypeHeader);
+        ReportHelper.PrintResponse("POST " + endpoint + " raw text", response);
         ReportHelper.PrintValue("Response content-type", contentType);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(contentType, Does.Contain("application/json"));
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.HeaderContains(contentType, ApiConstants.ContentTypeHeader, ApiConstants.ApplicationJson);
     }
 
     [Test]
     public async Task DynamicDataRequest_ShouldCreateRandomUser()
     {
+        var endpoint = UserEndpoints.Users;
         ReportHelper.PrintTest("Dynamic random data request");
-        var user = DataGenerator.CreateUser();
+        var user = new User
+        {
+            Name = DataGenerator.RandomText("student"),
+            Job = DataGenerator.RandomText("job")
+        };
         ReportHelper.PrintValue("Random name", user.Name);
         ReportHelper.PrintValue("Random job", user.Job);
         var response = await UserService.CreateUser(user);
-        var json = await JsonHelper.GetJson(response);
-        ReportHelper.PrintResponse("POST /api/users", response);
-        Assert.That(response.Status, Is.EqualTo(201));
-        Assert.That(JsonHelper.GetString(json, "name"), Is.EqualTo(user.Name));
-        Assert.That(JsonHelper.GetString(json, "job"), Is.EqualTo(user.Job));
+        var userResponse = await JsonHelper.Deserialize<User>(response);
+        ReportHelper.PrintResponse("POST " + endpoint, response);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.Created);
+        ApiAssert.FieldEquals(userResponse.Name, user.Name, nameof(userResponse.Name));
+        ApiAssert.FieldEquals(userResponse.Job, user.Job, nameof(userResponse.Job));
     }
 
     [Test]
     public async Task ApiChaining_ShouldGetUserFromPreviousResponse()
     {
+        var listEndpoint = UserEndpoints.UsersPage(TestData.PageTwo);
         ReportHelper.PrintTest("API chaining");
         ReportHelper.PrintStep("Call list users first");
-        var listResponse = await UserService.GetUsers(2);
-        var listJson = await JsonHelper.GetJson(listResponse);
-        var chainedUserId = listJson.GetProperty("data")[0].GetProperty("id").GetInt32();
-        ReportHelper.PrintResponse("GET /api/users?page=2", listResponse);
+        var listResponse = await UserService.GetUsers(TestData.PageTwo);
+        var usersResponse = await JsonHelper.GetJson(listResponse);
+        var chainedUserId = JsonHelper.GetInt(usersResponse.GetProperty("data")[0], "id");
+        var userEndpoint = UserEndpoints.SingleUser(chainedUserId);
+
+        ReportHelper.PrintResponse("GET " + listEndpoint, listResponse);
         ReportHelper.PrintValue("Chained user id", chainedUserId);
         ReportHelper.PrintStep("Use chained user id in second request");
+        
         var userResponse = await UserService.GetUser(chainedUserId);
-        var userJson = await JsonHelper.GetJson(userResponse);
-        ReportHelper.PrintResponse("GET /api/users/" + chainedUserId, userResponse);
-        Assert.That(listResponse.Status, Is.EqualTo(200));
-        Assert.That(userResponse.Status, Is.EqualTo(200));
-        Assert.That(userJson.GetProperty("data").GetProperty("id").GetInt32(), Is.EqualTo(chainedUserId));
+        var userDetails = await JsonHelper.GetJson(userResponse);
+        var userDetailsId = JsonHelper.GetInt(userDetails.GetProperty("data"), "id");
+        ReportHelper.PrintResponse("GET " + userEndpoint, userResponse);
+        ApiAssert.Status(listResponse, listEndpoint, HttpStatusCodes.Ok);
+        ApiAssert.Status(userResponse, userEndpoint, HttpStatusCodes.Ok);
+        ApiAssert.FieldEquals(userDetailsId, chainedUserId, "id");
+    }
+
+    [Test]
+    public async Task GetMissingUser_ShouldReturnNotFound()
+    {
+        var endpoint = UserEndpoints.SingleUser(TestData.MissingUserId);
+        ReportHelper.PrintTest("Missing user error response");
+        var response = await UserService.GetUser(TestData.MissingUserId);
+        var body = await response.TextAsync();
+        ReportHelper.PrintResponse("GET " + endpoint, response);
+        ReportHelper.PrintValue("Response body", body.Trim());
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.NotFound);
+        ApiAssert.FieldEquals(body.Trim(), "{}", "missing user response body");
+    }
+
+    [Test]
+    public async Task RegisterWithoutPassword_ShouldReturnBadRequest()
+    {
+        var endpoint = UserEndpoints.Register;
+        ReportHelper.PrintTest("Register without password error response");
+        var response = await UserService.RegisterWithoutPassword(TestData.RegisterEmailWithoutPassword);
+        var errorResponse = await JsonHelper.GetJson(response);
+        var error = JsonHelper.GetString(errorResponse, "error");
+        ReportHelper.PrintResponse("POST " + endpoint, response);
+        ReportHelper.PrintValue("Error", error);
+        ApiAssert.Status(response, endpoint, HttpStatusCodes.BadRequest);
+        ApiAssert.FieldNotEmpty(error, "error");
+    }
+
+    [Test]
+    public async Task CreatedUser_ShouldPersist_ButReqResDoesNotSaveData()
+    {
+        var createEndpoint = UserEndpoints.Users;
+        var user = TestData.PersistenceUser;
+        ReportHelper.PrintTest("Negative - created user persistence failure");
+        ReportHelper.PrintStep("Create user first");
+        var createResponse = await UserService.CreateUser(user);
+        var createdUser = await JsonHelper.Deserialize<User>(createResponse);
+        var createdUserId = int.Parse(createdUser.Id);
+        var getEndpoint = UserEndpoints.SingleUser(createdUserId);
+        ReportHelper.PrintResponse("POST " + createEndpoint, createResponse);
+        ReportHelper.PrintValue("Created user id", createdUser.Id);
+        ReportHelper.PrintStep("Try to fetch created user by id");
+        var getResponse = await UserService.GetUser(createdUserId);
+        ReportHelper.PrintResponse("GET " + getEndpoint, getResponse);
+        ApiAssert.Status(getResponse, HttpStatusCodes.Ok, "Expected created ReqRes user id " + createdUser.Id + " to persist, but ReqRes test data is not saved.");
     }
 
     [Test]
     public async Task Requests_ShouldExecuteInParallel()
     {
+        var firstEndpoint = UserEndpoints.UsersPage(TestData.PageOne);
+        var secondEndpoint = UserEndpoints.SingleUser(TestData.ExistingUserId);
+        var thirdEndpoint = UserEndpoints.SingleUser(TestData.SecondExistingUserId);
         ReportHelper.PrintTest("Parallel execution");
         ReportHelper.PrintStep("Create three API requests before waiting for result");
         var requests = new[]
         {
-            UserService.GetUsers(1),
-            UserService.GetUser(2),
-            UserService.GetUser(3)
+            UserService.GetUsers(TestData.PageOne),
+            UserService.GetUser(TestData.ExistingUserId),
+            UserService.GetUser(TestData.SecondExistingUserId)
         };
         ReportHelper.PrintStep("Await all requests together using Task.WhenAll");
         var responses = await Task.WhenAll(requests);
-        ReportHelper.PrintResponse("Parallel request 1 - GET /api/users?page=1", responses[0]);
-        ReportHelper.PrintResponse("Parallel request 2 - GET /api/users/2", responses[1]);
-        ReportHelper.PrintResponse("Parallel request 3 - GET /api/users/3", responses[2]);
-        Assert.That(responses[0].Status, Is.EqualTo(200));
-        Assert.That(responses[1].Status, Is.EqualTo(200));
-        Assert.That(responses[2].Status, Is.EqualTo(200));
+        ReportHelper.PrintResponse("Parallel request 1 - GET " + firstEndpoint, responses[0]);
+        ReportHelper.PrintResponse("Parallel request 2 - GET " + secondEndpoint, responses[1]);
+        ReportHelper.PrintResponse("Parallel request 3 - GET " + thirdEndpoint, responses[2]);
+        ApiAssert.Status(responses[0], firstEndpoint, HttpStatusCodes.Ok);
+        ApiAssert.Status(responses[1], secondEndpoint, HttpStatusCodes.Ok);
+        ApiAssert.Status(responses[2], thirdEndpoint, HttpStatusCodes.Ok);
     }
 }

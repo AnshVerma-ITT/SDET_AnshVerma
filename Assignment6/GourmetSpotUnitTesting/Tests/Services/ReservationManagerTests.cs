@@ -4,108 +4,161 @@ using GourmetSpot.Tests.Helpers;
 
 namespace GourmetSpot.Tests.Services
 {
-    public class ReservationManagerTests : FileTestBase
+    public class ReservationManagerTests : ManagerTestBase<ReservationManager>
     {
         [Test]
-        public void AddReservation_WhenValid_AddsReservationAndBlocksTable()
+        public void GetNextReservationId_WhenReservationsExist_ReturnsCountPlusOne()
         {
-            ReservationManager manager = new ReservationManager();
-            DateTime reservationTime = DateTime.Today.AddDays(7).AddHours(18);
-            int tableNumber = 1;
-            Reservation reservation = new Reservation(
-                1,
-                "Customer",
-                "9876543210",
+            List<Reservation> savedReservations = new List<Reservation>
+            {
+                TestData.CreateReservation()
+            };
+            SetField(
+                "reservations",
+                savedReservations);
+            int nextId = Manager.GetNextReservationId();
+            Assert.That(nextId, Is.EqualTo(savedReservations.Count + TestData.FirstId), "GetNextReservationId should return current reservation count plus one.");
+        }
+
+        [Test]
+        public void GetAllReservations_WhenReservationsExist_ReturnsCopy()
+        {
+            Reservation reservation = TestData.CreateReservation();
+            List<Reservation> savedReservations = new List<Reservation> { reservation };
+            SetField(
+                "reservations",
+                savedReservations);
+            List<Reservation> reservations = Manager.GetAllReservations();
+            Assert.That(reservations, Is.Not.SameAs(savedReservations), "GetAllReservations should return a new list instead of the internal reservation list.");
+            Assert.That(reservations, Has.Count.EqualTo(savedReservations.Count), "GetAllReservations should include all saved reservations.");
+            Assert.That(reservations[TestData.FirstIndex], Is.SameAs(reservation), "GetAllReservations should return the saved reservation.");
+        }
+
+        [Test]
+        public void HasAvailableTables_WhenAtLeastOneTableIsFree_ReturnsTrue()
+        {
+            SetField(
+                "reservations",
+                new List<Reservation>());
+            SetField(
+                "restaurantTableNumbers",
+                new List<int> { TestData.TableNumber });
+            bool hasAvailableTables = Manager.HasAvailableTables(TestData.ReservationTime);
+            Assert.That(hasAvailableTables, Is.True, "HasAvailableTables should return true when at least one restaurant table is free.");
+        }
+
+        [Test]
+        public void IsTableAvailable_WhenBookingOverlaps_ReturnsFalse()
+        {
+            DateTime reservationTime = TestData.ReservationTime;
+            int tableNumber = TestData.TableNumber;
+            Reservation reservation = TestData.CreateReservation(
+                tableNumber: tableNumber,
+                reservationDateTime: reservationTime);
+            SetField(
+                "reservations",
+                new List<Reservation> { reservation });
+            SetField(
+                "restaurantTableNumbers",
+                new List<int> { tableNumber });
+            bool available = Manager.IsTableAvailable(
                 tableNumber,
-                2,
-                reservationTime);
-            bool added = manager.AddReservation(reservation, out string message);
-            Assert.That(added, Is.True);
-            Assert.That(message, Is.Not.Empty);
-            Assert.That(manager.SearchReservationById(reservation.ReservationId), Is.Not.Null);
-            Assert.That(manager.IsTableAvailable(tableNumber, reservationTime), Is.False);
-            Assert.That(
-                manager.IsTableAvailable(
-                    tableNumber,
-                    reservationTime.AddHours(ReservationManager.ReservationWindowHours)),
-                Is.True);
-            Assert.That(manager.GetAvailableTables(reservationTime), Does.Not.Contain(tableNumber));
+                reservationTime.AddHours(TestData.SingleQuantity));
+            Assert.That(available, Is.False, "IsTableAvailable should return false when the requested time overlaps an existing booking.");
+        }
+
+        [Test]
+        public void IsTableAvailable_WhenBookingDoesNotOverlap_ReturnsTrue()
+        {
+            DateTime reservationTime = TestData.ReservationTime;
+            int tableNumber = TestData.TableNumber;
+            Reservation reservation = TestData.CreateReservation(
+                tableNumber: tableNumber,
+                reservationDateTime: reservationTime);
+            SetField(
+                "reservations",
+                new List<Reservation> { reservation });
+            SetField(
+                "restaurantTableNumbers",
+                new List<int> { tableNumber });
+            bool available = Manager.IsTableAvailable(
+                tableNumber,
+                reservationTime.AddHours(ReservationManager.ReservationWindowHours));
+            Assert.That(available, Is.True, "IsTableAvailable should return true when the requested time starts after the reservation window.");
+        }
+
+        [Test]
+        public void GetAvailableTables_WhenOneTableIsReserved_ReturnsOnlyFreeTables()
+        {
+            DateTime reservationTime = TestData.ReservationTime;
+            Reservation reservation = TestData.CreateReservation(
+                tableNumber: TestData.TableNumber,
+                reservationDateTime: reservationTime);
+            SetField(
+                "reservations",
+                new List<Reservation> { reservation });
+            SetField(
+                "restaurantTableNumbers",
+                new List<int> { TestData.TableNumber, TestData.OtherTableNumber });
+            List<int> availableTables = Manager.GetAvailableTables(reservationTime);
+            Assert.That(availableTables, Is.EqualTo(new List<int> { TestData.OtherTableNumber }), "GetAvailableTables should return only tables not reserved for the requested time.");
+        }
+
+        [Test]
+        public void SearchReservationById_WhenIdExists_ReturnsReservation()
+        {
+            Reservation reservation = TestData.CreateReservation();
+            SetField(
+                "reservations",
+                new List<Reservation> { reservation });
+            Reservation? foundReservation = Manager.SearchReservationById(reservation.ReservationId);
+            Assert.That(foundReservation, Is.SameAs(reservation), "SearchReservationById should return the reservation with the matching id.");
         }
 
         [Test]
         public void AddReservation_WhenTableAlreadyBooked_ReturnsFalse()
         {
-            ReservationManager manager = new ReservationManager();
-            DateTime reservationTime = DateTime.Today.AddDays(7).AddHours(18);
-            int tableNumber = 1;
-            Reservation firstReservation = new Reservation(
-                1,
-                "Customer",
-                "9876543210",
-                tableNumber,
-                2,
-                reservationTime);
-            Reservation overlappingReservation = new Reservation(
-                2,
-                "Customer",
-                "9876543210",
-                tableNumber,
-                2,
-                reservationTime.AddHours(1));
-            manager.AddReservation(firstReservation, out _);
-            bool added = manager.AddReservation(
+            DateTime reservationTime = TestData.ReservationTime;
+            int tableNumber = TestData.TableNumber;
+            Reservation firstReservation = TestData.CreateReservation(
+                tableNumber: tableNumber,
+                reservationDateTime: reservationTime);
+            Reservation overlappingReservation = TestData.CreateReservation(
+                reservationId: TestData.SecondId,
+                tableNumber: tableNumber,
+                reservationDateTime: reservationTime.AddHours(TestData.SingleQuantity));
+            SetField(
+                "reservations",
+                new List<Reservation> { firstReservation });
+            SetField(
+                "restaurantTableNumbers",
+                new List<int> { tableNumber });
+            bool added = Manager.AddReservation(
                 overlappingReservation,
                 out string message);
-            Assert.That(added, Is.False);
-            Assert.That(message, Is.Not.Empty);
+            Assert.That(added, Is.False, "AddReservation should reject a reservation that overlaps an existing booking for the same table.");
+            Assert.That(message, Is.Not.Empty, "AddReservation should return a validation message when the table is already booked.");
         }
 
         [Test]
         public void AddReservation_WhenContactNumberIsInvalid_ReturnsFalse()
         {
-            ReservationManager manager = new ReservationManager();
-            Reservation reservation = new Reservation(
-                1,
-                "Customer",
-                "12345",
-                1,
-                2,
-                DateTime.Today.AddDays(7).AddHours(18));
-            bool added = manager.AddReservation(reservation, out string message);
-            Assert.That(added, Is.False);
-            Assert.That(message, Is.Not.Empty);
-        }
-
-        [Test]
-        public void CancelReservation_WhenReservationExists_CancelsReservation()
-        {
-            ReservationManager manager = new ReservationManager();
-            DateTime reservationTime = DateTime.Today.AddDays(7).AddHours(18);
-            int tableNumber = 1;
-            Reservation reservation = new Reservation(
-                1,
-                "Customer",
-                "9876543210",
-                tableNumber,
-                2,
-                reservationTime);
-            manager.AddReservation(reservation, out _);
-            bool cancelled = manager.CancelReservation(reservation.ReservationId, out string message);
-            Assert.That(cancelled, Is.True);
-            Assert.That(message, Is.Not.Empty);
-            Assert.That(
-                manager.SearchReservationById(reservation.ReservationId)!.Status,
-                Is.EqualTo(ReservationStatus.Cancelled));
-            Assert.That(manager.IsTableAvailable(tableNumber, reservationTime), Is.True);
+            Reservation reservation = TestData.CreateReservation(
+                contactNumber: TestData.InvalidContactNumber);
+            bool added = Manager.AddReservation(reservation, out string message);
+            Assert.That(added, Is.False, "AddReservation should reject an invalid contact number.");
+            Assert.That(message, Is.Not.Empty, "AddReservation should return a validation message for invalid contact number.");
         }
 
         [Test]
         public void CancelReservation_WhenReservationDoesNotExist_ReturnsFalse()
         {
-            ReservationManager manager = new ReservationManager();
-            bool cancelled = manager.CancelReservation(1, out string message);
-            Assert.That(cancelled, Is.False);
-            Assert.That(message, Is.Not.Empty);
+            SetField(
+                "reservations",
+                new List<Reservation>());
+            bool cancelled = Manager.CancelReservation(TestData.FirstId, out string message);
+            Assert.That(cancelled, Is.False, "CancelReservation should return false when the reservation id does not exist.");
+            Assert.That(message, Is.Not.Empty, "CancelReservation should return a message when the reservation is missing.");
         }
     }
 }

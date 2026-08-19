@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PlaywrightApiFramework.Framework.API;
+using PlaywrightApiFramework.Framework.Constants;
 using PlaywrightApiFramework.ReqRes.Endpoints;
 using PlaywrightApiFramework.ReqRes.Models;
 
@@ -26,25 +27,37 @@ public class UserService
 
     public async Task<IAPIResponse> CreateUser(User user)
     {
-        return await Client.PostJsonAsync(UserEndpoints.Users, new
-        {
-            name = user.Name,
-            job = user.Job
-        });
+        return await Client.PostAsync(UserEndpoints.Users, CreateUserBody(user), ApiConstants.ApplicationJson);
+    }
+
+    public async Task<IAPIResponse> CreateUser(User user, string contentType)
+    {
+        return await Client.PostAsync(UserEndpoints.Users, CreateUserBody(user), contentType);
+    }
+
+    public async Task<IAPIResponse> CreateUserWithXml(string xmlBody)
+    {
+        return await Client.PostAsync(UserEndpoints.Users, xmlBody, ApiConstants.ApplicationXml);
+    }
+
+    public async Task<IAPIResponse> CreateUserWithFormData(Dictionary<string, string> formData)
+    {
+        return await Client.PostAsync(UserEndpoints.Users, formData, ApiConstants.FormData);
+    }
+
+    public async Task<IAPIResponse> CreateUserWithRawText(string rawTextBody)
+    {
+        return await Client.PostAsync(UserEndpoints.Users, rawTextBody, ApiConstants.TextPlain);
     }
 
     public async Task<IAPIResponse> UpdateUser(int id, User user)
     {
-        return await Client.PutJsonAsync(UserEndpoints.SingleUser(id), new
-        {
-            name = user.Name,
-            job = user.Job
-        });
+        return await Client.PutAsync(UserEndpoints.SingleUser(id), CreateUserBody(user), ApiConstants.ApplicationJson);
     }
 
-    public async Task<IAPIResponse> PatchUser(int id, object body)
+    public async Task<IAPIResponse> PatchUser(int id, User user)
     {
-        return await Client.PatchJsonAsync(UserEndpoints.SingleUser(id), body);
+        return await Client.PatchAsync(UserEndpoints.SingleUser(id), CreateUserBody(user), ApiConstants.ApplicationJson);
     }
 
     public async Task<IAPIResponse> DeleteUser(int id)
@@ -54,6 +67,23 @@ public class UserService
 
     public async Task<IAPIResponse> Register(object body)
     {
-        return await Client.PostJsonAsync(UserEndpoints.Register, body);
+        return await Client.PostAsync(UserEndpoints.Register, body, ApiConstants.ApplicationJson);
+    }
+
+    public async Task<IAPIResponse> RegisterWithoutPassword(string email)
+    {
+        return await Register(new
+        {
+            email
+        });
+    }
+
+    object CreateUserBody(User user)
+    {
+        return new
+        {
+            name = user.Name,
+            job = user.Job
+        };
     }
 }

@@ -41,9 +41,10 @@ NUnit unit tests have been added in the separate `Tests` folder.
 
 - Tests are kept separate from the main application code.
 - The test project references `GourmetSpot.csproj`.
-- Test cases cover logical behavior for inventory, menu, reservations, orders, billing, order storage, and file handling.
+- Test cases cover unit-level logic for inventory, menu, reservations, orders, and billing.
+- Order tests use fake inventory and fake order storage so they do not depend on real files.
+- Storage and file-handling tests were removed from the unit test suite because those are integration-style tests.
 - Unnecessary tests for simple string formatting, directory setup, and basic ID counting were removed.
-- Tests use temporary folders for file-based data so real `Data` and `Bills` files are not changed.
 
 ## Features Implemented
 

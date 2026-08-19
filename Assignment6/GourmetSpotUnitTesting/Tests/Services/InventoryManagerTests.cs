@@ -4,152 +4,182 @@ using GourmetSpot.Tests.Helpers;
 
 namespace GourmetSpot.Tests.Services
 {
-    public class InventoryManagerTests : FileTestBase
+    public class InventoryManagerTests : ManagerTestBase<InventoryManager>
     {
         [Test]
-        public void AddIngredient_WhenValid_AddsAndLoadsIngredient()
+        public void GetNextIngredientId_WhenIngredientsExist_ReturnsCountPlusOne()
         {
-            InventoryManager manager = new InventoryManager();
-            Ingredient ingredient = new Ingredient(1, "Ingredient", 10, "kg");
+            Console.WriteLine(
+    $"{TestContext.CurrentContext.Test.Name} | Thread: {Environment.CurrentManagedThreadId}");
+            List<Ingredient> savedIngredients = new List<Ingredient>
+            {
+                TestData.CreateIngredient()
+            };
+            SetField(
+                "ingredients",
+                savedIngredients);
+            int nextId = Manager.GetNextIngredientId();
+            Assert.That(nextId, Is.EqualTo(savedIngredients.Count + TestData.FirstId), "GetNextIngredientId should return current ingredient count plus one.");
+        }
 
-            bool added = manager.AddIngredient(
-                ingredient,
-                out string message);
-            Assert.That(added, Is.True);
-            Assert.That(message, Is.Not.Empty);
-            Assert.That(manager.SearchIngredientByName(" ingredient "), Is.Not.Null);
-            InventoryManager reloadedManager = new InventoryManager();
-            Ingredient? savedIngredient = reloadedManager.SearchIngredientById(ingredient.IngredientId);
-            Assert.That(savedIngredient, Is.Not.Null);
-            Assert.That(savedIngredient!.Name, Is.EqualTo(ingredient.Name));
-            Assert.That(savedIngredient.Quantity, Is.EqualTo(ingredient.Quantity));
-            Assert.That(savedIngredient.Unit, Is.EqualTo(ingredient.Unit));
+        [Test]
+        public void GetAllIngredients_WhenIngredientsExist_ReturnsCopy()
+        {
+            Ingredient ingredient = TestData.CreateIngredient();
+            List<Ingredient> savedIngredients = new List<Ingredient> { ingredient };
+            SetField(
+                "ingredients",
+                savedIngredients);
+            List<Ingredient> ingredients = Manager.GetAllIngredients();
+            Assert.That(ingredients, Is.Not.SameAs(savedIngredients), "GetAllIngredients should return a new list instead of the internal list.");
+            Assert.That(ingredients, Has.Count.EqualTo(savedIngredients.Count), "GetAllIngredients should include all saved ingredients.");
+            Assert.That(ingredients[TestData.FirstIndex], Is.SameAs(ingredient), "GetAllIngredients should return the saved ingredient item.");
         }
 
         [Test]
         public void AddIngredient_WhenNameAlreadyExists_ReturnsFalse()
         {
-            InventoryManager manager = new InventoryManager();
-            Ingredient ingredient = new Ingredient(1, "Ingredient", 10, "kg");
-            manager.AddIngredient(ingredient, out _);
-            bool added = manager.AddIngredient(
-                new Ingredient(2, $" {ingredient.Name.ToLower()} ", 5, "kg"),
+            Ingredient ingredient = TestData.CreateIngredient();
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            bool added = Manager.AddIngredient(
+                TestData.CreateIngredient(
+                    ingredientId: TestData.SecondId,
+                    name: TestData.DifferentCaseWithSpaces(ingredient.Name),
+                    quantity: TestData.StockQuantity),
                 out string message);
-            Assert.That(added, Is.False);
-            Assert.That(message, Is.Not.Empty);
+            Assert.That(added, Is.False, "AddIngredient should reject duplicate ingredient names ignoring case and spaces.");
+            Assert.That(message, Is.Not.Empty, "AddIngredient should return a validation message for duplicate ingredient names.");
         }
 
         [Test]
         public void AddIngredient_WhenQuantityIsNegative_ReturnsFalse()
         {
-            InventoryManager manager = new InventoryManager();
-            Ingredient ingredient = new Ingredient(1, "Ingredient", -1, "kg");
-            bool added = manager.AddIngredient(ingredient, out string message);
-            Assert.That(added, Is.False);
-            Assert.That(message, Is.Not.Empty);
+            Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.NegativeQuantity);
+            bool added = Manager.AddIngredient(ingredient, out string message);
+            Assert.That(added, Is.False, "AddIngredient should reject negative ingredient quantity.");
+            Assert.That(message, Is.Not.Empty, "AddIngredient should return a validation message for negative quantity.");
         }
 
         [Test]
-        public void UpdateIngredientQuantityByName_WhenIngredientExists_IncreasesQuantity()
+        public void SearchIngredientById_WhenIdExists_ReturnsIngredient()
         {
-            InventoryManager manager = new InventoryManager();
-            double startingQuantity = 4;
-            double addedQuantity = 3;
-            Ingredient ingredient = new Ingredient(1, "Ingredient", startingQuantity, "kg");
-            manager.AddIngredient(ingredient, out _);
-            bool updated = manager.UpdateIngredientQuantityByName(
-                ingredient.Name.ToLower(),
-                addedQuantity,
+            Ingredient ingredient = TestData.CreateIngredient();
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            Ingredient? foundIngredient = Manager.SearchIngredientById(ingredient.IngredientId);
+            Assert.That(foundIngredient, Is.SameAs(ingredient), "SearchIngredientById should return the ingredient with the matching id.");
+        }
+
+        [Test]
+        public void SearchIngredientByName_WhenNameMatchesIgnoringCase_ReturnsIngredient()
+        {
+            Ingredient ingredient = TestData.CreateIngredient();
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            Ingredient? foundIngredient = Manager.SearchIngredientByName(
+                TestData.DifferentCaseWithSpaces(ingredient.Name));
+            Assert.That(foundIngredient, Is.SameAs(ingredient), "SearchIngredientByName should match ingredient names ignoring case and spaces.");
+        }
+
+        [Test]
+        public void UpdateIngredientQuantityByName_WhenQuantityIsNegative_ReturnsFalse()
+        {
+            Ingredient ingredient = TestData.CreateIngredient();
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            bool updated = Manager.UpdateIngredientQuantityByName(
+                TestData.DifferentCaseWithSpaces(ingredient.Name),
+                TestData.NegativeQuantity,
                 out string message);
-            Assert.That(updated, Is.True);
-            Assert.That(message, Is.Not.Empty);
-            Assert.That(
-                manager.SearchIngredientByName(ingredient.Name)!.Quantity,
-                Is.EqualTo(startingQuantity + addedQuantity));
+            Assert.That(updated, Is.False, "UpdateIngredientQuantityByName should reject negative quantity updates.");
+            Assert.That(message, Is.Not.Empty, "UpdateIngredientQuantityByName should return a validation message for negative quantity.");
         }
 
         [Test]
-        public void DeleteIngredientByName_WhenIngredientExists_RemovesIngredient()
+        public void DeleteIngredientByName_WhenIngredientDoesNotExist_ReturnsFalse()
         {
-            InventoryManager manager = new InventoryManager();
-            Ingredient ingredient = new Ingredient(1, "Ingredient", 4, "kg");
-            manager.AddIngredient(ingredient, out _);
-            bool deleted = manager.DeleteIngredientByName(ingredient.Name.ToLower(), out string message);
-            Assert.That(deleted, Is.True);
-            Assert.That(message, Is.Not.Empty);
-            Assert.That(manager.SearchIngredientByName(ingredient.Name), Is.Null);
+            SetField(
+                "ingredients",
+                new List<Ingredient>());
+            bool deleted = Manager.DeleteIngredientByName(TestData.MissingName, out string message);
+            Assert.That(deleted, Is.False, "DeleteIngredientByName should return false when the ingredient does not exist.");
+            Assert.That(message, Is.Not.Empty, "DeleteIngredientByName should return a message when the ingredient is missing.");
         }
 
         [Test]
         public void CalculateRequiredIngredients_WhenItemsHaveRecipes_CombinesQuantities()
         {
-            InventoryManager manager = new InventoryManager();
-            int firstIngredientId = 1;
-            int secondIngredientId = 2;
-            double firstRequiredQuantity = 2;
-            double secondRequiredQuantity = 0.5;
-            int itemQuantity = 3;
-            MenuItem menuItem = new MenuItem(
-                1,
-                "Menu Item",
-                250,
+            int itemQuantity = TestData.OrderQuantity;
+            MenuItem menuItem = TestData.CreateMenuItem(
+                recipe:
                 new Dictionary<int, double>
                 {
-                    { firstIngredientId, firstRequiredQuantity },
-                    { secondIngredientId, secondRequiredQuantity }
+                    { TestData.FirstId, TestData.RequiredQuantity },
+                    { TestData.SecondId, TestData.SecondRequiredQuantity }
                 });
-            Dictionary<int, double> requiredIngredients = manager.CalculateRequiredIngredients(
-                new List<OrderItem> { new OrderItem(menuItem, itemQuantity) });
+            Dictionary<int, double> requiredIngredients = Manager.CalculateRequiredIngredients(
+                new List<OrderItem> { TestData.CreateOrderItem(menuItem, itemQuantity) });
             Assert.That(
-                requiredIngredients[firstIngredientId],
-                Is.EqualTo(firstRequiredQuantity * itemQuantity));
+                requiredIngredients[TestData.FirstId],
+                Is.EqualTo(TestData.RequiredQuantity * itemQuantity),
+                "CalculateRequiredIngredients should multiply first recipe ingredient quantity by order item quantity.");
             Assert.That(
-                requiredIngredients[secondIngredientId],
-                Is.EqualTo(secondRequiredQuantity * itemQuantity));
+                requiredIngredients[TestData.SecondId],
+                Is.EqualTo(TestData.SecondRequiredQuantity * itemQuantity),
+                "CalculateRequiredIngredients should multiply second recipe ingredient quantity by order item quantity.");
         }
 
         [Test]
-        public void UseIngredients_WhenEnoughStock_ReducesQuantity()
+        public void HasEnoughIngredients_WhenStockIsAvailable_ReturnsTrue()
         {
-            InventoryManager manager = new InventoryManager();
-            int firstIngredientId = 1;
-            int secondIngredientId = 2;
-            double firstStartingQuantity = 10;
-            double secondStartingQuantity = 5;
-            double firstUsedQuantity = 6;
-            double secondUsedQuantity = 1.5;
-            manager.AddIngredient(new Ingredient(firstIngredientId, "First Ingredient", firstStartingQuantity, "kg"), out _);
-            manager.AddIngredient(new Ingredient(secondIngredientId, "Second Ingredient", secondStartingQuantity, "kg"), out _);
-
-            bool used = manager.UseIngredients(
-                new Dictionary<int, double>
-                {
-                    { firstIngredientId, firstUsedQuantity },
-                    { secondIngredientId, secondUsedQuantity }
-                },
+            Ingredient ingredient = TestData.CreateIngredient();
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            bool hasEnough = Manager.HasEnoughIngredients(
+                new Dictionary<int, double> { { ingredient.IngredientId, ingredient.Quantity } },
                 out string message);
-            Assert.That(used, Is.True);
-            Assert.That(message, Is.Empty);
-            Assert.That(
-                manager.SearchIngredientById(firstIngredientId)!.Quantity,
-                Is.EqualTo(firstStartingQuantity - firstUsedQuantity));
-            Assert.That(
-                manager.SearchIngredientById(secondIngredientId)!.Quantity,
-                Is.EqualTo(secondStartingQuantity - secondUsedQuantity));
+            Assert.That(hasEnough, Is.True, "HasEnoughIngredients should return true when stock exactly meets required quantity.");
+            Assert.That(message, Is.Empty, "HasEnoughIngredients should not return an error message when stock is available.");
         }
 
         [Test]
         public void HasEnoughIngredients_WhenStockIsLow_ReturnsFalse()
         {
-            InventoryManager manager = new InventoryManager();
-            Ingredient ingredient = new Ingredient(1, "Ingredient", 2, "kg");
-            manager.AddIngredient(ingredient, out _);
-
-            bool hasEnough = manager.HasEnoughIngredients(
-                new Dictionary<int, double> { { ingredient.IngredientId, ingredient.Quantity + 1 } },
+            Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.LowStockQuantity);
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            bool hasEnough = Manager.HasEnoughIngredients(
+                new Dictionary<int, double>
+                {
+                    { ingredient.IngredientId, ingredient.Quantity + TestData.SingleQuantity }
+                },
                 out string message);
-            Assert.That(hasEnough, Is.False);
-            Assert.That(message, Is.Not.Empty);
+            Assert.That(hasEnough, Is.False, "HasEnoughIngredients should return false when required quantity is greater than stock.");
+            Assert.That(message, Is.Not.Empty, "HasEnoughIngredients should return a message when stock is insufficient.");
+        }
+
+        [Test]
+        public void UseIngredients_WhenStockIsLow_ReturnsFalse()
+        {
+            Ingredient ingredient = TestData.CreateIngredient(quantity: TestData.LowStockQuantity);
+            SetField(
+                "ingredients",
+                new List<Ingredient> { ingredient });
+            bool used = Manager.UseIngredients(
+                new Dictionary<int, double>
+                {
+                    { ingredient.IngredientId, ingredient.Quantity + TestData.SingleQuantity }
+                },
+                out string message);
+            Assert.That(used, Is.False, "UseIngredients should return false when stock is insufficient.");
+            Assert.That(message, Is.Not.Empty, "UseIngredients should return a message when stock cannot be used.");
         }
     }
 }

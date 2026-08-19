@@ -31,19 +31,47 @@ ReqRes-specific code is kept inside the ReqRes folder.
 
 Test scenarios are kept inside the Tests folder.
 
-AppSettings loads the base URL and API key from the .env file.
+AppSettings loads the base URL, API key, and authorization header name from the .env file.
 
-AuthManager creates common request headers including the x-api-key header.
+AuthManager creates common request headers using the configured authorization header name.
 
 ApiFixture creates and closes the Playwright API request context using NUnit OneTimeSetUp and OneTimeTearDown.
 
-ApiClient contains reusable methods for GET, POST, PUT, PATCH, DELETE, JSON, XML, form-data, and raw text requests.
+ApiClient contains reusable methods for GET, POST, PUT, PATCH, DELETE, and content-type based request handling.
 
 UserService contains ReqRes user API actions.
 
 UserEndpoints contains ReqRes endpoint paths.
 
 ReportHelper prints clear terminal report lines during test execution.
+
+## Mentor Change Summary
+
+Authorization header name was moved to configuration so x-api-key can be changed later without code changes.
+
+ApiClient now uses a contentType variable with if-else handling for JSON, XML, form-data, and raw text requests.
+
+Common NUnit OneTimeSetUp and OneTimeTearDown were moved to a base test class.
+
+Authorization testing was separated into its own test class.
+
+Negative testing now includes one real failing ReqRes persistence test inside UserTests because created users are not saved by ReqRes.
+
+HTTP response status values now use HttpStatusCode based constants.
+
+Only reusable content types and Content-Type header value are kept in framework constants.
+
+Models were simplified back to one ReqRes model file: User.cs.
+
+UserDataProvider and UserScenarioData are kept in Tests/DataProviders because they support NUnit test data management.
+
+Assertion failure messages are handled inside ApiAssert with endpoint and field details.
+
+Tests now use UserEndpoints instead of hardcoded endpoint strings.
+
+Test data provider methods were moved out of test classes.
+
+Hardcoded test data was moved into JSON, CSV, and scenario data files.
 
 ## Features Implemented
 
@@ -88,6 +116,55 @@ XML request
 Form-data request
 
 Raw text request
+
+ApiClient handles these content types using the contentType variable:
+
+| Content Type Constant | Actual Value | Used For |
+| --- | --- | --- |
+| ApiConstants.ApplicationJson | application/json | Normal JSON request body |
+| ApiConstants.ApplicationXml | application/xml | XML request body |
+| ApiConstants.FormData | multipart/form-data | Form-data request body |
+| ApiConstants.TextPlain | text/plain | Raw text request body |
+
+## Model Files
+
+| File | Purpose |
+| --- | --- |
+| ReqRes/Models/User.cs | Single simple model used for create, update, patch, and create-response validation. Contains Id, Name, Job, Email, CreatedAt, and UpdatedAt. |
+
+GET list, GET single user, and error response bodies are read directly with JsonHelper because those responses have nested JSON.
+
+This keeps the model layer simple and avoids extra wrapper model files.
+
+## Assertion Message Usage
+
+| ApiAssert Method | Used For |
+| --- | --- |
+| Status | Shows which endpoint returned the wrong HTTP status. |
+| HeaderContains | Shows which response header did not contain the expected value. |
+| FieldEquals | Shows which response body field had the wrong value. |
+| FieldContains | Shows which response body field did not contain expected text. |
+| FieldNotEmpty | Shows which response field was empty. |
+| GreaterThanZero | Shows which number field was not greater than zero. |
+| ArrayNotEmpty | Shows which response array was empty. |
+| EmptyBody | Shows when DELETE response body was not empty. |
+
+The intentional ReqRes persistence failure message is written in the test because it is ReqRes-specific, not framework reusable.
+
+## HTTP Status Code Values
+
+HTTP status values are written in Framework/Constants/HttpStatusCodes.cs.
+
+That file gets values from the C# System.Net.HttpStatusCode enum and converts them to int.
+
+| Constant Used In Tests | Actual HTTP Value | Meaning |
+| --- | --- | --- |
+| HttpStatusCodes.Ok | 200 | OK |
+| HttpStatusCodes.Created | 201 | Created |
+| HttpStatusCodes.NoContent | 204 | No Content |
+| HttpStatusCodes.BadRequest | 400 | Bad Request |
+| HttpStatusCodes.Unauthorized | 401 | Unauthorized |
+| HttpStatusCodes.NotFound | 404 | Not Found |
 
 ### 4. Test Data Management
 
@@ -151,6 +228,7 @@ The report output includes test name, request endpoint, response status code, re
 | 14 | Missing user negative test | GET | /api/users/23 | 404 |
 | 15 | Register without password | POST | /api/register | 400 |
 | 16 | Missing API key negative test | GET | /api/users/2 | 401 |
+| 17 | Created user persistence failure | POST + GET | /api/users and /api/users/{id} | Expected failure |
 
 ## C# and Testing Concepts Used
 
@@ -215,15 +293,13 @@ Open the .env file.
 Add your ReqRes API key:
 
 ```text
-REQRES_BASE_URL=https://reqres.in
-REQRES_API_KEY=your_actual_api_key_here
+BASE_URL=https://reqres.in
+API_KEY=your_actual_api_key_here
+AUTH_HEADER_NAME=x-api-key
+REQRES_EMAIL_DOMAIN=@reqres.in
 ```
 
 Open Terminal in the project folder:
-
-```bash
-cd "/Users/rahulverma/Documents/Assignment5- Playwright"
-```
 
 Restore packages:
 
@@ -247,7 +323,9 @@ dotnet test --logger "console;verbosity=detailed"
 
 NUnit should discover and execute all test cases.
 
-All tests should pass when the API key is correct.
+All normal API tests should pass when the API key is correct.
+
+The created user persistence test is expected to fail because ReqRes does not save newly created users.
 
 The terminal report should show request details such as:
 
@@ -271,10 +349,10 @@ Parallel request 2 - GET /api/users/2 -> 200 OK
 Parallel request 3 - GET /api/users/3 -> 200 OK
 ```
 
-Final summary should show:
+Final summary with the intentional persistence failure should show:
 
 ```text
-Test summary: total: 18, failed: 0, succeeded: 18, skipped: 0
+Test summary: total: 19, failed: 1, succeeded: 18, skipped: 0
 ```
 
 ## Expected Output
@@ -292,6 +370,8 @@ Users can be deleted using DELETE.
 Different content types can be sent in API requests.
 
 Negative scenarios return proper error status codes.
+
+The persistence failure test shows that ReqRes created users are not actually stored.
 
 API chaining reuses data from one response in another request.
 

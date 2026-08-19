@@ -12,6 +12,15 @@ public static class JsonHelper
         return document.RootElement.Clone();
     }
 
+    public static async Task<T> Deserialize<T>(IAPIResponse response)
+    {
+        var text = await response.TextAsync();
+        return JsonSerializer.Deserialize<T>(text, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })!;
+    }
+
     public static string GetString(JsonElement json, string propertyName)
     {
         return json.GetProperty(propertyName).GetString() ?? "";

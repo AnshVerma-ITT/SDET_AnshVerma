@@ -3,5 +3,3 @@ obj/
 TestResults/
 playwright-report/
 .DS_Store
-.env
-PlaywrightApiFramework.csproj
