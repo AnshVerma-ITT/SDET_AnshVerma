@@ -34,9 +34,10 @@ namespace GourmetSpot.Tests.Helpers
         public const string MainItemName = "Main Item";
         public const string SideItemName = "Side Item";
         public const string EmptyName = "";
+        public const string WhiteSpaceName = " ";
         public const string ContactNumber = "9876543210";
         public const string InvalidContactNumber = "12345";
-        public static DateTime OrderedAt => DateTime.Now;
+        public static DateTime OrderedAt => DateTime.UnixEpoch;
         public static DateTime ReservationTime => DateTime.Today
             .AddDays(FutureReservationDays)
             .AddHours(ReservationHour);

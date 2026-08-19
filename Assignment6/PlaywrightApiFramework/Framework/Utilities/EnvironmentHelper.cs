@@ -21,7 +21,7 @@ public static class EnvironmentHelper
     {
         var values = new Dictionary<string, string>();
         var envPath = FileHelper.FindFileOrEmpty(".env");
-        if (envPath == "")
+        if (string.IsNullOrWhiteSpace(envPath))
         {
             return values;
         }

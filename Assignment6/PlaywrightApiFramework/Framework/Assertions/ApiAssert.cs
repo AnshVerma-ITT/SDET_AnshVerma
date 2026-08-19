@@ -5,13 +5,12 @@ namespace PlaywrightApiFramework.Framework.Assertions;
 
 public static class ApiAssert
 {
-    public static void Status(IAPIResponse response, string endpoint, int expectedStatus)
+    public static void Status(IAPIResponse response, string endpoint, int expectedStatus, string message = "")
     {
-        Assert.That(response.Status, Is.EqualTo(expectedStatus), "Expected endpoint " + endpoint + " to return status " + expectedStatus + ".");
-    }
-
-    public static void Status(IAPIResponse response, int expectedStatus, string message)
-    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            message = "Expected endpoint " + endpoint + " to return status " + expectedStatus + ".";
+        }
         Assert.That(response.Status, Is.EqualTo(expectedStatus), message);
     }
 

@@ -5,26 +5,26 @@ namespace PlaywrightApiFramework.Framework.API;
 
 public class ApiClient
 {
-    public IAPIRequestContext RequestContext { get; set; }
+    private readonly IAPIRequestContext requestContext;
 
     public ApiClient(IAPIRequestContext requestContext)
     {
-        RequestContext = requestContext;
+        this.requestContext = requestContext;
     }
 
     public async Task<IAPIResponse> GetAsync(string url)
     {
-        return await RequestContext.GetAsync(url);
+        return await requestContext.GetAsync(url);
     }
 
     public async Task<IAPIResponse> DeleteAsync(string url)
     {
-        return await RequestContext.DeleteAsync(url);
+        return await requestContext.DeleteAsync(url);
     }
 
     public async Task DisposeAsync()
     {
-        await RequestContext.DisposeAsync();
+        await requestContext.DisposeAsync();
     }
 
     public async Task<IAPIResponse> PostAsync(string url, object body, string contentType)
@@ -45,35 +45,30 @@ public class ApiClient
     async Task<IAPIResponse> SendAsync(string method, string url, object body, string contentType)
     {
         var options = CreateRequestOptions(method, body, contentType);
-        return await RequestContext.FetchAsync(url, options);
+        return await requestContext.FetchAsync(url, options);
     }
 
-    APIRequestContextOptions CreateRequestOptions(string method, object body, string contentType)
+    APIRequestContextFetchOptions CreateRequestOptions(string method, object body, string contentType)
     {
-        var options = new APIRequestContextOptions
+        var options = new APIRequestContextFetchOptions
         {
             Method = method
         };
-        if (contentType == ApiConstants.ApplicationJson)
+        if (contentType == ContentTypes.ApplicationJson)
         {
             options.Headers = GetContentTypeHeader(contentType);
             options.DataObject = body;
         }
-        else if (contentType == ApiConstants.ApplicationXml)
+        else if (contentType == ContentTypes.ApplicationXml)
         {
             options.Headers = GetContentTypeHeader(contentType);
             options.Data = body.ToString();
         }
-        else if (contentType == ApiConstants.FormData)
+        else if (contentType == ContentTypes.FormData)
         {
-            var formData = RequestContext.CreateFormData();
-            foreach (var field in (Dictionary<string, string>)body)
-            {
-                formData.Set(field.Key, field.Value);
-            }
-            options.Multipart = formData;
+            options.Multipart = CreateFormData((Dictionary<string, string>)body);
         }
-        else if (contentType == ApiConstants.TextPlain)
+        else if (contentType == ContentTypes.TextPlain)
         {
             options.Headers = GetContentTypeHeader(contentType);
             options.Data = body.ToString();
@@ -86,9 +81,9 @@ public class ApiClient
         return options;
     }
 
-    IFormData CreateFormData(Dictionary<string, string> fields)
+    FormData CreateFormData(Dictionary<string, string> fields)
     {
-        var formData = RequestContext.CreateFormData();
+        var formData = requestContext.CreateFormData();
         foreach (var field in fields)
         {
             formData.Set(field.Key, field.Value);
@@ -100,7 +95,7 @@ public class ApiClient
     {
         return new Dictionary<string, string>
         {
-            { ApiConstants.ContentTypeHeader, contentType }
+            { ContentTypes.ContentTypeHeader, contentType }
         };
     }
 }

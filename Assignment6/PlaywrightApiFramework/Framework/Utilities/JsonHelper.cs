@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Playwright;
 
 namespace PlaywrightApiFramework.Framework.Utilities;
@@ -17,7 +18,8 @@ public static class JsonHelper
         var text = await response.TextAsync();
         return JsonSerializer.Deserialize<T>(text, new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString
         })!;
     }
 
@@ -28,7 +30,12 @@ public static class JsonHelper
 
     public static int GetInt(JsonElement json, string propertyName)
     {
-        return json.GetProperty(propertyName).GetInt32();
+        var property = json.GetProperty(propertyName);
+        if (property.ValueKind == JsonValueKind.String)
+        {
+            return int.Parse(property.GetString() ?? "0");
+        }
+        return property.GetInt32();
     }
 
     public static string GetHeader(IAPIResponse response, string headerName)

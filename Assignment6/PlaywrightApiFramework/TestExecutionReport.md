@@ -20,13 +20,13 @@ dotnet test --logger "console;verbosity=detailed"
 ## Expected Test Summary
 
 ```text
-Test summary: total: 19, failed: 1, succeeded: 18, skipped: 0
+Test summary: total: 18, failed: 1, succeeded: 17, skipped: 0
 ```
 
 The failed test should be:
 
 ```text
-CreatedUser_ShouldPersist_ButReqResDoesNotSaveData
+ReqResSavesData_ShouldGetCreatedUser
 ```
 
 ## Test Cases Executed
@@ -49,23 +49,22 @@ CreatedUser_ShouldPersist_ButReqResDoesNotSaveData
 | 14 | ApiChaining_ShouldGetUserFromPreviousResponse | Regression | GET + GET | /api/users?page=2 and /api/users/{id} | 200 OK |
 | 15 | GetMissingUser_ShouldReturnNotFound | Error Validation | GET | /api/users/23 | 404 Not Found |
 | 16 | RegisterWithoutPassword_ShouldReturnBadRequest | Error Validation | POST | /api/register | 400 Bad Request |
-| 17 | Requests_ShouldExecuteInParallel | Regression | GET | Multiple user endpoints | 200 OK |
-| 18 | MissingApiKey_ShouldReturnUnauthorized | Authorization | GET | /api/users/2 | 401 Unauthorized |
-| 19 | CreatedUser_ShouldPersist_ButReqResDoesNotSaveData | Negative Failure Demo | POST + GET | /api/users and /api/users/{id} | Fails because ReqRes does not persist data |
+| 17 | MissingApiKey_ShouldReturnUnauthorized | Authorization | GET | /api/users/2 | 401 Unauthorized |
+| 18 | ReqResSavesData_ShouldGetCreatedUser | Negative Failure Demo | POST + GET | /api/users and /api/users/{id} | Fails because ReqRes does not persist data |
 
 ## Requirement Coverage
 
 | Requirement | Covered By |
 | --- | --- |
 | Configurable authorization header | AppSettings and AuthManager |
-| GET request | User list, single user, chaining, parallel, authorization |
+| GET request | User list, single user, chaining, and authorization |
 | POST request | Create user, content type tests, register error, persistence failure |
 | PUT request | Update user test |
 | PATCH request | Patch user job test |
 | DELETE request | Delete user test |
 | Status code validation | All tests |
 | Response body validation | User, error, and persistence tests |
-| Response model usage | User model plus JsonHelper for nested and error responses |
+| Response model usage | UserRequest for request body, RegisterRequest for register, User model plus JsonHelper for nested and error responses |
 | Header validation | Content-Type tests |
 | JSON content type | JsonContentType_ShouldCreateUser |
 | XML content type | XmlContentType_ShouldCreateUser |
@@ -74,9 +73,9 @@ CreatedUser_ShouldPersist_ButReqResDoesNotSaveData
 | Data-driven testing | JSON and CSV test case sources |
 | Environment variables | .env, AppSettings, and ReqResSettings |
 | API chaining | ApiChaining_ShouldGetUserFromPreviousResponse |
-| Parallel execution | Requests_ShouldExecuteInParallel |
+| Parallel execution | NUnit Parallelizable attribute |
 | Authorization testing | MissingApiKey_ShouldReturnUnauthorized |
-| Negative failing test | CreatedUser_ShouldPersist_ButReqResDoesNotSaveData |
+| Negative failing test | ReqResSavesData_ShouldGetCreatedUser |
 
 ## Final Result
 

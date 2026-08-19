@@ -1,18 +1,13 @@
-using PlaywrightApiFramework.Framework.Constants;
-
 namespace PlaywrightApiFramework.Framework.Authentication;
 
 public static class AuthManager
 {
-    public static Dictionary<string, string> GetHeaders(string authHeaderName, string apiKey)
+    public static Dictionary<string, string> GetHeaders(string headerName, string headerValue)
     {
-        var headers = new Dictionary<string, string>
+        var headers = new Dictionary<string, string>();
+        if (!string.IsNullOrWhiteSpace(headerName) && !string.IsNullOrWhiteSpace(headerValue))
         {
-            { "Accept", ApiConstants.ApplicationJson }
-        };
-        if (!string.IsNullOrWhiteSpace(authHeaderName) && !string.IsNullOrWhiteSpace(apiKey))
-        {
-            headers.Add(authHeaderName, apiKey);
+            headers.Add(headerName, headerValue);
         }
         return headers;
     }
