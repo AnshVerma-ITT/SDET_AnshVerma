@@ -250,7 +250,7 @@ public class UserTests : ApiTestBase
     }
 
     [Test]
-    public async Task ReqResSavesData_ShouldGetCreatedUser()
+    public async Task CreateUser_ShouldPersistSuccessfully()
     {
         var createEndpoint = UserEndpoints.Users;
         var user = TestData.PersistenceUser;
