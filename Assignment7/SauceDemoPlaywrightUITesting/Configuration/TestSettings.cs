@@ -5,11 +5,11 @@ namespace SauceDemo.Playwright.Tests.Configuration;
 
 public sealed class TestSettings
 {
-    public string BaseUrl { get; set; } = "https://www.saucedemo.com";
-    public bool Headless { get; set; } = true;
-    public int TimeoutMilliseconds { get; set; } = 30000;
-    public bool ScreenshotOnFailure { get; set; } = true;
-    public bool TraceEnabled { get; set; } = true;
+    public string BaseUrl { get; set; } = string.Empty;
+    public bool Headless { get; set; } 
+    public int TimeoutMilliseconds { get; set; } 
+    public bool ScreenshotOnFailure { get; set; } 
+    public bool TraceEnabled { get; set; } 
     public bool UseChromeChannel { get; set; }
 
     public static TestSettings Load()

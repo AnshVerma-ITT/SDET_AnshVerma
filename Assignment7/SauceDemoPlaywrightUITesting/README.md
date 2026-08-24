@@ -103,7 +103,7 @@ SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM
 ## Technologies and Concepts Used
 
 - C#
-- .NET 9
+- .NET 10
 - NUnit
 - Microsoft Playwright
 - Allure NUnit
@@ -164,7 +164,7 @@ dotnet test --filter "TestCategory!=FailureDemo"
 Run the normal tests on Chrome only:
 
 ```bash
-BROWSER=Chrome dotnet test --filter "TestCategory!=FailureDemo"
+$env:BROWSER="Chrome"; dotnet test --filter "TestCategory!=FailureDemo"
 ```
 
 Run the normal tests on WebKit only:
@@ -198,11 +198,11 @@ Allure reporting has three separate parts:
 Create a fresh complete report by running the following commands one at a time:
 
 ```bash
-rm -rf Reports/allure-results allure-report
+Remove-Item -Recurse -Force ".\Reports\allure-results", ".\allure-report"
 dotnet test --filter "TestCategory!=FailureDemo"
 BROWSER=Chrome dotnet test --filter "TestCategory=FailureDemo"
-npx --yes allure-commandline generate Reports/allure-results --clean -o allure-report
-npx --yes allure-commandline open allure-report
+npx.cmd --yes allure-commandline generate ".\Reports\allure-results" --clean -o ".\allure-report"
+npx.cmd --yes allure-commandline open ".\allure-report"
 ```
 
 The intentional failure command returns exit code `1`. Continue with the Allure commands after that expected failure. The complete report will contain the normal tests and the intentional failed test.
@@ -210,13 +210,13 @@ The intentional failure command returns exit code `1`. Continue with the Allure 
 Generate the HTML report after running tests:
 
 ```bash
-npx --yes allure-commandline generate Reports/allure-results --clean -o allure-report
+npx.cmd --yes allure-commandline generate ".\Reports\allure-results" --clean -o ".\allure-report"
 ```
 
 Open the report through the Allure local server:
 
 ```bash
-npx --yes allure-commandline open allure-report
+npx.cmd --yes allure-commandline open ".\allure-report"
 ```
 
 Do not open `allure-report/index.html` directly. A direct `file://` page cannot fetch the report data correctly and may display `500 Failed to fetch`.
