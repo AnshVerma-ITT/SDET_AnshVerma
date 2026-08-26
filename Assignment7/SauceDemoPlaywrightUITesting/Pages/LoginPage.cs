@@ -1,9 +1,13 @@
 using Microsoft.Playwright;
+using SauceDemo.Playwright.Tests.Configuration;
 
 namespace SauceDemo.Playwright.Tests.Pages;
 
 public sealed class LoginPage
 {
+    private const string UsernameSelector = "#user-name";
+    private const string ErrorMessageSelector = "[data-test='error']";
+
     private readonly IPage _page;
 
     public LoginPage(IPage page)
@@ -11,18 +15,18 @@ public sealed class LoginPage
         _page = page;
     }
 
-    public ILocator Username => _page.Locator("#user-name");
+    public ILocator Username => _page.Locator(UsernameSelector);
     public ILocator Password => _page.GetByPlaceholder("Password");
     public ILocator LoginButton => _page.GetByRole(AriaRole.Button, new() { Name = "Login" });
-    public ILocator ErrorMessage => _page.Locator("[data-test='error']");
+    public ILocator ErrorMessage => _page.Locator(ErrorMessageSelector);
 
-    public async Task OpenAsync()
+    public async Task Open()
     {
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             try
             {
-                await _page.GotoAsync("/", new PageGotoOptions
+                await _page.GotoAsync(AppRoutes.Root, new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.Commit
                 });
@@ -44,20 +48,20 @@ public sealed class LoginPage
         return exception is TimeoutException or PlaywrightException;
     }
 
-    public async Task FillCredentialsAsync(string username, string password)
+    public async Task FillCredentials(string username, string password)
     {
         await Username.FillAsync(username);
         await Password.FillAsync(password);
     }
 
-    public Task ClickLoginAsync()
+    public Task ClickLogin()
     {
         return LoginButton.ClickAsync();
     }
 
-    public async Task LoginAsync(string username, string password)
+    public async Task Login(string username, string password)
     {
-        await FillCredentialsAsync(username, password);
-        await ClickLoginAsync();
+        await FillCredentials(username, password);
+        await ClickLogin();
     }
 }

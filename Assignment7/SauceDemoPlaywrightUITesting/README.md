@@ -9,7 +9,7 @@
 | Application Type | UI Test Automation Project |
 | Website Under Test | SauceDemo |
 | Language | C# |
-| Platform | .NET 9 |
+| Platform | .NET 10 |
 | Test Framework | NUnit |
 | Automation Tool | Microsoft Playwright |
 | Browsers | Chrome/Chromium and WebKit |

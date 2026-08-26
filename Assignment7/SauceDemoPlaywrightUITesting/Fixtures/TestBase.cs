@@ -103,12 +103,12 @@ public abstract class TestBase
         return AllureApi.Step(name, action);
     }
 
-    protected async Task<InventoryPage> OpenAndLoginAsync()
+    protected async Task<InventoryPage> OpenAndLogin()
     {
         var loginPage = new LoginPage(Page);
-        await loginPage.OpenAsync();
-        await loginPage.LoginAsync(LoginTestData.ValidUsername, LoginTestData.ValidPassword);
-        await Page.WaitForURLAsync("**/inventory.html");
+        await loginPage.Open();
+        await loginPage.Login(LoginTestData.ValidUsername, LoginTestData.ValidPassword);
+        await Page.WaitForURLAsync(AppRoutes.InventoryWaitPattern);
 
         return new InventoryPage(Page);
     }
@@ -145,7 +145,8 @@ public abstract class TestBase
     private string SafeTestName()
     {
         var raw = $"{BrowserEngine}_{TestContext.CurrentContext.Test.Name}";
-        var invalid = Path.GetInvalidFileNameChars();
+        const string windowsInvalidCharacters = "<>:\"/\\|?*";
+        var invalid = Path.GetInvalidFileNameChars().Concat(windowsInvalidCharacters).ToHashSet();
         return new string(raw.Select(character => invalid.Contains(character) ? '_' : character).ToArray());
     }
 }

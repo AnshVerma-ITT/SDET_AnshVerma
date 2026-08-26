@@ -2,6 +2,8 @@ using Microsoft.Playwright;
 using NUnit.Framework;
 using SauceDemo.Playwright.Tests.Configuration;
 using SauceDemo.Playwright.Tests.Fixtures;
+using SauceDemo.Playwright.Tests.Pages;
+using SauceDemo.Playwright.Tests.TestData;
 using static Microsoft.Playwright.Assertions;
 
 namespace SauceDemo.Playwright.Tests.Tests;
@@ -14,12 +16,13 @@ public sealed class PlaywrightFeatureTests : TestBase
     }
 
     [Test]
-    public async Task XPathAxesAndContains_ShouldLocateInventoryElements()
+    public async Task Inventory_WithXPathLocators_ShouldLocateExpectedElements()
     {
-        await OpenAndLoginAsync();
+        await OpenAndLogin();
 
-        var containsLocator = Page.Locator(".inventory_item").Filter(new LocatorFilterOptions { HasText = "Sauce Labs" });
-        await Expect(containsLocator.Nth(0)).ToContainTextAsync("Sauce Labs");
+        var containsLocator = Page.Locator(".inventory_item")
+            .Filter(new LocatorFilterOptions { HasText = ProductTestData.BrandName });
+        await Expect(containsLocator.Nth(0)).ToContainTextAsync(ProductTestData.BrandName);
 
         await Expect(Page.Locator("//div[contains(@class,'inventory_item_name')]/parent::a").Nth(0)).ToBeVisibleAsync();
         await Expect(Page.Locator("//div[contains(@class,'inventory_item')]//child::button[contains(text(),'Add to cart')]").Nth(0)).ToBeVisibleAsync();
@@ -29,27 +32,29 @@ public sealed class PlaywrightFeatureTests : TestBase
     }
 
     [Test]
-    public async Task ExplicitWaitAndMultiplePages_ShouldWork()
+    public async Task BrowserContext_WithMultiplePages_ShouldSupportExplicitWait()
     {
-        await StepAsync("Open first page", () => Page.GotoAsync("/", new PageGotoOptions
+        var firstLoginPage = new LoginPage(Page);
+        await StepAsync("Open first page", () => Page.GotoAsync(AppRoutes.Root, new PageGotoOptions
         {
             WaitUntil = WaitUntilState.DOMContentLoaded
         }));
-        await Page.GetByRole(AriaRole.Button, new() { Name = "Login" }).WaitForAsync(new LocatorWaitForOptions
+        await firstLoginPage.LoginButton.WaitForAsync(new LocatorWaitForOptions
         {
             State = WaitForSelectorState.Visible
         });
 
         var secondPage = await Context.NewPageAsync();
-        await StepAsync("Open second page in same browser context", () => secondPage.GotoAsync("/", new PageGotoOptions
+        var secondLoginPage = new LoginPage(secondPage);
+        await StepAsync("Open second page in same browser context", () => secondPage.GotoAsync(AppRoutes.Root, new PageGotoOptions
         {
             WaitUntil = WaitUntilState.DOMContentLoaded
         }));
 
         Assert.That(Context.Pages.Count, Is.EqualTo(2));
-        await Expect(secondPage.GetByRole(AriaRole.Button, new() { Name = "Login" })).ToBeVisibleAsync();
+        await Expect(secondLoginPage.LoginButton).ToBeVisibleAsync();
 
         await Page.BringToFrontAsync();
-        await Expect(Page.GetByRole(AriaRole.Button, new() { Name = "Login" })).ToBeVisibleAsync();
+        await Expect(firstLoginPage.LoginButton).ToBeVisibleAsync();
     }
 }

@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using SauceDemo.Playwright.Tests.Configuration;
 using SauceDemo.Playwright.Tests.Fixtures;
+using SauceDemo.Playwright.Tests.TestData;
 
 namespace SauceDemo.Playwright.Tests.Tests;
 
@@ -13,11 +14,11 @@ public sealed class IntentionalFailureTests : TestBase
     }
 
     [Test]
-    public async Task ProductHeading_ShouldDemonstrateARealUiFailure()
+    public async Task Inventory_WithIncorrectExpectedHeading_ShouldFailIntentionally()
     {
-        var inventoryPage = await OpenAndLoginAsync();
+        var inventoryPage = await OpenAndLogin();
         var actualHeading = await inventoryPage.Title.InnerTextAsync();
 
-        Assert.That(actualHeading, Is.EqualTo("Product Catalog"));
+        Assert.That(actualHeading, Is.EqualTo(ExpectedText.IntentionalIncorrectInventoryTitle));
     }
 }

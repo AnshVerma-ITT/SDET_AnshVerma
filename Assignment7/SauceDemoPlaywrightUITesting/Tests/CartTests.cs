@@ -15,32 +15,65 @@ public sealed class CartTests : TestBase
     }
 
     [Test]
-    public async Task Cart_ShouldReadRowsAndContinueShopping()
+    public async Task Cart_WithSelectedProducts_ShouldReadRowsAndContinueShopping()
     {
-        var inventoryPage = await OpenAndLoginAsync();
+        var inventoryPage = await OpenAndLogin();
 
-        foreach (var product in ProductTestData.ProductsForCart)
-        {
-            await inventoryPage.AddProductToCartAsync(product);
-        }
+        await inventoryPage.AddProductsToCart(ProductTestData.ProductsForCart);
 
-        await inventoryPage.OpenCartAsync();
+        await inventoryPage.OpenCart();
         var cartPage = new CartPage(Page);
 
-        await Expect(cartPage.Title).ToHaveTextAsync("Your Cart");
-        await Expect(cartPage.Rows).ToHaveCountAsync(ProductTestData.ProductsForCart.Length);
+        await Expect(cartPage.Title).ToHaveTextAsync(ExpectedText.CartTitle);
+        await Expect(cartPage.Rows).ToHaveCountAsync(ProductTestData.ProductsForCart.Count);
 
         foreach (var product in ProductTestData.ProductsForCart)
         {
             await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
-            Assert.That(await cartPage.GetQuantityAsync(product), Is.EqualTo("1"));
-            Assert.That(await cartPage.GetPriceTextAsync(product), Does.StartWith("$"));
+            Assert.That(await cartPage.GetQuantity(product), Is.EqualTo(ProductTestData.DefaultCartQuantity));
+            Assert.That(await cartPage.GetPriceText(product), Does.StartWith(ProductTestData.CurrencySymbol));
         }
 
-        await cartPage.ContinueShoppingAsync();
-        await Expect(inventoryPage.Title).ToHaveTextAsync("Products");
+        await cartPage.ContinueShopping();
+        await Expect(inventoryPage.Title).ToHaveTextAsync(ExpectedText.InventoryTitle);
 
-        await inventoryPage.AddProductToCartAsync(ProductTestData.BoltTShirt);
-        await Expect(inventoryPage.CartBadge).ToHaveTextAsync("3");
+        var remainingProducts = ProductTestData.ProductsForCheckout
+            .Except(ProductTestData.ProductsForCart)
+            .ToArray();
+        await inventoryPage.AddProductsToCart(remainingProducts);
+        await Expect(inventoryPage.CartBadge).ToHaveTextAsync(ProductTestData.ProductsForCheckout.Count.ToString());
+    }
+
+    [Test]
+    public async Task Cart_WithNoProducts_ShouldBeEmpty()
+    {
+        var inventoryPage = await OpenAndLogin();
+
+        await inventoryPage.AddProductsToCart(Array.Empty<string>());
+        await Expect(inventoryPage.CartBadge).ToHaveCountAsync(0);
+
+        await inventoryPage.OpenCart();
+        var cartPage = new CartPage(Page);
+
+        await Expect(cartPage.Title).ToHaveTextAsync(ExpectedText.CartTitle);
+        await Expect(cartPage.Rows).ToHaveCountAsync(0);
+    }
+
+    [Test]
+    public async Task Cart_WithAllProducts_ShouldContainEveryProduct()
+    {
+        var inventoryPage = await OpenAndLogin();
+
+        await inventoryPage.AddProductsToCart(ProductTestData.AllProducts);
+        await Expect(inventoryPage.CartBadge).ToHaveTextAsync(ProductTestData.AllProducts.Count.ToString());
+
+        await inventoryPage.OpenCart();
+        var cartPage = new CartPage(Page);
+
+        await Expect(cartPage.Rows).ToHaveCountAsync(ProductTestData.AllProducts.Count);
+        foreach (var product in ProductTestData.AllProducts)
+        {
+            await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
+        }
     }
 }
