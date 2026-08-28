@@ -1,7 +1,7 @@
-using Microsoft.Playwright;
 using NUnit.Framework;
 using SauceDemo.Playwright.Tests.Configuration;
 using SauceDemo.Playwright.Tests.Fixtures;
+using SauceDemo.Playwright.Tests.Infrastructure;
 using SauceDemo.Playwright.Tests.Pages;
 using SauceDemo.Playwright.Tests.TestData;
 using static Microsoft.Playwright.Assertions;
@@ -20,30 +20,38 @@ public sealed class LoginTests : TestBase
     {
         var loginPage = new LoginPage(Page);
 
-        await StepAsync("Open SauceDemo", loginPage.Open);
-        await StepAsync("Fill valid username and password", () =>
+        await AllureHelper.Step("Open SauceDemo", async () =>
+        {
+            await NavigationHelper.NavigateTo(Page, AppRoutes.Root, Settings);
+            await loginPage.WaitUntilLoaded();
+        });
+        await AllureHelper.Step("Fill valid username and password", () =>
             loginPage.FillCredentials(LoginTestData.ValidUsername, LoginTestData.ValidPassword));
-        await StepAsync("Submit with Enter key", () => loginPage.Password.PressAsync("Enter"));
+        await AllureHelper.Step("Click login button", loginPage.ClickOnLoginButton);
 
-        await Expect(Page).ToHaveURLAsync(AppRoutes.InventoryUrlPattern);
-        await Expect(new InventoryPage(Page).Title).ToHaveTextAsync(ExpectedText.InventoryTitle);
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Inventory);
+        Assert.That(await new InventoryPage(Page).GetPageTitle(), Is.EqualTo(PageTitleTestData.Inventory));
     }
 
-    [TestCase(LoginTestData.InvalidUsername, LoginTestData.ValidPassword, ExpectedText.LoginMismatchError)]
-    [TestCase(LoginTestData.ValidUsername, LoginTestData.InvalidPassword, ExpectedText.LoginMismatchError)]
-    [TestCase("", LoginTestData.ValidPassword, ExpectedText.UsernameRequiredError)]
-    [TestCase(LoginTestData.ValidUsername, "", ExpectedText.PasswordRequiredError)]
+    [TestCase(LoginTestData.InvalidUsername, LoginTestData.ValidPassword, AppErrorTestData.LoginMismatch)]
+    [TestCase(LoginTestData.ValidUsername, LoginTestData.InvalidPassword, AppErrorTestData.LoginMismatch)]
+    [TestCase("", LoginTestData.ValidPassword, AppErrorTestData.UsernameRequired)]
+    [TestCase(LoginTestData.ValidUsername, "", AppErrorTestData.PasswordRequired)]
     public async Task Login_WithInvalidCredentials_ShouldShowError(string username, string password, string expectedError)
     {
         var loginPage = new LoginPage(Page);
 
-        await StepAsync("Open SauceDemo", loginPage.Open);
-        await StepAsync("Fill login fields", () => loginPage.FillCredentials(username, password));
-        await Expect(loginPage.Username).ToHaveValueAsync(username);
+        await AllureHelper.Step("Open SauceDemo", async () =>
+        {
+            await NavigationHelper.NavigateTo(Page, AppRoutes.Root, Settings);
+            await loginPage.WaitUntilLoaded();
+        });
+        await AllureHelper.Step("Fill login fields", () => loginPage.FillCredentials(username, password));
+        Assert.That(await loginPage.GetUsernameValue(), Is.EqualTo(username));
 
-        await StepAsync("Click Login", loginPage.ClickLogin);
+        await AllureHelper.Step("Click Login", loginPage.ClickOnLoginButton);
 
-        await Expect(loginPage.ErrorMessage).ToBeVisibleAsync();
-        await Expect(loginPage.ErrorMessage).ToContainTextAsync(expectedError);
+        Assert.That(await loginPage.IsErrorDisplayed(), Is.True);
+        Assert.That(await loginPage.GetErrorMessage(), Does.Contain(expectedError));
     }
 }

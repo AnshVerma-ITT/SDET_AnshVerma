@@ -17,23 +17,68 @@ public sealed class CheckoutPage
         _page = page;
     }
 
-    public ILocator FirstName => _page.GetByPlaceholder("First Name");
-    public ILocator LastName => _page.GetByPlaceholder("Last Name");
-    public ILocator PostalCode => _page.GetByPlaceholder("Zip/Postal Code");
-    public ILocator ContinueButton => _page.GetByRole(AriaRole.Button, new() { Name = "Continue" });
-    public ILocator FinishButton => _page.GetByRole(AriaRole.Button, new() { Name = "Finish" });
-    public ILocator ErrorMessage => _page.Locator(ErrorMessageSelector);
-    public ILocator OverviewTitle => _page.GetByText("Checkout: Overview");
-    public ILocator CompleteTitle => _page.GetByText("Checkout: Complete!");
-    public ILocator ConfirmationMessage => _page.GetByText("Thank you for your order!");
-    public ILocator SummaryItems => _page.Locator(SummaryItemsSelector);
-    public ILocator Subtotal => _page.Locator(SubtotalSelector);
-    public ILocator Tax => _page.Locator(TaxSelector);
-    public ILocator Total => _page.Locator(TotalSelector);
+    private ILocator FirstName => _page.GetByPlaceholder("First Name");
+    private ILocator LastName => _page.GetByPlaceholder("Last Name");
+    private ILocator PostalCode => _page.GetByPlaceholder("Zip/Postal Code");
+    private ILocator ContinueButton => _page.GetByRole(AriaRole.Button, new() { Name = "Continue" });
+    private ILocator FinishButton => _page.GetByRole(AriaRole.Button, new() { Name = "Finish" });
+    private ILocator ErrorMessage => _page.Locator(ErrorMessageSelector);
+    private ILocator OverviewTitle => _page.GetByText("Checkout: Overview");
+    private ILocator CompleteTitle => _page.GetByText("Checkout: Complete!");
+    private ILocator ConfirmationMessage => _page.GetByText("Thank you for your order!");
+    private ILocator SummaryItems => _page.Locator(SummaryItemsSelector);
+    private ILocator Subtotal => _page.Locator(SubtotalSelector);
+    private ILocator Tax => _page.Locator(TaxSelector);
+    private ILocator Total => _page.Locator(TotalSelector);
 
-    public ILocator SummaryItemByProductName(string productName)
+    public Task<string> GetOverviewTitle()
     {
-        return SummaryItems.Filter(new LocatorFilterOptions { HasText = productName });
+        return OverviewTitle.InnerTextAsync();
+    }
+
+    public Task<string> GetCompleteTitle()
+    {
+        return CompleteTitle.InnerTextAsync();
+    }
+
+    public Task<bool> IsErrorDisplayed()
+    {
+        return ErrorMessage.IsVisibleAsync();
+    }
+
+    public Task<string> GetErrorMessage()
+    {
+        return ErrorMessage.InnerTextAsync();
+    }
+
+    public Task<string> GetConfirmationMessage()
+    {
+        return ConfirmationMessage.InnerTextAsync();
+    }
+
+    public Task<int> GetSummaryItemCount()
+    {
+        return SummaryItems.CountAsync();
+    }
+
+    public Task<string> GetSubtotal()
+    {
+        return Subtotal.InnerTextAsync();
+    }
+
+    public Task<string> GetTax()
+    {
+        return Tax.InnerTextAsync();
+    }
+
+    public Task<string> GetTotal()
+    {
+        return Total.InnerTextAsync();
+    }
+
+    public Task<bool> IsProductDisplayedInSummary(string productName)
+    {
+        return GetSummaryItemByProductName(productName).IsVisibleAsync();
     }
 
     public async Task FillCustomerInformation(string firstName, string lastName, string postalCode)
@@ -43,13 +88,18 @@ public sealed class CheckoutPage
         await PostalCode.FillAsync(postalCode);
     }
 
-    public Task Continue()
+    public Task ClickOnContinueButton()
     {
         return ContinueButton.ClickAsync();
     }
 
-    public Task Finish()
+    public Task ClickOnFinishButton()
     {
         return FinishButton.ClickAsync();
+    }
+
+    private ILocator GetSummaryItemByProductName(string productName)
+    {
+        return SummaryItems.Filter(new LocatorFilterOptions { HasText = productName });
     }
 }

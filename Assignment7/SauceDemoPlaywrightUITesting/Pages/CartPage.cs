@@ -16,31 +16,46 @@ public sealed class CartPage
         _page = page;
     }
 
-    public ILocator Title => _page.Locator(TitleSelector);
-    public ILocator Rows => _page.Locator(RowsSelector);
+    private ILocator Title => _page.Locator(TitleSelector);
+    private ILocator ProductRows => _page.Locator(RowsSelector);
 
-    public ILocator RowByProductName(string productName)
+    public Task<string> GetPageTitle()
     {
-        return Rows.Filter(new LocatorFilterOptions { HasText = productName });
+        return Title.InnerTextAsync();
     }
 
-    public async Task<string> GetQuantity(string productName)
+    public Task<int> GetProductRowCount()
     {
-        return await RowByProductName(productName).Locator(QuantitySelector).InnerTextAsync();
+        return ProductRows.CountAsync();
     }
 
-    public async Task<string> GetPriceText(string productName)
+    public Task<bool> IsProductDisplayed(string productName)
     {
-        return await RowByProductName(productName).Locator(PriceSelector).InnerTextAsync();
+        return FindProductRowByName(productName).IsVisibleAsync();
     }
 
-    public Task ContinueShopping()
+    public async Task<string> GetQuantityByProductName(string productName)
+    {
+        return await FindProductRowByName(productName).Locator(QuantitySelector).InnerTextAsync();
+    }
+
+    public async Task<string> GetProductPrice(string productName)
+    {
+        return await FindProductRowByName(productName).Locator(PriceSelector).InnerTextAsync();
+    }
+
+    public Task ClickOnContinueShoppingButton()
     {
         return _page.GetByRole(AriaRole.Button, new() { Name = "Continue Shopping" }).ClickAsync();
     }
 
-    public Task Checkout()
+    public Task ClickOnCheckoutButton()
     {
         return _page.GetByRole(AriaRole.Button, new() { Name = "Checkout" }).ClickAsync();
+    }
+
+    private ILocator FindProductRowByName(string productName)
+    {
+        return ProductRows.Filter(new LocatorFilterOptions { HasText = productName });
     }
 }

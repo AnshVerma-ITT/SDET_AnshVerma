@@ -1,12 +1,14 @@
 using System.Globalization;
 using Microsoft.Playwright;
+using SauceDemo.Playwright.Tests.Enums;
+using SauceDemo.Playwright.Tests.Extensions;
 
 namespace SauceDemo.Playwright.Tests.Pages;
 
 public sealed class InventoryPage
 {
     private const string TitleSelector = ".title";
-    private const string ProductItemsSelector = ".inventory_item";
+    private const string ProductCardsSelector = ".inventory_item";
     private const string SortDropdownSelector = ".product_sort_container";
     private const string CartBadgeSelector = ".shopping_cart_badge";
     private const string ProductNameSelector = ".inventory_item_name";
@@ -20,91 +22,91 @@ public sealed class InventoryPage
         _page = page;
     }
 
-    public ILocator Title => _page.Locator(TitleSelector);
-    public ILocator ProductItems => _page.Locator(ProductItemsSelector);
-    public ILocator SortDropdown => _page.Locator(SortDropdownSelector);
-    public ILocator CartBadge => _page.Locator(CartBadgeSelector);
+    private ILocator Title => _page.Locator(TitleSelector);
+    private ILocator ProductCards => _page.Locator(ProductCardsSelector);
+    private ILocator SortDropdown => _page.Locator(SortDropdownSelector);
+    private ILocator CartBadge => _page.Locator(CartBadgeSelector);
 
-    public Task SortBy(ProductSortOption option)
+    public Task SelectProductSortOption(ProductSortOption option)
     {
-        return SortDropdown.SelectOptionAsync(option.ToSelectValue());
+        return SortDropdown.SelectOptionAsync(option.ToDropdownValue());
     }
 
     public async Task AddProductsToCart(IEnumerable<string> productNames)
     {
         foreach (var productName in productNames)
         {
-            var product = ProductByName(productName);
+            var product = FindProductCardByName(productName);
             await product.GetByRole(AriaRole.Button, new() { Name = "Add to cart" }).ClickAsync();
         }
     }
 
-    public Task HoverProduct(string productName)
+    public Task HoverToProductCard(string productName)
     {
-        return ProductByName(productName).HoverAsync();
+        return FindProductCardByName(productName).HoverAsync();
     }
 
     public Task OpenProductDetails(string productName)
     {
-        return ProductByName(productName).Locator(ProductNameSelector).ClickAsync();
+        return FindProductCardByName(productName).Locator(ProductNameSelector).ClickAsync();
     }
 
-    public Task OpenCart()
+    public Task ClickOnShoppingCartLink()
     {
         return _page.Locator(ShoppingCartLinkSelector).ClickAsync();
     }
 
-    public ILocator ProductByName(string productName)
+    public Task<string> GetPageTitle()
     {
-        return ProductItems.Filter(new LocatorFilterOptions { HasText = productName });
+        return Title.InnerTextAsync();
     }
 
-    public async Task<IReadOnlyList<decimal>> GetProductPrices()
+    public async Task<ProductSortOption> GetSelectedProductSortOption()
+    {
+        var selectedValue = await SortDropdown.InputValueAsync();
+        return selectedValue.ToProductSortOption();
+    }
+
+    public async Task<int> GetCartProductCount()
+    {
+        if (await CartBadge.CountAsync() == 0)
+        {
+            return 0;
+        }
+
+        var badgeText = await CartBadge.InnerTextAsync();
+        return int.Parse(badgeText, CultureInfo.InvariantCulture);
+    }
+
+    public async Task<IReadOnlyList<decimal>> GetAllProductPrices()
     {
         var prices = new List<decimal>();
-        var count = await ProductItems.CountAsync();
+        var count = await ProductCards.CountAsync();
 
         for (var index = 0; index < count; index++)
         {
-            var text = await ProductItems.Nth(index).Locator(ProductPriceSelector).InnerTextAsync();
+            var text = await ProductCards.Nth(index).Locator(ProductPriceSelector).InnerTextAsync();
             prices.Add(decimal.Parse(text.Replace("$", string.Empty), CultureInfo.InvariantCulture));
         }
 
         return prices;
     }
 
-    public async Task<IReadOnlyList<string>> GetProductNames()
+    public async Task<IReadOnlyList<string>> GetAllProductNames()
     {
         var names = new List<string>();
-        var count = await ProductItems.CountAsync();
+        var count = await ProductCards.CountAsync();
 
         for (var index = 0; index < count; index++)
         {
-            names.Add(await ProductItems.Nth(index).Locator(ProductNameSelector).InnerTextAsync());
+            names.Add(await ProductCards.Nth(index).Locator(ProductNameSelector).InnerTextAsync());
         }
 
         return names;
     }
-}
-public enum ProductSortOption
-{
-    NameAscending,
-    NameDescending,
-    PriceLowToHigh,
-    PriceHighToLow
-}
 
-public static class ProductSortOptionExtensions
-{
-    public static string ToSelectValue(this ProductSortOption option)
+    private ILocator FindProductCardByName(string productName)
     {
-        return option switch
-        {
-            ProductSortOption.NameAscending => "az",
-            ProductSortOption.NameDescending => "za",
-            ProductSortOption.PriceLowToHigh => "lohi",
-            ProductSortOption.PriceHighToLow => "hilo",
-            _ => throw new ArgumentOutOfRangeException(nameof(option), option, "Unsupported product sort option.")
-        };
+        return ProductCards.Filter(new LocatorFilterOptions { HasText = productName });
     }
 }

@@ -9,7 +9,7 @@ public static class BrowserMatrix
         if (string.IsNullOrWhiteSpace(browser) ||
             browser.Equals("All", StringComparison.OrdinalIgnoreCase))
         {
-            yield return BrowserEngine.Chrome;
+            yield return BrowserEngine.Chromium;
             yield return BrowserEngine.WebKit;
             yield break;
         }
@@ -22,7 +22,7 @@ public static class BrowserMatrix
                 continue;
             }
 
-            throw new ArgumentException($"Unsupported BROWSER value '{value}'. Use Chrome, WebKit, or All.");
+            throw new ArgumentException($"Unsupported BROWSER value '{value}'. Use Chromium, WebKit, or All.");
         }
     }
 }

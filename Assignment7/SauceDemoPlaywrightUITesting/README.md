@@ -12,7 +12,7 @@
 | Platform | .NET 10 |
 | Test Framework | NUnit |
 | Automation Tool | Microsoft Playwright |
-| Browsers | Chrome/Chromium and WebKit |
+| Browsers | Chromium and WebKit |
 | Reporting Tool | Allure Report |
 
 ## Project Description
@@ -21,20 +21,25 @@ The SauceDemo Playwright UI Testing Project is a C# automation project developed
 
 The project uses Microsoft Playwright for browser automation, NUnit for writing and running tests, and Allure for test reporting. It follows the Page Object Model so page locators and actions remain separate from test cases.
 
-The tests run on two browser engines only: Chrome/Chromium and WebKit. The browsers run in headed mode so the UI is visible during execution.
+The tests run on two browser engines only: Chromium and WebKit. The browsers run in headed mode so the UI is visible during execution.
 
 SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM fixture and test were removed as requested.
 
 ## Assignment Implementation Summary
 
-- **Browser Testing:** Tests run on Chrome/Chromium and WebKit.
-- **Page Object Model:** Login, inventory, product details, cart, and checkout pages have separate page classes.
-- **Reusable Setup and Teardown:** Browser creation, context creation, screenshots, traces, and cleanup are managed in `TestBase`.
-- **Configuration:** Base URL, headed mode, timeout, screenshot, trace, and Chrome channel settings are stored in `appsettings.json`.
+- **Browser Testing:** Tests run on Chromium and WebKit.
+- **Page Object Model:** Login, inventory, product details, cart, and checkout pages have separate page classes with private locators and public actions/state getters.
+- **Focused Test Base:** `TestBase` contains only browser setup and teardown orchestration.
+- **Separated Responsibilities:** `BrowserFactory`, `TestEvidence`, `AllureHelper`, and `LoginFlow` contain reusable framework behavior. `NavigationHelper` owns navigation retry handling.
+- **Parallel Execution:** NUnit runs up to two independent test fixtures in parallel.
+- **Configuration:** Base URL, headed mode, timeout, navigation retry, random seed, screenshot, and trace settings are stored in `appsettings.json`.
+- **URL Validation:** The configured base URL must use HTTP or HTTPS.
+- **Application Routes:** Inventory, product details, cart, checkout step one, checkout step two, and checkout complete routes are centralized in `AppRoutes`.
 - **Positive Testing:** Valid login, product sorting, cart behavior, product preview, and successful checkout are covered.
 - **Negative Testing:** Invalid login and missing checkout information are covered.
-- **Dynamic Locators:** Products are selected by their visible product names.
-- **Playwright Features:** Role, text, placeholder, CSS, XPath, explicit wait, auto-waiting, dropdown, hover, keyboard, and multiple-page examples are included.
+- **Dynamic Locators:** Products are selected by their visible product names. The random selection uses a configured seed so a failed run can be reproduced.
+- **Playwright Features:** Role, text, placeholder, CSS, XPath, explicit wait, auto-waiting, dropdown, hover, and multiple-page examples are included.
+- **Locator Test Exception:** `LocatorTests` intentionally contains raw CSS/XPath expressions because locator syntax is the behavior under test. Business-flow tests access private page locators only through public page-object methods.
 - **Failure Evidence:** Failed tests automatically create a full-page screenshot and Playwright trace.
 - **Allure Reporting:** Test results, failure details, screenshots, and traces are included in the Allure report.
 - **Intentional Failure:** A separate failure demonstration reads the real product heading and intentionally compares it with an incorrect expected value.
@@ -48,7 +53,7 @@ SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM
 - Login with an invalid password
 - Login with an empty username
 - Login with an empty password
-- Submit login using the Enter key
+- Submit login by clicking the Login button
 
 ### 2. Product Testing
 
@@ -58,7 +63,7 @@ SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM
 - Sort products by price from low to high
 - Sort products by price from high to low
 - Open and verify a product preview page
-- Add products using dynamic product-name locators
+- Add a reproducible random number of products using dynamic product-name locators
 
 ### 3. Cart Testing
 
@@ -86,7 +91,6 @@ SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM
 - Role, text, and placeholder locators
 - Dropdown selection
 - Hover action
-- Keyboard action
 - Playwright auto-waiting
 - Explicit waiting
 - Multiple pages in one browser context
@@ -123,19 +127,24 @@ SauceDemo does not contain a Shadow DOM component. The separate local Shadow DOM
 - Setup and teardown
 - Exception handling
 - JSON configuration
+- Parallel test execution
 
 ## Project Structure
 
 ```text
 SauceDemoPlaywrightUITesting
 ├── Configuration
+├── Enums
+├── Extensions
 ├── Fixtures
+├── Infrastructure
 ├── Pages
 ├── Reports
 │   └── allure-results
 ├── TestData
 ├── TestResults
 ├── Tests
+├── .editorconfig
 ├── allureConfig.json
 ├── appsettings.json
 ├── README.md
@@ -151,7 +160,11 @@ dotnet restore
 dotnet build
 ```
 
-Install the Chrome/Chromium and WebKit browser binaries:
+Install the Chromium and WebKit browser binaries:
+
+```powershell
+pwsh bin/Debug/net10.0/playwright.ps1 install chromium webkit
+```
 
 ## How To Run Tests
 
@@ -161,26 +174,49 @@ Run the normal test suite on both browsers:
 dotnet test --filter "TestCategory!=FailureDemo"
 ```
 
-Run the normal tests on Chrome only:
+Run the normal tests on Chromium only in Windows PowerShell. Browser names are case-insensitive, so `chromium`, `Chromium`, and `CHROMIUM` all work:
 
-```bash
-$env:BROWSER="Chrome"; dotnet test --filter "TestCategory!=FailureDemo"
+```powershell
+$env:BROWSER="chromium"; dotnet test --filter "TestCategory!=FailureDemo"
 ```
 
 Run the normal tests on WebKit only:
 
-```bash
-BROWSER=WebKit dotnet test --filter "TestCategory!=FailureDemo"
+```powershell
+$env:BROWSER="webkit"; dotnet test --filter "TestCategory!=FailureDemo"
 ```
 
 The browsers are visible because `headless` is set to `false` in `appsettings.json`.
 
-## How To Run The Intentional Failure
+`Configuration/AssemblySettings.cs` sets `LevelOfParallelism(2)` and `ParallelScope.Fixtures`. This allows independent fixtures to run concurrently while limiting the suite to two NUnit workers.
 
-Run the failure demonstration on Chrome:
+## Important Configuration Values
+
+| Setting | Purpose |
+| --- | --- |
+| `baseUrl` | SauceDemo HTTP/HTTPS base address |
+| `headless` | `false` displays the browser UI |
+| `timeoutMilliseconds` | Default Playwright action and assertion timeout |
+| `navigationMaxAttempts` | Maximum attempts for known navigation/network failures |
+| `navigationRetryDelayMilliseconds` | Delay between navigation retry attempts |
+| `randomSeed` | Reproduces the same random product count and product selection |
+| `screenshotOnFailure` | Captures a full-page PNG when a test fails |
+| `traceEnabled` | Records a Playwright trace for each test |
+
+To reproduce a random-product failure, keep the `randomSeed` shown in the test output and rerun the same test. Changing the seed creates a different deterministic selection.
+
+Check code formatting without changing files:
 
 ```bash
-BROWSER=Chrome dotnet test --filter "TestCategory=FailureDemo"
+dotnet format whitespace --no-restore --verify-no-changes
+```
+
+## How To Run The Intentional Failure
+
+Run the failure demonstration on Chromium:
+
+```powershell
+$env:BROWSER="chromium"; dotnet test --filter "TestCategory=FailureDemo"
 ```
 
 This command is expected to finish with one failed test. The test reads the real heading `Products` from SauceDemo and intentionally expects `Product Catalog`. It uses a normal NUnit assertion rather than calling `Assert.Fail`.
@@ -200,7 +236,7 @@ Create a fresh complete report by running the following commands one at a time:
 ```bash
 Remove-Item -Recurse -Force ".\Reports\allure-results", ".\allure-report"
 dotnet test --filter "TestCategory!=FailureDemo"
-BROWSER=Chrome dotnet test --filter "TestCategory=FailureDemo"
+$env:BROWSER="chromium"; dotnet test --filter "TestCategory=FailureDemo"
 npx.cmd --yes allure-commandline generate ".\Reports\allure-results" --clean -o ".\allure-report"
 npx.cmd --yes allure-commandline open ".\allure-report"
 ```
@@ -232,15 +268,16 @@ The same failure evidence is also stored in the project-level `TestResults` fold
 
 Run one login test with the Playwright Inspector:
 
-```bash
-PWDEBUG=1 BROWSER=Chrome dotnet test --filter "Name=Login_WithValidCredentials_ShouldSucceed"
+```powershell
+$env:PWDEBUG="1"; $env:BROWSER="chromium"; dotnet test --filter "Name=Login_WithValidCredentials_ShouldSucceed"
 ```
 
 The Inspector allows the test to be resumed one step at a time and includes a locator picker.
 
 ## Expected Output
 
-- Chrome/Chromium and WebKit browser windows are visible during normal test execution.
+- Chromium and WebKit browser windows are visible during normal test execution.
+- Up to two independent test fixtures run in parallel.
 - The normal suite passes when the `FailureDemo` category is excluded.
 - The intentional failure command reports one failed test.
 - A real screenshot of the SauceDemo Products page is created for the intentional failure.
@@ -251,4 +288,4 @@ The Inspector allows the test to be resumed one step at a time and includes a lo
 
 ## Conclusion
 
-This project demonstrates UI test automation using C#, NUnit, and Microsoft Playwright. It covers the main SauceDemo login, product, cart, and checkout workflows on Chrome/Chromium and WebKit. It also demonstrates reusable browser setup, the Page Object Model, multiple locator types, waits, parameterized tests, failure screenshots, Playwright traces, and Allure reporting.
+This project demonstrates UI test automation using C#, NUnit, and Microsoft Playwright. It covers the main SauceDemo login, product, cart, and checkout workflows on Chromium and WebKit. It also demonstrates reusable browser setup, parallel fixtures, the Page Object Model, multiple locator types, waits, parameterized tests, failure screenshots, Playwright traces, and Allure reporting.

@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using SauceDemo.Playwright.Tests.Configuration;
 
 namespace SauceDemo.Playwright.Tests.Pages;
 
@@ -15,37 +14,17 @@ public sealed class LoginPage
         _page = page;
     }
 
-    public ILocator Username => _page.Locator(UsernameSelector);
-    public ILocator Password => _page.GetByPlaceholder("Password");
-    public ILocator LoginButton => _page.GetByRole(AriaRole.Button, new() { Name = "Login" });
-    public ILocator ErrorMessage => _page.Locator(ErrorMessageSelector);
+    private ILocator Username => _page.Locator(UsernameSelector);
+    private ILocator Password => _page.GetByPlaceholder("Password");
+    private ILocator LoginButton => _page.GetByRole(AriaRole.Button, new() { Name = "Login" });
+    private ILocator ErrorMessage => _page.Locator(ErrorMessageSelector);
 
-    public async Task Open()
+    public Task WaitUntilLoaded()
     {
-        for (var attempt = 1; attempt <= 3; attempt++)
+        return Username.WaitForAsync(new LocatorWaitForOptions
         {
-            try
-            {
-                await _page.GotoAsync(AppRoutes.Root, new PageGotoOptions
-                {
-                    WaitUntil = WaitUntilState.Commit
-                });
-                await Username.WaitForAsync(new LocatorWaitForOptions
-                {
-                    State = WaitForSelectorState.Visible
-                });
-                return;
-            }
-            catch (Exception exception) when (attempt < 3 && IsRetryableOpenError(exception))
-            {
-                await _page.WaitForTimeoutAsync(2000);
-            }
-        }
-    }
-
-    private static bool IsRetryableOpenError(Exception exception)
-    {
-        return exception is TimeoutException or PlaywrightException;
+            State = WaitForSelectorState.Visible
+        });
     }
 
     public async Task FillCredentials(string username, string password)
@@ -54,7 +33,7 @@ public sealed class LoginPage
         await Password.FillAsync(password);
     }
 
-    public Task ClickLogin()
+    public Task ClickOnLoginButton()
     {
         return LoginButton.ClickAsync();
     }
@@ -62,6 +41,26 @@ public sealed class LoginPage
     public async Task Login(string username, string password)
     {
         await FillCredentials(username, password);
-        await ClickLogin();
+        await ClickOnLoginButton();
+    }
+
+    public Task<string> GetUsernameValue()
+    {
+        return Username.InputValueAsync();
+    }
+
+    public Task<bool> IsLoginButtonDisplayed()
+    {
+        return LoginButton.IsVisibleAsync();
+    }
+
+    public Task<bool> IsErrorDisplayed()
+    {
+        return ErrorMessage.IsVisibleAsync();
+    }
+
+    public Task<string> GetErrorMessage()
+    {
+        return ErrorMessage.InnerTextAsync();
     }
 }

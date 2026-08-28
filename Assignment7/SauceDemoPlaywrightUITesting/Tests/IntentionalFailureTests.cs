@@ -16,9 +16,9 @@ public sealed class IntentionalFailureTests : TestBase
     [Test]
     public async Task Inventory_WithIncorrectExpectedHeading_ShouldFailIntentionally()
     {
-        var inventoryPage = await OpenAndLogin();
-        var actualHeading = await inventoryPage.Title.InnerTextAsync();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
+        var actualHeading = await inventoryPage.GetPageTitle();
 
-        Assert.That(actualHeading, Is.EqualTo(ExpectedText.IntentionalIncorrectInventoryTitle));
+        Assert.That(actualHeading, Is.EqualTo(PageTitleTestData.IntentionalIncorrectInventory));
     }
 }

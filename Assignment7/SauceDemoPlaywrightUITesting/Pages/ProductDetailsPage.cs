@@ -15,13 +15,33 @@ public sealed class ProductDetailsPage
         _page = page;
     }
 
-    public ILocator Name => _page.Locator(NameSelector);
-    public ILocator Description => _page.Locator(DescriptionSelector);
-    public ILocator Price => _page.Locator(PriceSelector);
-    public ILocator AddToCartButton => _page.GetByRole(AriaRole.Button, new() { Name = "Add to cart" });
-    public ILocator BackToProductsButton => _page.GetByRole(AriaRole.Button, new() { Name = "Back to products" });
+    private ILocator Name => _page.Locator(NameSelector);
+    private ILocator Description => _page.Locator(DescriptionSelector);
+    private ILocator Price => _page.Locator(PriceSelector);
+    private ILocator AddToCartButton => _page.GetByRole(AriaRole.Button, new() { Name = "Add to cart" });
+    private ILocator BackToProductsButton => _page.GetByRole(AriaRole.Button, new() { Name = "Back to products" });
 
-    public Task BackToProducts()
+    public Task<string> GetProductName()
+    {
+        return Name.InnerTextAsync();
+    }
+
+    public Task<string> GetProductDescription()
+    {
+        return Description.InnerTextAsync();
+    }
+
+    public Task<string> GetProductPrice()
+    {
+        return Price.InnerTextAsync();
+    }
+
+    public Task<bool> IsAddToCartButtonDisplayed()
+    {
+        return AddToCartButton.IsVisibleAsync();
+    }
+
+    public Task ClickOnBackToProductsButton()
     {
         return BackToProductsButton.ClickAsync();
     }

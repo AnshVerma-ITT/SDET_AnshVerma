@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SauceDemo.Playwright.Tests.Configuration;
+using SauceDemo.Playwright.Tests.Enums;
 using SauceDemo.Playwright.Tests.Fixtures;
 using SauceDemo.Playwright.Tests.Pages;
 using SauceDemo.Playwright.Tests.TestData;
@@ -17,71 +18,83 @@ public sealed class CheckoutTests : TestBase
     [Test]
     public async Task Checkout_CompletePurchaseFlow_ShouldSucceed()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
-        await inventoryPage.SortBy(ProductSortOption.PriceLowToHigh);
+        await inventoryPage.SelectProductSortOption(ProductSortOption.PriceLowToHigh);
         await inventoryPage.AddProductsToCart(ProductTestData.ProductsForCart);
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
 
         var cartPage = new CartPage(Page);
         foreach (var product in ProductTestData.ProductsForCart)
         {
-            await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
+            Assert.That(await cartPage.IsProductDisplayed(product), Is.True);
         }
 
-        await cartPage.ContinueShopping();
+        await cartPage.ClickOnContinueShoppingButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Inventory);
         var remainingProducts = ProductTestData.ProductsForCheckout
             .Except(ProductTestData.ProductsForCart)
             .ToArray();
         await inventoryPage.AddProductsToCart(remainingProducts);
-        await inventoryPage.OpenCart();
-        await cartPage.Checkout();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
+        await cartPage.ClickOnCheckoutButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.CheckoutStepOne);
 
         var checkoutPage = new CheckoutPage(Page);
         await checkoutPage.FillCustomerInformation(
             CheckoutTestData.FirstName,
             CheckoutTestData.LastName,
             CheckoutTestData.PostalCode);
-        await checkoutPage.Continue();
+        await checkoutPage.ClickOnContinueButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.CheckoutStepTwo);
 
-        await Expect(checkoutPage.OverviewTitle).ToBeVisibleAsync();
-        await Expect(checkoutPage.SummaryItems).ToHaveCountAsync(ProductTestData.ProductsForCheckout.Count);
-        await Expect(checkoutPage.Subtotal).ToContainTextAsync(ExpectedText.CheckoutItemTotalLabel);
-        await Expect(checkoutPage.Tax).ToContainTextAsync(ExpectedText.CheckoutTaxLabel);
-        await Expect(checkoutPage.Total).ToContainTextAsync(ExpectedText.CheckoutTotalLabel);
+        Assert.That(await checkoutPage.GetOverviewTitle(), Is.EqualTo(PageTitleTestData.CheckoutOverview));
+        Assert.That(
+            await checkoutPage.GetSummaryItemCount(),
+            Is.EqualTo(ProductTestData.ProductsForCheckout.Count));
+        Assert.That(await checkoutPage.GetSubtotal(), Does.Contain(CheckoutTestData.ItemTotalLabel));
+        Assert.That(await checkoutPage.GetTax(), Does.Contain(CheckoutTestData.TaxLabel));
+        Assert.That(await checkoutPage.GetTotal(), Does.Contain(CheckoutTestData.TotalLabel));
 
         foreach (var product in ProductTestData.ProductsForCheckout)
         {
-            await Expect(checkoutPage.SummaryItemByProductName(product)).ToBeVisibleAsync();
+            Assert.That(await checkoutPage.IsProductDisplayedInSummary(product), Is.True);
         }
 
-        await checkoutPage.Finish();
+        await checkoutPage.ClickOnFinishButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.CheckoutComplete);
 
-        await Expect(checkoutPage.CompleteTitle).ToBeVisibleAsync();
-        await Expect(checkoutPage.ConfirmationMessage).ToHaveTextAsync(ExpectedText.OrderConfirmation);
+        Assert.That(await checkoutPage.GetCompleteTitle(), Is.EqualTo(PageTitleTestData.CheckoutComplete));
+        Assert.That(
+            await checkoutPage.GetConfirmationMessage(),
+            Is.EqualTo(CheckoutTestData.OrderConfirmation));
     }
 
-    [TestCase("", CheckoutTestData.LastName, CheckoutTestData.PostalCode, ExpectedText.FirstNameRequiredError)]
-    [TestCase(CheckoutTestData.FirstName, "", CheckoutTestData.PostalCode, ExpectedText.LastNameRequiredError)]
-    [TestCase(CheckoutTestData.FirstName, CheckoutTestData.LastName, "", ExpectedText.PostalCodeRequiredError)]
+    [TestCase("", CheckoutTestData.LastName, CheckoutTestData.PostalCode, AppErrorTestData.FirstNameRequired)]
+    [TestCase(CheckoutTestData.FirstName, "", CheckoutTestData.PostalCode, AppErrorTestData.LastNameRequired)]
+    [TestCase(CheckoutTestData.FirstName, CheckoutTestData.LastName, "", AppErrorTestData.PostalCodeRequired)]
     public async Task Checkout_WithMissingRequiredInformation_ShouldShowError(
         string firstName,
         string lastName,
         string postalCode,
         string expectedError)
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
         await inventoryPage.AddProductsToCart([ProductTestData.Backpack]);
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
 
         var cartPage = new CartPage(Page);
-        await cartPage.Checkout();
+        await cartPage.ClickOnCheckoutButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.CheckoutStepOne);
 
         var checkoutPage = new CheckoutPage(Page);
         await checkoutPage.FillCustomerInformation(firstName, lastName, postalCode);
-        await checkoutPage.Continue();
+        await checkoutPage.ClickOnContinueButton();
 
-        await Expect(checkoutPage.ErrorMessage).ToBeVisibleAsync();
-        await Expect(checkoutPage.ErrorMessage).ToContainTextAsync(expectedError);
+        Assert.That(await checkoutPage.IsErrorDisplayed(), Is.True);
+        Assert.That(await checkoutPage.GetErrorMessage(), Does.Contain(expectedError));
     }
 }

@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SauceDemo.Playwright.Tests.Configuration;
+using SauceDemo.Playwright.Tests.Enums;
 using SauceDemo.Playwright.Tests.Fixtures;
 using SauceDemo.Playwright.Tests.Pages;
 using SauceDemo.Playwright.Tests.TestData;
@@ -17,109 +18,114 @@ public sealed class ProductTests : TestBase
     [Test]
     public async Task SortProducts_ByNameAscending_ShouldDisplayAscendingNames()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
-        await inventoryPage.SortBy(ProductSortOption.NameAscending);
+        await inventoryPage.SelectProductSortOption(ProductSortOption.NameAscending);
 
-        var names = await inventoryPage.GetProductNames();
+        var names = await inventoryPage.GetAllProductNames();
         var expectedNames = names.OrderBy(name => name).ToList();
 
-        await Expect(inventoryPage.SortDropdown).ToHaveValueAsync(ProductSortOption.NameAscending.ToSelectValue());
+        Assert.That(await inventoryPage.GetSelectedProductSortOption(), Is.EqualTo(ProductSortOption.NameAscending));
         Assert.That(names, Is.EqualTo(expectedNames));
     }
 
     [Test]
     public async Task SortProducts_ByNameDescending_ShouldDisplayDescendingNames()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
-        await inventoryPage.SortBy(ProductSortOption.NameDescending);
+        await inventoryPage.SelectProductSortOption(ProductSortOption.NameDescending);
 
-        var names = await inventoryPage.GetProductNames();
+        var names = await inventoryPage.GetAllProductNames();
         var expectedNames = names.OrderByDescending(name => name).ToList();
 
-        await Expect(inventoryPage.SortDropdown).ToHaveValueAsync(ProductSortOption.NameDescending.ToSelectValue());
+        Assert.That(await inventoryPage.GetSelectedProductSortOption(), Is.EqualTo(ProductSortOption.NameDescending));
         Assert.That(names, Is.EqualTo(expectedNames));
     }
 
     [Test]
     public async Task SortProducts_ByPriceLowToHigh_ShouldDisplayAscendingPrices()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
-        await StepAsync("Sort products by price low to high", () =>
-            inventoryPage.SortBy(ProductSortOption.PriceLowToHigh));
+        await AllureHelper.Step("Sort products by price low to high", () =>
+            inventoryPage.SelectProductSortOption(ProductSortOption.PriceLowToHigh));
 
-        var prices = await inventoryPage.GetProductPrices();
+        var prices = await inventoryPage.GetAllProductPrices();
         var expectedPrices = prices.OrderBy(price => price).ToList();
 
-        await Expect(inventoryPage.SortDropdown).ToHaveValueAsync(ProductSortOption.PriceLowToHigh.ToSelectValue());
+        Assert.That(await inventoryPage.GetSelectedProductSortOption(), Is.EqualTo(ProductSortOption.PriceLowToHigh));
         Assert.That(prices, Is.EqualTo(expectedPrices));
     }
 
     [Test]
     public async Task SortProducts_ByPriceHighToLow_ShouldDisplayDescendingPrices()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
-        await inventoryPage.SortBy(ProductSortOption.PriceHighToLow);
+        await inventoryPage.SelectProductSortOption(ProductSortOption.PriceHighToLow);
 
-        var prices = await inventoryPage.GetProductPrices();
+        var prices = await inventoryPage.GetAllProductPrices();
         var expectedPrices = prices.OrderByDescending(price => price).ToList();
 
-        await Expect(inventoryPage.SortDropdown).ToHaveValueAsync(ProductSortOption.PriceHighToLow.ToSelectValue());
+        Assert.That(await inventoryPage.GetSelectedProductSortOption(), Is.EqualTo(ProductSortOption.PriceHighToLow));
         Assert.That(prices, Is.EqualTo(expectedPrices));
     }
 
     [Test]
     public async Task ProductPreview_WhenProductNameClicked_ShouldShowProductDetails()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
         await inventoryPage.OpenProductDetails(ProductTestData.Backpack);
+        await Expect(Page).ToHaveURLAsync(AppRoutes.GetProductDetailsRoute(ProductTestData.BackpackId));
 
         var detailsPage = new ProductDetailsPage(Page);
-        await Expect(detailsPage.Name).ToHaveTextAsync(ProductTestData.Backpack);
-        await Expect(detailsPage.Description).ToContainTextAsync(ProductTestData.BackpackDescriptionExcerpt);
-        await Expect(detailsPage.Price).ToHaveTextAsync(ProductTestData.BackpackPrice);
-        await Expect(detailsPage.AddToCartButton).ToBeVisibleAsync();
+        Assert.That(await detailsPage.GetProductName(), Is.EqualTo(ProductTestData.Backpack));
+        Assert.That(await detailsPage.GetProductDescription(), Does.Contain(ProductTestData.BackpackDescriptionExcerpt));
+        Assert.That(await detailsPage.GetProductPrice(), Is.EqualTo(ProductTestData.BackpackPrice));
+        Assert.That(await detailsPage.IsAddToCartButtonDisplayed(), Is.True);
 
-        await detailsPage.BackToProducts();
-        await Expect(inventoryPage.Title).ToHaveTextAsync(ExpectedText.InventoryTitle);
+        await detailsPage.ClickOnBackToProductsButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Inventory);
+        Assert.That(await inventoryPage.GetPageTitle(), Is.EqualTo(PageTitleTestData.Inventory));
     }
 
     [Test]
     public async Task AddProducts_WithRandomSelection_ShouldUseDynamicLocators()
     {
-        var inventoryPage = await OpenAndLogin();
-        var selectedProducts = ProductTestData.GetRandomProducts();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
+        var selectedProducts = ProductTestData.GetRandomProducts(Settings.RandomSeed);
+        TestContext.Progress.WriteLine(
+            $"Random product seed: {Settings.RandomSeed}; selected products: {string.Join(", ", selectedProducts)}");
 
-        await StepAsync("Hover a selected product", () => inventoryPage.HoverProduct(selectedProducts[0]));
-        await StepAsync($"Add {selectedProducts.Count} randomly selected products", () =>
+        await AllureHelper.Step("Hover a selected product", () => inventoryPage.HoverToProductCard(selectedProducts[0]));
+        await AllureHelper.Step($"Add {selectedProducts.Count} randomly selected products", () =>
             inventoryPage.AddProductsToCart(selectedProducts));
 
-        await Expect(inventoryPage.CartBadge).ToHaveTextAsync(selectedProducts.Count.ToString());
+        Assert.That(await inventoryPage.GetCartProductCount(), Is.EqualTo(selectedProducts.Count));
 
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
         var cartPage = new CartPage(Page);
 
         foreach (var product in selectedProducts)
         {
-            await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
+            Assert.That(await cartPage.IsProductDisplayed(product), Is.True);
         }
     }
 
     [Test]
     public async Task BrowserBack_FromProductDetails_ShouldReturnToInventory()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
         await inventoryPage.OpenProductDetails(ProductTestData.Backpack);
-        await Page.WaitForURLAsync(AppRoutes.ProductDetailsWaitPattern);
+        await Expect(Page).ToHaveURLAsync(AppRoutes.GetProductDetailsRoute(ProductTestData.BackpackId));
 
         await Page.GoBackAsync();
 
-        await Expect(Page).ToHaveURLAsync(AppRoutes.InventoryUrlPattern);
-        await Expect(inventoryPage.Title).ToHaveTextAsync(ExpectedText.InventoryTitle);
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Inventory);
+        Assert.That(await inventoryPage.GetPageTitle(), Is.EqualTo(PageTitleTestData.Inventory));
     }
 }

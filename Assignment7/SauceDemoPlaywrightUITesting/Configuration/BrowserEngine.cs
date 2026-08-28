@@ -2,6 +2,6 @@ namespace SauceDemo.Playwright.Tests.Configuration;
 
 public enum BrowserEngine
 {
-    Chrome,
+    Chromium,
     WebKit
 }

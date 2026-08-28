@@ -17,63 +17,69 @@ public sealed class CartTests : TestBase
     [Test]
     public async Task Cart_WithSelectedProducts_ShouldReadRowsAndContinueShopping()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
         await inventoryPage.AddProductsToCart(ProductTestData.ProductsForCart);
 
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
         var cartPage = new CartPage(Page);
 
-        await Expect(cartPage.Title).ToHaveTextAsync(ExpectedText.CartTitle);
-        await Expect(cartPage.Rows).ToHaveCountAsync(ProductTestData.ProductsForCart.Count);
+        Assert.That(await cartPage.GetPageTitle(), Is.EqualTo(PageTitleTestData.Cart));
+        Assert.That(await cartPage.GetProductRowCount(), Is.EqualTo(ProductTestData.ProductsForCart.Count));
 
         foreach (var product in ProductTestData.ProductsForCart)
         {
-            await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
-            Assert.That(await cartPage.GetQuantity(product), Is.EqualTo(ProductTestData.DefaultCartQuantity));
-            Assert.That(await cartPage.GetPriceText(product), Does.StartWith(ProductTestData.CurrencySymbol));
+            Assert.That(await cartPage.IsProductDisplayed(product), Is.True);
+            Assert.That(await cartPage.GetQuantityByProductName(product), Is.EqualTo(ProductTestData.DefaultCartQuantity));
+            Assert.That(await cartPage.GetProductPrice(product), Does.StartWith(ProductTestData.CurrencySymbol));
         }
 
-        await cartPage.ContinueShopping();
-        await Expect(inventoryPage.Title).ToHaveTextAsync(ExpectedText.InventoryTitle);
+        await cartPage.ClickOnContinueShoppingButton();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Inventory);
+        Assert.That(await inventoryPage.GetPageTitle(), Is.EqualTo(PageTitleTestData.Inventory));
 
         var remainingProducts = ProductTestData.ProductsForCheckout
             .Except(ProductTestData.ProductsForCart)
             .ToArray();
         await inventoryPage.AddProductsToCart(remainingProducts);
-        await Expect(inventoryPage.CartBadge).ToHaveTextAsync(ProductTestData.ProductsForCheckout.Count.ToString());
+        Assert.That(
+            await inventoryPage.GetCartProductCount(),
+            Is.EqualTo(ProductTestData.ProductsForCheckout.Count));
     }
 
     [Test]
     public async Task Cart_WithNoProducts_ShouldBeEmpty()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
         await inventoryPage.AddProductsToCart(Array.Empty<string>());
-        await Expect(inventoryPage.CartBadge).ToHaveCountAsync(0);
+        Assert.That(await inventoryPage.GetCartProductCount(), Is.Zero);
 
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
         var cartPage = new CartPage(Page);
 
-        await Expect(cartPage.Title).ToHaveTextAsync(ExpectedText.CartTitle);
-        await Expect(cartPage.Rows).ToHaveCountAsync(0);
+        Assert.That(await cartPage.GetPageTitle(), Is.EqualTo(PageTitleTestData.Cart));
+        Assert.That(await cartPage.GetProductRowCount(), Is.Zero);
     }
 
     [Test]
     public async Task Cart_WithAllProducts_ShouldContainEveryProduct()
     {
-        var inventoryPage = await OpenAndLogin();
+        var inventoryPage = await LoginFlow.OpenAndLogin(Page, Settings);
 
         await inventoryPage.AddProductsToCart(ProductTestData.AllProducts);
-        await Expect(inventoryPage.CartBadge).ToHaveTextAsync(ProductTestData.AllProducts.Count.ToString());
+        Assert.That(await inventoryPage.GetCartProductCount(), Is.EqualTo(ProductTestData.AllProducts.Count));
 
-        await inventoryPage.OpenCart();
+        await inventoryPage.ClickOnShoppingCartLink();
+        await Expect(Page).ToHaveURLAsync(AppRoutes.Cart);
         var cartPage = new CartPage(Page);
 
-        await Expect(cartPage.Rows).ToHaveCountAsync(ProductTestData.AllProducts.Count);
+        Assert.That(await cartPage.GetProductRowCount(), Is.EqualTo(ProductTestData.AllProducts.Count));
         foreach (var product in ProductTestData.AllProducts)
         {
-            await Expect(cartPage.RowByProductName(product)).ToBeVisibleAsync();
+            Assert.That(await cartPage.IsProductDisplayed(product), Is.True);
         }
     }
 }

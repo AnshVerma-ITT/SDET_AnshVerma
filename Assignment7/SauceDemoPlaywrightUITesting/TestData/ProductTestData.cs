@@ -4,6 +4,7 @@ public static class ProductTestData
 {
     public const string BrandName = "Sauce Labs";
     public const string Backpack = "Sauce Labs Backpack";
+    public const int BackpackId = 4;
     public const string BikeLight = "Sauce Labs Bike Light";
     public const string BoltTShirt = "Sauce Labs Bolt T-Shirt";
     public const string FleeceJacket = "Sauce Labs Fleece Jacket";
@@ -37,11 +38,12 @@ public static class ProductTestData
         BoltTShirt
     ]);
 
-    public static IReadOnlyList<string> GetRandomProducts()
+    public static IReadOnlyList<string> GetRandomProducts(int seed)
     {
+        var random = new Random(seed);
         var products = AllProducts.ToArray();
-        Random.Shared.Shuffle(products);
-        var randomCount = Random.Shared.Next(1, AllProducts.Count + 1);
+        random.Shuffle(products);
+        var randomCount = random.Next(1, AllProducts.Count + 1);
 
         return products[..randomCount];
     }
