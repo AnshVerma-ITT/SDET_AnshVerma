@@ -1,0 +1,10 @@
+bin/
+obj/
+TestResults/
+Reports/allure-results/
+allure-report/
+.DS_Store
+*.trx
+*.zip
+*.png
+PlaywrightAdvancedFeatures.csproj
