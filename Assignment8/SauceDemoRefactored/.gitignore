@@ -8,3 +8,4 @@ allure-report/
 *.zip
 *.png
 SauceDemoRefactored.csproj
+Reports/ 
