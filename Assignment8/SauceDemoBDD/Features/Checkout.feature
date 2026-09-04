@@ -9,7 +9,8 @@ Feature: SauceDemo checkout
 
   Scenario: Complete the Week 6 purchase journey
     When I sort products by price from low to high
-    And I add these products to the cart
+    Then product prices should be in ascending order
+    When I add these products to the cart
       | Product    |
       | backpack   |
       | bike light |

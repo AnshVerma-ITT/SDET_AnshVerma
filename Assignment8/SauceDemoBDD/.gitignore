@@ -7,4 +7,4 @@ allure-report/
 *.trx
 *.zip
 *.png
-*.csproj
+*.feature.cs

@@ -15,6 +15,7 @@ public sealed class InventoryPage
     private const string ProductNameTestId = "inventory-item-name";
     private const string PriceLowToHighValue = "lohi";
     private const string ExpectedPageTitle = "Products";
+    private const string AddToCartButtonLabel = "Add to cart";
 
     private readonly IPage _page;
 
@@ -59,7 +60,7 @@ public sealed class InventoryPage
         foreach (var productName in productNames)
         {
             await GetProductCard(productName)
-                .GetByRole(AriaRole.Button, new() { Name = "Add to cart" })
+                .GetByRole(AriaRole.Button, new() { Name = AddToCartButtonLabel })
                 .ClickAsync();
         }
     }

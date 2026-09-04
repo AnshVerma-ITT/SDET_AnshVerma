@@ -5,6 +5,8 @@ namespace SauceDemoBDD.Configuration;
 
 public sealed class TestSettings
 {
+    private const string SettingsFileName = "appsettings.json";
+
     public required string BaseUrl { get; init; }
     public required string Browser { get; init; }
     public required string TestIdAttribute { get; init; }
@@ -19,13 +21,13 @@ public sealed class TestSettings
 
     public static TestSettings Load()
     {
-        var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "appsettings.json");
+        var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, SettingsFileName);
         var json = File.ReadAllText(filePath);
 
         var settings = JsonSerializer.Deserialize<TestSettings>(
             json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-            ?? throw new InvalidOperationException("appsettings.json is invalid.");
+            ?? throw new InvalidOperationException($"{SettingsFileName} is invalid.");
 
         if (!Uri.TryCreate(settings.BaseUrl, UriKind.Absolute, out var baseUri)
             || (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
@@ -33,8 +35,8 @@ public sealed class TestSettings
             throw new InvalidOperationException("baseUrl must be an absolute HTTP or HTTPS URL.");
         }
 
-        if (!string.Equals(settings.Browser, "Chromium", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(settings.Browser, "WebKit", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(settings.Browser, BrowserNames.Chromium, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(settings.Browser, BrowserNames.WebKit, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("browser must be Chromium or WebKit.");
         }

@@ -109,8 +109,8 @@ public sealed class BrowserDriver
 
         return browserName.ToLowerInvariant() switch
         {
-            "chromium" => playwright.Chromium.LaunchAsync(options),
-            "webkit" => playwright.Webkit.LaunchAsync(options),
+            BrowserNames.Chromium => playwright.Chromium.LaunchAsync(options),
+            BrowserNames.WebKit => playwright.Webkit.LaunchAsync(options),
             _ => throw new ArgumentException("Browser must be Chromium or WebKit.")
         };
     }
@@ -175,14 +175,7 @@ public sealed class BrowserDriver
     private static void AddAttachment(string name, string contentType, string path)
     {
         TestContext.AddTestAttachment(path, name);
-        try
-        {
-            AllureApi.AddAttachment(name, contentType, path);
-        }
-        catch
-        {
-            // NUnit keeps the attachment if Allure is unavailable.
-        }
+        AllureApi.AddAttachment(name, contentType, path);
     }
 
     private static string GetSafeTestName()

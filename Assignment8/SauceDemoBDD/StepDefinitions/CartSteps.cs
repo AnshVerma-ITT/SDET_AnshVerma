@@ -21,10 +21,20 @@ public sealed class CartSteps
     [Then("the cart should contain the selected products")]
     public async Task ThenTheCartShouldContainSelectedProducts()
     {
+        var missingProducts = new List<string>();
+
         foreach (var productName in _state.SelectedProducts)
         {
-            Assert.That(await _driver.CartPage.ContainsProduct(productName), Is.True);
+            if (!await _driver.CartPage.ContainsProduct(productName))
+            {
+                missingProducts.Add(productName);
+            }
         }
+
+        Assert.That(
+            missingProducts,
+            Is.Empty,
+            $"Missing products: {string.Join(", ", missingProducts)}");
     }
 
     [Then("the cart should contain {int} products")]
