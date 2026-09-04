@@ -1,4 +1,4 @@
-namespace SauceDemoBDD.Support;
+namespace SauceDemoBDD.Helper;
 
 public sealed class ScenarioState
 {

@@ -1,6 +1,6 @@
 using Reqnroll;
 
-namespace SauceDemoBDD.Support;
+namespace SauceDemoBDD.Helper;
 
 [Binding]
 public sealed class ScenarioHooks

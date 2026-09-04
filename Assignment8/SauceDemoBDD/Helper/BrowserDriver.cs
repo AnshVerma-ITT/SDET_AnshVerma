@@ -4,7 +4,7 @@ using NUnit.Framework;
 using SauceDemoBDD.Configuration;
 using SauceDemoBDD.Pages;
 
-namespace SauceDemoBDD.Support;
+namespace SauceDemoBDD.Helper;
 
 public sealed class BrowserDriver
 {

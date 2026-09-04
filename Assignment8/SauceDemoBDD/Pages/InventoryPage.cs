@@ -16,6 +16,7 @@ public sealed class InventoryPage
     private const string PriceLowToHighValue = "lohi";
     private const string ExpectedPageTitle = "Products";
     private const string AddToCartButtonLabel = "Add to cart";
+    private const string RemoveButtonLabel = "Remove";
 
     private readonly IPage _page;
 
@@ -68,7 +69,7 @@ public sealed class InventoryPage
     public Task RemoveProduct(string productName)
     {
         return GetProductCard(productName)
-            .GetByRole(AriaRole.Button, new() { Name = "Remove" })
+            .GetByRole(AriaRole.Button, new() { Name = RemoveButtonLabel })
             .ClickAsync();
     }
 

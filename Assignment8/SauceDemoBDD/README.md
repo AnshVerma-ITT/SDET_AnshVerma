@@ -54,7 +54,7 @@ Gherkin expresses those examples using readable keywords:
 
 `Flows` contains the reusable standard-user login journey.
 
-`Support` contains the browser driver, Reqnroll hooks, scenario-specific state, evidence capture, and resource cleanup.
+`Helper` contains the browser driver, Reqnroll hooks, scenario-specific state, evidence capture, and resource cleanup.
 
 `Configuration` contains application routes, parallel execution settings, and JSON configuration loading and validation.
 
@@ -93,7 +93,7 @@ The project remains independent and does not reference the refactored or advance
 | `Flows` | Reusable multi-page user journeys. |
 | `Pages` | Page Object Model classes and locators. |
 | `StepDefinitions` | Given, When, and Then bindings. |
-| `Support` | Browser driver, scenario hooks, state, and evidence handling. |
+| `Helper` | Browser driver, scenario hooks, state, and evidence handling. |
 | `TestData` | Central credentials, products, checkout data, and expected messages. |
 | `Reports` | Allure raw result output. |
 | `appsettings.json` | Runtime configuration. |

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Reqnroll;
 using SauceDemoBDD.Configuration;
 using SauceDemoBDD.Flows;
-using SauceDemoBDD.Support;
+using SauceDemoBDD.Helper;
 using SauceDemoBDD.TestData;
 using static Microsoft.Playwright.Assertions;
 
