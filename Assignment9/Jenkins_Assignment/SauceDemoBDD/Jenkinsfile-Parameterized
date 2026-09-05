@@ -1,0 +1,151 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'BROWSER',
+            choices: ['Chromium', 'WebKit'],
+            description: 'Select the browser for SauceDemoBDD test execution.'
+        )
+    }
+
+    stages {
+
+        stage('Restore') {
+            steps {
+                dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
+                    bat 'dotnet restore'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
+                    bat 'dotnet build --no-restore'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
+                    bat '''
+                        echo ========================================
+                        echo Running SauceDemoBDD Tests
+                        echo Selected Browser: %BROWSER%
+                        echo ========================================
+
+                        set BROWSER=%BROWSER%
+
+                        dotnet test --no-build ^
+                          --logger:"trx;LogFileName=test-results.trx" ^
+                          --results-directory:"TestResults"
+                    '''
+                }
+            }
+        }
+
+        stage('Generate HTML Report') {
+            steps {
+                script {
+                    writeFile(
+                        file: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/test-report.html',
+                        text: """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SauceDemoBDD Jenkins Test Report</title>
+</head>
+<body>
+    <h1>SauceDemoBDD Jenkins Test Report</h1>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Job Name</th>
+            <td>${env.JOB_NAME}</td>
+        </tr>
+
+        <tr>
+            <th>Build Number</th>
+            <td>${env.BUILD_NUMBER}</td>
+        </tr>
+
+        <tr>
+            <th>Browser</th>
+            <td>${params.BROWSER}</td>
+        </tr>
+
+        <tr>
+            <th>Build Status</th>
+            <td>${currentBuild.currentResult}</td>
+        </tr>
+
+        <tr>
+            <th>Build URL</th>
+            <td>
+                <a href="${env.BUILD_URL}">
+                    ${env.BUILD_URL}
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <h2>Test Execution</h2>
+
+    <ul>
+        <li>C#</li>
+        <li>.NET 10</li>
+        <li>NUnit</li>
+        <li>Reqnroll BDD</li>
+        <li>Microsoft Playwright</li>
+    </ul>
+
+    <h2>Test Result</h2>
+
+    <p>
+        Detailed test results are available in the archived TRX file.
+    </p>
+
+</body>
+</html>
+"""
+                    )
+                }
+            }
+        }
+
+        stage('Archive Results') {
+            steps {
+                archiveArtifacts(
+                    artifacts: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/**/*',
+                    allowEmptyArchive: true
+                )
+            }
+        }
+    }
+
+    post {
+
+        always {
+            echo "========================================"
+            echo "Jenkins Build Completed"
+            echo "========================================"
+            echo "Job Name         : ${env.JOB_NAME}"
+            echo "Build Number     : ${env.BUILD_NUMBER}"
+            echo "Build Status     : ${currentBuild.currentResult}"
+            echo "Selected Browser : ${params.BROWSER}"
+            echo "Build URL        : ${env.BUILD_URL}"
+            echo "========================================"
+        }
+
+        success {
+            echo 'SauceDemoBDD tests completed successfully.'
+        }
+
+        failure {
+            echo 'SauceDemoBDD pipeline failed. Check Console Output and archived test results.'
+        }
+    }
+}
