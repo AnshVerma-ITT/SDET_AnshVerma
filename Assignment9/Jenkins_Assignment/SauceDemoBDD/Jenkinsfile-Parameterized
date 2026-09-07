@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     parameters {
+
         choice(
             name: 'BROWSER',
             choices: ['Chromium', 'WebKit'],
@@ -18,6 +19,12 @@ pipeline {
             name: 'RETRY_COUNT',
             defaultValue: '2',
             description: 'Number of times to retry failed test execution.'
+        )
+
+        string(
+            name: 'TEST_FILTER',
+            defaultValue: '',
+            description: 'Optional test filter. Leave empty to run all tests. Example: TestCategory=Authentication'
         )
     }
 
@@ -62,6 +69,7 @@ pipeline {
                         echo "Running SauceDemoBDD Tests"
                         echo "Selected Browser : ${params.BROWSER}"
                         echo "Retry Count      : ${retries}"
+                        echo "Test Filter      : ${params.TEST_FILTER ?: 'ALL TESTS'}"
                         echo "========================================"
 
                         int attempt = 0
@@ -77,15 +85,31 @@ pipeline {
 
                             try {
 
-                                bat """
-                                    echo Running tests - Attempt ${attempt}
+                                if (params.TEST_FILTER?.trim()) {
 
-                                    set BROWSER=${params.BROWSER}
+                                    bat """
+                                        echo Running filtered tests - Attempt ${attempt}
 
-                                    dotnet test --no-build ^
-                                      --logger:"trx;LogFileName=test-results.trx" ^
-                                      --results-directory:"TestResults"
-                                """
+                                        set BROWSER=${params.BROWSER}
+
+                                        dotnet test --no-build ^
+                                          --filter "${params.TEST_FILTER}" ^
+                                          --logger:"trx;LogFileName=test-results.trx" ^
+                                          --results-directory:"TestResults"
+                                    """
+
+                                } else {
+
+                                    bat """
+                                        echo Running all tests - Attempt ${attempt}
+
+                                        set BROWSER=${params.BROWSER}
+
+                                        dotnet test --no-build ^
+                                          --logger:"trx;LogFileName=test-results.trx" ^
+                                          --results-directory:"TestResults"
+                                    """
+                                }
 
                                 testPassed = true
 
@@ -96,9 +120,14 @@ pipeline {
                                 echo "Tests failed on attempt ${attempt}."
 
                                 if (attempt <= retries) {
+
                                     echo "Retrying tests..."
+                                    echo "Remaining retries: ${retries - attempt + 1}"
+
                                 } else {
+
                                     echo "Maximum retry attempts reached."
+
                                     throw e
                                 }
                             }
@@ -194,6 +223,7 @@ pipeline {
 
     <h1>SauceDemoBDD Jenkins Test Report</h1>
 
+
     <h2>Build Information</h2>
 
     <table>
@@ -221,6 +251,11 @@ pipeline {
         <tr>
             <th>Retry Count</th>
             <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
+            <th>Test Filter</th>
+            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
         </tr>
 
         <tr>
@@ -441,6 +476,9 @@ pipeline {
             echo "Build Number     : ${env.BUILD_NUMBER}"
             echo "Build Status     : ${currentBuild.currentResult}"
             echo "Selected Browser : ${params.BROWSER}"
+            echo "Email            : ${params.EMAIL}"
+            echo "Retry Count      : ${params.RETRY_COUNT}"
+            echo "Test Filter      : ${params.TEST_FILTER ?: 'ALL TESTS'}"
             echo "Build URL        : ${env.BUILD_URL}"
             echo "========================================"
         }
@@ -482,6 +520,11 @@ pipeline {
         <tr>
             <th>Retry Count</th>
             <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
+            <th>Test Filter</th>
+            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
         </tr>
 
         <tr>
@@ -575,6 +618,11 @@ pipeline {
         <tr>
             <th>Retry Count</th>
             <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
+            <th>Test Filter</th>
+            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
         </tr>
 
         <tr>
