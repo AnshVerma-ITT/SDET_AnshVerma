@@ -303,12 +303,6 @@ pipeline {
         are available in the Jenkins build artifacts.
     </p>
 
-    <p>
-        <a href="${env.BUILD_URL}artifact/Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/">
-            View Archived Test Results
-        </a>
-    </p>
-
 </body>
 
 </html>
@@ -376,12 +370,6 @@ pipeline {
     <p>
         Please check the Jenkins Console Output and
         archived test results for details.
-    </p>
-
-    <p>
-        <a href="${env.BUILD_URL}artifact/Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/">
-            View Archived Test Results
-        </a>
     </p>
 
 </body>
