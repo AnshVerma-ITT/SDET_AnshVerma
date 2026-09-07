@@ -21,6 +21,7 @@
 
 ## Project Description
 
+Change1
 This project is an independent SauceDemo automation framework created for Assignment 2.
 
 It applies the Page Object Model and Behavior-Driven Development to the Week 6 SauceDemo purchase scenario. Business behavior is written in Gherkin feature files, executable steps are implemented through Reqnroll bindings, page locators and actions are stored in page object classes, and NUnit runs the generated scenarios.
