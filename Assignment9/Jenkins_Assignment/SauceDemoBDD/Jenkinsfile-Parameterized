@@ -7,6 +7,12 @@ pipeline {
             choices: ['Chromium', 'WebKit'],
             description: 'Select the browser for SauceDemoBDD test execution.'
         )
+
+        string(
+            name: 'EMAIL',
+            defaultValue: 'anshav14@gmail.com',
+            description: 'Email address for Jenkins build notification.'
+        )
     }
 
     triggers {
@@ -148,6 +154,11 @@ pipeline {
         </tr>
 
         <tr>
+            <th>Email</th>
+            <td>${params.EMAIL}</td>
+        </tr>
+
+        <tr>
             <th>Build Status</th>
 
             <td class="${currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failed'}">
@@ -246,7 +257,7 @@ pipeline {
             echo 'SauceDemoBDD tests completed successfully.'
 
             mail(
-                to: 'anshav14@gmail.com',
+                to: params.EMAIL,
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
 
@@ -315,7 +326,7 @@ pipeline {
             echo 'SauceDemoBDD pipeline failed. Check Jenkins Console Output and archived test results.'
 
             mail(
-                to: 'anshav14@gmail.com',
+                to: params.EMAIL,
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
 
