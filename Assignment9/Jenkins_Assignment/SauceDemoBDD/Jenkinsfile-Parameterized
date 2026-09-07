@@ -13,6 +13,12 @@ pipeline {
             defaultValue: 'anshav14@gmail.com',
             description: 'Email address for Jenkins build notification.'
         )
+
+        string(
+            name: 'RETRY_COUNT',
+            defaultValue: '2',
+            description: 'Number of times to retry failed test execution.'
+        )
     }
 
     triggers {
