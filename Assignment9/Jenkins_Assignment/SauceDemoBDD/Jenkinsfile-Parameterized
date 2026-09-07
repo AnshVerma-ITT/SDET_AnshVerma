@@ -300,21 +300,25 @@ pipeline {
 
     <p>
         The detailed HTML report and TRX test result
-        are available in the Jenkins build.
+        are available in the Jenkins build artifacts.
+    </p>
+
+    <p>
+        <a href="${env.BUILD_URL}artifact/Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/">
+            View Archived Test Results
+        </a>
     </p>
 
 </body>
 
 </html>
-""",
-
-                attachmentsPattern: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/*.trx'
+"""
             )
         }
 
         failure {
 
-            echo 'SauceDemoBDD pipeline failed. Check Console Output and archived test results.'
+            echo 'SauceDemoBDD pipeline failed. Check Jenkins Console Output and archived test results.'
 
             mail(
                 to: 'anshav14@gmail.com',
@@ -370,17 +374,20 @@ pipeline {
     </p>
 
     <p>
-        Please check the Jenkins console output and
-        attached TRX test result for details.
+        Please check the Jenkins Console Output and
+        archived test results for details.
+    </p>
+
+    <p>
+        <a href="${env.BUILD_URL}artifact/Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/">
+            View Archived Test Results
+        </a>
     </p>
 
 </body>
 
 </html>
-""",
-
-                attachLog: true,
-                attachmentsPattern: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/*.trx'
+"""
             )
         }
     }
