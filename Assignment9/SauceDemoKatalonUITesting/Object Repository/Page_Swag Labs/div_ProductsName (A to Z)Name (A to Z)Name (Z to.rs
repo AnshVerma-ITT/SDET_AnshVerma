@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_ProductsName (A to Z)Name (A to Z)Name (Z to</name>
+   <tag></tag>
+   <elementGuidId>c7047c71-e87f-48b0-a7b0-cd368320443f</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>[data-test=&quot;secondary-header&quot;]</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'secondary-header']</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>[data-test=&quot;secondary-header&quot;]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>f05ba0d0-3c2e-4103-8cce-e5a2068a6ccf</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>header_secondary_container</value>
+      <webElementGuid>4ff12cc9-a774-48f2-8df4-1f9bcecec815</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-test</name>
+      <type>Main</type>
+      <value>secondary-header</value>
+      <webElementGuid>b69a36b3-c22f-414a-b5db-788385e321ac</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>ProductsName (A to Z)Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)</value>
+      <webElementGuid>5f8ef50d-e6dc-41ab-a0f3-bf394082ae07</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-6a66688e2ce2a40043950bb1e12be4cc</value>
+      <webElementGuid>3da26cd4-b3c8-43fe-8519-49570f0ce178</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'secondary-header']</value>
+      <webElementGuid>6b10a66d-185f-4cb2-b566-8846e2fdd431</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'secondary-header']</value>
+      <webElementGuid>2cc5fd20-862d-4012-a652-27a63e16a184</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'ProductsName (A to Z)Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)' or . = 'ProductsName (A to Z)Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)')]</value>
+      <webElementGuid>861cdcda-0b35-4945-8611-93abaa270ac9</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>TC_Login_Test_Invalid_Username</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>6d63a62a-5ec7-49b5-80fe-dce479b05c0c</testCaseGuid>
+</TestCaseEntity>
