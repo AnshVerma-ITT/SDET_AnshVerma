@@ -245,7 +245,7 @@ pipeline {
 
             echo 'SauceDemoBDD tests completed successfully.'
 
-            emailext(
+            mail(
                 to: 'anshav14@gmail.com',
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
@@ -316,7 +316,7 @@ pipeline {
 
             echo 'SauceDemoBDD pipeline failed. Check Console Output and archived test results.'
 
-            emailext(
+            mail(
                 to: 'anshav14@gmail.com',
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
