@@ -53,18 +53,57 @@ pipeline {
         stage('Test') {
             steps {
                 dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
-                    bat '''
-                        echo ========================================
-                        echo Running SauceDemoBDD Tests
-                        echo Selected Browser: %BROWSER%
-                        echo ========================================
 
-                        set BROWSER=%BROWSER%
+                    script {
 
-                        dotnet test --no-build ^
-                          --logger:"trx;LogFileName=test-results.trx" ^
-                          --results-directory:"TestResults"
-                    '''
+                        int retries = params.RETRY_COUNT as Integer
+
+                        echo "========================================"
+                        echo "Running SauceDemoBDD Tests"
+                        echo "Selected Browser : ${params.BROWSER}"
+                        echo "Retry Count      : ${retries}"
+                        echo "========================================"
+
+                        int attempt = 0
+                        boolean testPassed = false
+
+                        while (attempt <= retries && !testPassed) {
+
+                            attempt++
+
+                            echo "========================================"
+                            echo "Test Execution Attempt: ${attempt}"
+                            echo "========================================"
+
+                            try {
+
+                                bat """
+                                    echo Running tests - Attempt ${attempt}
+
+                                    set BROWSER=${params.BROWSER}
+
+                                    dotnet test --no-build ^
+                                      --logger:"trx;LogFileName=test-results.trx" ^
+                                      --results-directory:"TestResults"
+                                """
+
+                                testPassed = true
+
+                                echo "Tests passed on attempt ${attempt}."
+
+                            } catch (Exception e) {
+
+                                echo "Tests failed on attempt ${attempt}."
+
+                                if (attempt <= retries) {
+                                    echo "Retrying tests..."
+                                } else {
+                                    echo "Maximum retry attempts reached."
+                                    throw e
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -77,6 +116,7 @@ pipeline {
                         file: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/test-report.html',
                         text: """
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -105,8 +145,9 @@ pipeline {
 
         table {
             border-collapse: collapse;
-            width: 80%;
+            width: 90%;
             background-color: white;
+            margin-bottom: 25px;
         }
 
         th, td {
@@ -117,7 +158,6 @@ pipeline {
 
         th {
             background-color: #eeeeee;
-            width: 25%;
         }
 
         .success {
@@ -128,6 +168,18 @@ pipeline {
         .failed {
             font-weight: bold;
             color: red;
+        }
+
+        .test-number {
+            width: 15%;
+        }
+
+        .description {
+            width: 60%;
+        }
+
+        .feature {
+            width: 25%;
         }
 
         a {
@@ -141,6 +193,8 @@ pipeline {
 <body>
 
     <h1>SauceDemoBDD Jenkins Test Report</h1>
+
+    <h2>Build Information</h2>
 
     <table>
 
@@ -165,6 +219,11 @@ pipeline {
         </tr>
 
         <tr>
+            <th>Retry Count</th>
+            <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
             <th>Build Status</th>
 
             <td class="${currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failed'}">
@@ -186,6 +245,7 @@ pipeline {
 
     </table>
 
+
     <h2>Test Execution</h2>
 
     <p>
@@ -200,6 +260,125 @@ pipeline {
         <li>Microsoft Playwright</li>
     </ul>
 
+
+    <h2>Test Cases</h2>
+
+    <table>
+
+        <tr>
+            <th class="test-number">Test Case No.</th>
+            <th class="description">Description</th>
+            <th class="feature">Feature</th>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-001</td>
+            <td>Login with the standard user</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-002</td>
+            <td>Reject invalid username credentials</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-003</td>
+            <td>Reject invalid password credentials</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-004</td>
+            <td>Reject missing username credentials</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-005</td>
+            <td>Reject missing password credentials</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-AUTH-006</td>
+            <td>Reject locked user credentials</td>
+            <td>Authentication</td>
+        </tr>
+
+        <tr>
+            <td>TC-CHK-001</td>
+            <td>Complete the Week 6 purchase journey</td>
+            <td>Checkout</td>
+        </tr>
+
+        <tr>
+            <td>TC-CHK-002</td>
+            <td>Reject missing first name</td>
+            <td>Checkout</td>
+        </tr>
+
+        <tr>
+            <td>TC-CHK-003</td>
+            <td>Reject missing last name</td>
+            <td>Checkout</td>
+        </tr>
+
+        <tr>
+            <td>TC-CHK-004</td>
+            <td>Reject missing postal code</td>
+            <td>Checkout</td>
+        </tr>
+
+        <tr>
+            <td>TC-INV-001</td>
+            <td>Sort products by price from low to high</td>
+            <td>Inventory &amp; Cart</td>
+        </tr>
+
+        <tr>
+            <td>TC-INV-002</td>
+            <td>Add selected products and retain them after continuing shopping</td>
+            <td>Inventory &amp; Cart</td>
+        </tr>
+
+        <tr>
+            <td>TC-INV-003</td>
+            <td>Remove a product from the inventory</td>
+            <td>Inventory &amp; Cart</td>
+        </tr>
+
+    </table>
+
+
+    <h2>Test Case Summary</h2>
+
+    <table>
+
+        <tr>
+            <th>Total Test Cases</th>
+            <td>13</td>
+        </tr>
+
+        <tr>
+            <th>Authentication Test Cases</th>
+            <td>6</td>
+        </tr>
+
+        <tr>
+            <th>Checkout Test Cases</th>
+            <td>4</td>
+        </tr>
+
+        <tr>
+            <th>Inventory &amp; Cart Test Cases</th>
+            <td>3</td>
+        </tr>
+
+    </table>
+
+
     <h2>Test Result</h2>
 
     <p>
@@ -207,10 +386,16 @@ pipeline {
         archived TRX file generated by <strong>dotnet test</strong>.
     </p>
 
-        <p>
-            Jenkins Build:
-            ${env.JOB_NAME} #${env.BUILD_NUMBER}
-        </p>
+    <p>
+        Jenkins Build:
+        ${env.JOB_NAME} #${env.BUILD_NUMBER}
+    </p>
+
+    <p>
+        <a href="${env.BUILD_URL}">
+            Open Jenkins Build
+        </a>
+    </p>
 
 </body>
 
@@ -220,6 +405,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Archive Results') {
             steps {
@@ -232,6 +418,7 @@ pipeline {
             }
         }
     }
+
 
     post {
 
@@ -257,6 +444,7 @@ pipeline {
             echo "Build URL        : ${env.BUILD_URL}"
             echo "========================================"
         }
+
 
         success {
 
@@ -292,6 +480,11 @@ pipeline {
         </tr>
 
         <tr>
+            <th>Retry Count</th>
+            <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
             <th>Status</th>
             <td>SUCCESS</td>
         </tr>
@@ -311,6 +504,24 @@ pipeline {
 
     <br>
 
+    <h3>Test Summary</h3>
+
+    <p>
+        Total Test Cases: <strong>13</strong>
+    </p>
+
+    <p>
+        Authentication: <strong>6</strong> test cases
+    </p>
+
+    <p>
+        Checkout: <strong>4</strong> test cases
+    </p>
+
+    <p>
+        Inventory &amp; Cart: <strong>3</strong> test cases
+    </p>
+
     <p>
         SauceDemoBDD automated tests completed successfully.
     </p>
@@ -326,6 +537,7 @@ pipeline {
 """
             )
         }
+
 
         failure {
 
@@ -361,6 +573,11 @@ pipeline {
         </tr>
 
         <tr>
+            <th>Retry Count</th>
+            <td>${params.RETRY_COUNT}</td>
+        </tr>
+
+        <tr>
             <th>Status</th>
             <td>FAILED</td>
         </tr>
@@ -379,6 +596,24 @@ pipeline {
     </table>
 
     <br>
+
+    <h3>Test Summary</h3>
+
+    <p>
+        Total Test Cases: <strong>13</strong>
+    </p>
+
+    <p>
+        Authentication: <strong>6</strong> test cases
+    </p>
+
+    <p>
+        Checkout: <strong>4</strong> test cases
+    </p>
+
+    <p>
+        Inventory &amp; Cart: <strong>3</strong> test cases
+    </p>
 
     <p>
         SauceDemoBDD pipeline execution failed.
