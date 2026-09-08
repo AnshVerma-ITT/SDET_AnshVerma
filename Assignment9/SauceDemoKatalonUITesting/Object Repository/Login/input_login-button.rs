@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>button_add-to-cart-sauce-labs-bike-light</name>
+   <name>input_login-button</name>
    <tag></tag>
-   <elementGuidId>0ea66e77-c93f-4c44-8545-cafa45613e46</elementGuidId>
+   <elementGuidId>08cd506c-e3ff-4914-94b2-36fe4c54a41a</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;add-to-cart-sauce-labs-bike-light&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'login-button']</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
+         <key>CSS</key>
+         <value>[data-test=&quot;login-button&quot;]</value>
+      </entry>
+      <entry>
+         <key>BASIC</key>
+         <value>//*[@id = 'login-button' and @type = 'submit' and @name = 'login-button']</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;add-to-cart-sauce-labs-bike-light&quot;]</value>
+         <value>[data-test=&quot;login-button&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -28,79 +32,87 @@
       <matchCondition>equals</matchCondition>
       <name>tag</name>
       <type>Main</type>
-      <value>button</value>
-      <webElementGuid>5e0c5e53-ccea-4e73-be30-88ff06229647</webElementGuid>
+      <value>input</value>
+      <webElementGuid>60fb283a-be65-44eb-abfe-c58327bec77d</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>btn btn_primary btn_small btn_inventory </value>
-      <webElementGuid>48dcb445-f8a4-4e7d-b9be-6b7526216ef4</webElementGuid>
+      <value>submit-button btn_action</value>
+      <webElementGuid>a1bb88be-ed5c-464d-a209-65a9bca83bc8</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>d4ab6734-659d-4fdd-b416-ed0a0dc97b37</webElementGuid>
+      <value>login-button</value>
+      <webElementGuid>879e8e0f-41ca-49f8-ab72-77fcfd3d0183</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>id</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>9c26b3b5-2ff1-412d-8dee-fe7e2f8dc6b3</webElementGuid>
+      <value>login-button</value>
+      <webElementGuid>8c277d90-f2f8-4bce-b538-505093773761</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>type</name>
+      <type>Main</type>
+      <value>submit</value>
+      <webElementGuid>7875ce48-4d7f-4b19-a524-0fc6a2761a57</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>value</name>
+      <type>Main</type>
+      <value>Login</value>
+      <webElementGuid>9b56e24f-5fe5-44ab-b985-330f9f7dd6d2</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>name</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>74dd7ee6-7478-4efa-88d9-c1009745bc32</webElementGuid>
-   </webElementProperties>
-   <webElementProperties>
-      <isSelected>true</isSelected>
-      <matchCondition>equals</matchCondition>
-      <name>text</name>
-      <type>Main</type>
-      <value>Add to cart</value>
-      <webElementGuid>17c57bfa-8a21-4de1-a36e-0f43184356ee</webElementGuid>
+      <value>login-button</value>
+      <webElementGuid>ac5df687-e457-47b2-a16d-7b00ff7b211d</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-eb0b4fc0d8204bdb06d563582a5434cd</value>
-      <webElementGuid>fdc0b385-c02f-4659-be9c-f53dcdea985b</webElementGuid>
+      <value>md5.v1-bb5a697259d80b577cb3ba7b0fd4bc88</value>
+      <webElementGuid>d0a18411-2586-4c34-bdc3-6f81352a85c2</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
-      <webElementGuid>ade97aa1-3de0-4835-800e-45992e4676ec</webElementGuid>
+      <value>//*[@data-test = 'login-button']</value>
+      <webElementGuid>34dddb90-43b0-4e11-a8ab-c05d2f1957ba</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
-      <webElementGuid>6771aa26-cfb6-43a0-84ec-f08429888f41</webElementGuid>
+      <value>//*[@data-test = 'login-button']</value>
+      <webElementGuid>d6f91010-0e57-4f4f-bffc-5eb6b4984e22</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//button[@id = 'add-to-cart-sauce-labs-bike-light' and @name = 'add-to-cart-sauce-labs-bike-light' and (text() = 'Add to cart' or . = 'Add to cart')]</value>
-      <webElementGuid>2c2ab3f9-898b-4231-a9fa-3eb7fa144d7f</webElementGuid>
+      <value>//input[@id = 'login-button' and @type = 'submit' and @name = 'login-button']</value>
+      <webElementGuid>fbbc6272-3c96-4562-b800-3a68a2e09e6e</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

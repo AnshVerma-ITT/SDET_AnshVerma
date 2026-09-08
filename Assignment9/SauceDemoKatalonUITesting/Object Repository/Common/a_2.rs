@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>div_Sauce Labs Backpack</name>
+   <name>a_2</name>
    <tag></tag>
-   <elementGuidId>acefde29-42c6-479a-b243-d26f9ac942ec</elementGuidId>
+   <elementGuidId>e1f58c8a-25bb-468b-9916-80c4edddc873</elementGuidId>
    <selectorCollection>
       <entry>
          <key>CSS</key>
-         <value>[data-test=&quot;item-4-title-link&quot;] [data-test=&quot;inventory-item-name&quot;]</value>
+         <value>[data-test=&quot;shopping-cart-link&quot;]</value>
+      </entry>
+      <entry>
+         <key>BASIC</key>
+         <value>//*[(text() = '2' or . = '2')]</value>
       </entry>
       <entry>
          <key>XPATH</key>
-         <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
+         <value>//*[@data-test = 'shopping-cart-link']</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;item-4-title-link&quot;]</value>
+         <value>[data-test=&quot;shopping-cart-link&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -28,63 +32,63 @@
       <matchCondition>equals</matchCondition>
       <name>tag</name>
       <type>Main</type>
-      <value>div</value>
-      <webElementGuid>6eea63b0-7666-4f3d-93d1-bb58e21a58e9</webElementGuid>
+      <value>a</value>
+      <webElementGuid>42c56164-f338-4313-93b9-adb5efafcba8</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>inventory_item_name </value>
-      <webElementGuid>b513e098-4d63-402c-8cdd-b35337cef7c1</webElementGuid>
+      <value>shopping_cart_link</value>
+      <webElementGuid>d2476185-e0f4-4bc6-8c00-0aa8dbd30f8f</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>inventory-item-name</value>
-      <webElementGuid>8ce5648a-034b-4b69-a77c-833bb8a05d0a</webElementGuid>
-   </webElementProperties>
-   <webElementProperties>
-      <isSelected>true</isSelected>
-      <matchCondition>equals</matchCondition>
-      <name>text</name>
-      <type>Main</type>
-      <value>Sauce Labs Backpack</value>
-      <webElementGuid>bcc77ace-1af9-4c39-8884-4d758c422aba</webElementGuid>
+      <value>shopping-cart-link</value>
+      <webElementGuid>deaaf879-7ab5-4003-9db8-e8f090a19a05</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-0faf9b308f379104206a4ef527c421a7</value>
-      <webElementGuid>3042d99c-4309-4ac1-8076-168c79462433</webElementGuid>
+      <value>md5.v1-dad98c8c665aeabb5ba3b0fb3e841602</value>
+      <webElementGuid>8b85c6c9-c3f6-45c7-82dd-aa698ea606c3</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>0f6dc4a6-cf3e-4a94-8aba-eacb392af452</webElementGuid>
+      <value>//*[@data-test = 'shopping-cart-link']</value>
+      <webElementGuid>1cfe4a63-e9fe-46d5-a275-c7c47c6bb26a</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>2</value>
+      <webElementGuid>797aae83-8141-40e5-8a78-94cb18201d97</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>98c61b20-bc5b-46cf-8358-ca7353e699c9</webElementGuid>
+      <value>//*[@data-test = 'shopping-cart-link']</value>
+      <webElementGuid>326e9b9b-7213-44cb-b7ed-710799fcebdb</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//div[(text() = 'Sauce Labs Backpack' or . = 'Sauce Labs Backpack')]</value>
-      <webElementGuid>571db2d1-811d-4196-9a67-34322768ebfa</webElementGuid>
+      <value>//a[(text() = '2' or . = '2')]</value>
+      <webElementGuid>d678320e-43a7-48e7-b87b-b959f173325a</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

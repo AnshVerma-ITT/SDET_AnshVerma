@@ -22,39 +22,41 @@ WebUI.openBrowser(null)
 
 WebUI.navigateToUrl('https://www.saucedemo.com/')
 
-WebUI.setText(findTestObject('Page_Swag Labs/input_Username'), 'standard_user')
+WebUI.setText(findTestObject('Login/input_Username'), 'standard_user')
 
-WebUI.setEncryptedText(findTestObject('Page_Swag Labs/input_Password'), 'qcu24s4901FyWDTwXGr6XA==')
+WebUI.setEncryptedText(findTestObject('Login/input_Password'), 'qcu24s4901FyWDTwXGr6XA==')
 
-WebUI.sendKeys(findTestObject('Page_Swag Labs/input_Password'), Keys.chord(Keys.ENTER))
+WebUI.sendKeys(findTestObject('Login/input_Password'), Keys.chord(Keys.ENTER))
 
-WebUI.click(findTestObject('Page_Swag Labs/button_add-to-cart-sauce-labs-backpack'))
+WebUI.click(findTestObject('Inventory/button_add-to-cart-sauce-labs-backpack'))
 
-WebUI.click(findTestObject('Page_Swag Labs/button_add-to-cart-sauce-labs-bike-light'))
+WebUI.click(findTestObject('Inventory/button_add-to-cart-sauce-labs-bike-light'))
 
-WebUI.click(findTestObject('Page_Swag Labs/a_2'))
+WebUI.click(findTestObject('Common/a_2'))
 
-WebUI.rightClick(findTestObject('Page_Swag Labs/button_checkout'))
+WebUI.rightClick(findTestObject('Cart/button_checkout'))
 
-WebUI.assertElementText(findTestObject('Page_Swag Labs/button_checkout'), 'Checkout', 0)
+WebUI.assertElementText(findTestObject('Cart/button_checkout'), 'Checkout', 0)
 
-WebUI.click(findTestObject('Page_Swag Labs/button_checkout'))
+WebUI.click(findTestObject('Cart/button_checkout'))
 
-WebUI.setText(findTestObject('Page_Swag Labs/input_First Name'), 'Ansh')
+WebUI.setText(findTestObject('Checkout/input_First Name'), FirstName)
 
-WebUI.setText(findTestObject('Page_Swag Labs/input_Last Name'), 'Verma')
+WebUI.setText(findTestObject('Checkout/input_Last Name'), LastName)
 
-WebUI.setText(findTestObject('Page_Swag Labs/input_Zip_Postal Code'), '201014')
+WebUI.setText(findTestObject('Checkout/input_Zip_Postal Code'), PostalCode)
 
-WebUI.click(findTestObject('Page_Swag Labs/input_continue'))
+WebUI.click(findTestObject('Checkout/input_continue'))
 
-WebUI.rightClick(findTestObject('Page_Swag Labs/button_finish'))
+WebUI.rightClick(findTestObject('Checkout/button_finish'))
 
-WebUI.assertElementText(findTestObject('Page_Swag Labs/button_finish'), 'Finish', 0)
+WebUI.assertElementText(findTestObject('Checkout/button_finish'), 'Finish', 0)
 
-WebUI.click(findTestObject('Page_Swag Labs/button_finish'))
+WebUI.click(findTestObject('Checkout/button_finish'))
 
-WebUI.rightClick(findTestObject('Page_Swag Labs/h2_Thank you for your order'))
+WebUI.rightClick(findTestObject('Checkout/h2_Thank you for your order'))
 
-WebUI.assertElementText(findTestObject('Page_Swag Labs/h2_Thank you for your order'), 'Thank you for your order!', 0)
+WebUI.assertElementText(findTestObject('Checkout/h2_Thank you for your order'), 'Thank you for your order!', 0)
+
+WebUI.verifyCheckpoint(findCheckpoint('CheckPoints/CP_CheckoutTestData'), false)
 

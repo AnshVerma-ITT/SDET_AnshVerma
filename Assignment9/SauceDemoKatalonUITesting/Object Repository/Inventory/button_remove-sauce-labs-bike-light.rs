@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>button_add-to-cart-sauce-labs-bike-light</name>
+   <name>button_remove-sauce-labs-bike-light</name>
    <tag></tag>
-   <elementGuidId>0ea66e77-c93f-4c44-8545-cafa45613e46</elementGuidId>
+   <elementGuidId>9ca92c63-82ec-4fe4-b3dc-99703b190b64</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;add-to-cart-sauce-labs-bike-light&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'remove-sauce-labs-bike-light']</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
+         <key>CSS</key>
+         <value>[data-test=&quot;remove-sauce-labs-bike-light&quot;]</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;add-to-cart-sauce-labs-bike-light&quot;]</value>
+         <value>[data-test=&quot;remove-sauce-labs-bike-light&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -29,78 +29,78 @@
       <name>tag</name>
       <type>Main</type>
       <value>button</value>
-      <webElementGuid>5e0c5e53-ccea-4e73-be30-88ff06229647</webElementGuid>
+      <webElementGuid>b0062ae6-5fbd-4c92-b962-8e5daaeffc33</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>btn btn_primary btn_small btn_inventory </value>
-      <webElementGuid>48dcb445-f8a4-4e7d-b9be-6b7526216ef4</webElementGuid>
+      <value>btn btn_secondary btn_small btn_inventory </value>
+      <webElementGuid>1463f7c9-a18f-49e7-91b6-0211eee64e2b</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>d4ab6734-659d-4fdd-b416-ed0a0dc97b37</webElementGuid>
+      <value>remove-sauce-labs-bike-light</value>
+      <webElementGuid>e7e05576-1aa2-4525-8701-6bc9e04455b9</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>id</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>9c26b3b5-2ff1-412d-8dee-fe7e2f8dc6b3</webElementGuid>
+      <value>remove-sauce-labs-bike-light</value>
+      <webElementGuid>93b0b0ae-e04c-483a-b3a7-4dd8849b9861</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>name</name>
       <type>Main</type>
-      <value>add-to-cart-sauce-labs-bike-light</value>
-      <webElementGuid>74dd7ee6-7478-4efa-88d9-c1009745bc32</webElementGuid>
+      <value>remove-sauce-labs-bike-light</value>
+      <webElementGuid>5cefcdc6-bfec-4e18-8a59-0c56d70d6e4d</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Add to cart</value>
-      <webElementGuid>17c57bfa-8a21-4de1-a36e-0f43184356ee</webElementGuid>
+      <value>Remove</value>
+      <webElementGuid>a79132b1-7df3-4311-8c6b-0930fa8a0027</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-eb0b4fc0d8204bdb06d563582a5434cd</value>
-      <webElementGuid>fdc0b385-c02f-4659-be9c-f53dcdea985b</webElementGuid>
+      <value>md5.v1-5542b74dd17c5cc0d105037ab8eafea2</value>
+      <webElementGuid>3ac11e1a-6a59-4754-bd36-f941f90c9e04</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
-      <webElementGuid>ade97aa1-3de0-4835-800e-45992e4676ec</webElementGuid>
+      <value>//*[@data-test = 'remove-sauce-labs-bike-light']</value>
+      <webElementGuid>03413c29-8d48-4ff7-bb1d-cd378f6cd9e6</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'add-to-cart-sauce-labs-bike-light']</value>
-      <webElementGuid>6771aa26-cfb6-43a0-84ec-f08429888f41</webElementGuid>
+      <value>//*[@data-test = 'remove-sauce-labs-bike-light']</value>
+      <webElementGuid>ee0edd8b-16a6-4326-adf5-382fac75bbea</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//button[@id = 'add-to-cart-sauce-labs-bike-light' and @name = 'add-to-cart-sauce-labs-bike-light' and (text() = 'Add to cart' or . = 'Add to cart')]</value>
-      <webElementGuid>2c2ab3f9-898b-4231-a9fa-3eb7fa144d7f</webElementGuid>
+      <value>//button[@id = 'remove-sauce-labs-bike-light' and @name = 'remove-sauce-labs-bike-light' and (text() = 'Remove' or . = 'Remove')]</value>
+      <webElementGuid>dfd99df9-376f-4a68-9f5d-f334a063325b</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

@@ -30,15 +30,17 @@ WebUI.click(findTestObject('Page_Swag Labs/input_login-button'))
 
 WebUI.click(findTestObject('Page_Swag Labs/button_add-to-cart-sauce-labs-backpack'))
 
-WebUI.verifyElementText(findTestObject('Page_Swag Labs/Page_Swag Labs/a_1'), '1')
+WebUI.click(findTestObject('Page_Swag Labs/button_add-to-cart-sauce-labs-bike-light'))
 
-WebUI.click(findTestObject('Page_Swag Labs/a_1'))
+WebUI.click(findTestObject('Page_Swag Labs/a_2'))
 
-WebUI.verifyElementText(findTestObject('Page_Swag Labs/Page_Swag Labs/div_1'), '1')
+WebUI.rightClick(findTestObject('Page_Swag Labs/div_Sauce Labs Backpack'))
 
-WebUI.verifyElementText(findTestObject('Page_Swag Labs/Page_Swag Labs/div_Sauce Labs Backpack'), 'Sauce Labs Backpack')
+WebUI.assertElementText(findTestObject('Page_Swag Labs/div_Sauce Labs Backpack'), 'Sauce Labs Backpack', 0)
 
-WebUI.click(findTestObject('Page_Swag Labs/div_Sauce Labs Backpack'))
+WebUI.rightClick(findTestObject('Page_Swag Labs/div_Sauce Labs Bike Light'))
 
-WebUI.click(findTestObject('Page_Swag Labs/img_Go back'))
+WebUI.assertElementText(findTestObject('Page_Swag Labs/div_Sauce Labs Bike Light'), 'Sauce Labs Bike Light', 0)
+
+WebUI.verifyCheckpoint(findCheckpoint('Checkpoints/CP_ProductTestData'), false)
 

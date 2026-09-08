@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>div_Sauce Labs Backpack</name>
+   <name>div_Accepted usernames are_standard_userlocked_o</name>
    <tag></tag>
-   <elementGuidId>acefde29-42c6-479a-b243-d26f9ac942ec</elementGuidId>
+   <elementGuidId>f5bd5422-0efe-4e16-b9ed-9661d2164592</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;item-4-title-link&quot;] [data-test=&quot;inventory-item-name&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'login-container']</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
+         <key>CSS</key>
+         <value>[data-test=&quot;login-container&quot;]</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;item-4-title-link&quot;]</value>
+         <value>[data-test=&quot;login-container&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -29,62 +29,62 @@
       <name>tag</name>
       <type>Main</type>
       <value>div</value>
-      <webElementGuid>6eea63b0-7666-4f3d-93d1-bb58e21a58e9</webElementGuid>
+      <webElementGuid>a8faf6c4-2986-4495-9eab-a2b549d2a11a</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>inventory_item_name </value>
-      <webElementGuid>b513e098-4d63-402c-8cdd-b35337cef7c1</webElementGuid>
+      <value>login_wrapper</value>
+      <webElementGuid>ce27eb90-46c8-43c3-a2ff-084135b551bd</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>inventory-item-name</value>
-      <webElementGuid>8ce5648a-034b-4b69-a77c-833bb8a05d0a</webElementGuid>
+      <value>login-container</value>
+      <webElementGuid>a6321f7f-e98f-4cf3-8194-ae8eabae457a</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Sauce Labs Backpack</value>
-      <webElementGuid>bcc77ace-1af9-4c39-8884-4d758c422aba</webElementGuid>
+      <value>Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce</value>
+      <webElementGuid>87bad935-f6e4-493a-912e-ba4a99797af5</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-0faf9b308f379104206a4ef527c421a7</value>
-      <webElementGuid>3042d99c-4309-4ac1-8076-168c79462433</webElementGuid>
+      <value>md5.v1-5b30022e02caacb9cb4f5602b6ca4345</value>
+      <webElementGuid>06cb282f-99e8-49bc-aa2f-23c313c801fb</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>0f6dc4a6-cf3e-4a94-8aba-eacb392af452</webElementGuid>
+      <value>//*[@data-test = 'login-container']</value>
+      <webElementGuid>3f1a8b4a-bcd6-4ddf-ab9a-9f590436923d</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>98c61b20-bc5b-46cf-8358-ca7353e699c9</webElementGuid>
+      <value>//*[@data-test = 'login-container']</value>
+      <webElementGuid>48c17363-b928-4d97-b6c0-f6b76fca1a73</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//div[(text() = 'Sauce Labs Backpack' or . = 'Sauce Labs Backpack')]</value>
-      <webElementGuid>571db2d1-811d-4196-9a67-34322768ebfa</webElementGuid>
+      <value>//div[(text() = 'Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce' or . = 'Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce')]</value>
+      <webElementGuid>f1017e59-f186-4f80-aaa8-9dfa458f367a</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

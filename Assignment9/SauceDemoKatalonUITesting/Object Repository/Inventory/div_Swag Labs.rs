@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>div_Sauce Labs Backpack</name>
+   <name>div_Swag Labs</name>
    <tag></tag>
-   <elementGuidId>acefde29-42c6-479a-b243-d26f9ac942ec</elementGuidId>
+   <elementGuidId>cf877928-920f-445f-821e-05ac8fe71edc</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;item-4-title-link&quot;] [data-test=&quot;inventory-item-name&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@class and contains(concat(' ', normalize-space(@class), ' '), ' login_logo ')]</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
+         <key>CSS</key>
+         <value>.login_logo</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;item-4-title-link&quot;]</value>
+         <value>internal:text=&quot;Swag Labs&quot;i</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -29,62 +29,54 @@
       <name>tag</name>
       <type>Main</type>
       <value>div</value>
-      <webElementGuid>6eea63b0-7666-4f3d-93d1-bb58e21a58e9</webElementGuid>
+      <webElementGuid>57ef0c03-a225-48a4-b93a-625a58fdff83</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>inventory_item_name </value>
-      <webElementGuid>b513e098-4d63-402c-8cdd-b35337cef7c1</webElementGuid>
-   </webElementProperties>
-   <webElementProperties>
-      <isSelected>false</isSelected>
-      <matchCondition>equals</matchCondition>
-      <name>data-test</name>
-      <type>Main</type>
-      <value>inventory-item-name</value>
-      <webElementGuid>8ce5648a-034b-4b69-a77c-833bb8a05d0a</webElementGuid>
+      <value>login_logo</value>
+      <webElementGuid>16eb15e1-6422-40e8-938d-ff5f26a0d1ae</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Sauce Labs Backpack</value>
-      <webElementGuid>bcc77ace-1af9-4c39-8884-4d758c422aba</webElementGuid>
+      <value>Swag Labs</value>
+      <webElementGuid>b2ce07ca-3276-4af6-a96e-462141d69a92</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-0faf9b308f379104206a4ef527c421a7</value>
-      <webElementGuid>3042d99c-4309-4ac1-8076-168c79462433</webElementGuid>
+      <value>md5.v1-ec25c927c351a92662477b380a8ddc06</value>
+      <webElementGuid>62340072-890e-481d-a1d6-60046c1f228b</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>0f6dc4a6-cf3e-4a94-8aba-eacb392af452</webElementGuid>
+      <value>//*[@class and contains(concat(' ', normalize-space(@class), ' '), ' login_logo ')]</value>
+      <webElementGuid>657b8caf-6c1f-4493-b68b-6318764a8487</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>98c61b20-bc5b-46cf-8358-ca7353e699c9</webElementGuid>
+      <value>//*[@class and contains(concat(' ', normalize-space(@class), ' '), ' login_logo ')]</value>
+      <webElementGuid>8616e050-abbd-4125-860d-0722bbca4566</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//div[(text() = 'Sauce Labs Backpack' or . = 'Sauce Labs Backpack')]</value>
-      <webElementGuid>571db2d1-811d-4196-9a67-34322768ebfa</webElementGuid>
+      <value>//div[(text() = 'Swag Labs' or . = 'Swag Labs')]</value>
+      <webElementGuid>1344c7f3-1629-4270-85db-441f1c5eda49</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

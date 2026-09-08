@@ -3,15 +3,11 @@
    <description></description>
    <name>a_2</name>
    <tag></tag>
-   <elementGuidId>e1f58c8a-25bb-468b-9916-80c4edddc873</elementGuidId>
+   <elementGuidId>b70c8d1a-a909-443d-b0b0-d4c30c17fcaa</elementGuidId>
    <selectorCollection>
       <entry>
          <key>CSS</key>
          <value>[data-test=&quot;shopping-cart-link&quot;]</value>
-      </entry>
-      <entry>
-         <key>BASIC</key>
-         <value>//*[(text() = '2' or . = '2')]</value>
       </entry>
       <entry>
          <key>XPATH</key>
@@ -33,7 +29,7 @@
       <name>tag</name>
       <type>Main</type>
       <value>a</value>
-      <webElementGuid>42c56164-f338-4313-93b9-adb5efafcba8</webElementGuid>
+      <webElementGuid>a1023d42-9621-4202-a1ca-f9e3d354f251</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -41,7 +37,7 @@
       <name>class</name>
       <type>Main</type>
       <value>shopping_cart_link</value>
-      <webElementGuid>d2476185-e0f4-4bc6-8c00-0aa8dbd30f8f</webElementGuid>
+      <webElementGuid>2b4fe789-b6d0-437c-b3b1-55bbcf9306fe</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -49,23 +45,7 @@
       <name>data-test</name>
       <type>Main</type>
       <value>shopping-cart-link</value>
-      <webElementGuid>deaaf879-7ab5-4003-9db8-e8f090a19a05</webElementGuid>
-   </webElementProperties>
-   <webElementProperties>
-      <isSelected>false</isSelected>
-      <matchCondition>equals</matchCondition>
-      <name>parent</name>
-      <type>Main</type>
-      <value>md5.v1-dad98c8c665aeabb5ba3b0fb3e841602</value>
-      <webElementGuid>8b85c6c9-c3f6-45c7-82dd-aa698ea606c3</webElementGuid>
-   </webElementProperties>
-   <webElementProperties>
-      <isSelected>false</isSelected>
-      <matchCondition>equals</matchCondition>
-      <name>xpath</name>
-      <type>Main</type>
-      <value>//*[@data-test = 'shopping-cart-link']</value>
-      <webElementGuid>1cfe4a63-e9fe-46d5-a275-c7c47c6bb26a</webElementGuid>
+      <webElementGuid>7486d991-7705-4066-b7c3-aef253809590</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
@@ -73,7 +53,23 @@
       <name>text</name>
       <type>Main</type>
       <value>2</value>
-      <webElementGuid>797aae83-8141-40e5-8a78-94cb18201d97</webElementGuid>
+      <webElementGuid>401ba166-450f-4326-8042-03661cda4e96</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-dad98c8c665aeabb5ba3b0fb3e841602</value>
+      <webElementGuid>bf25b174-6b48-49e5-9656-9176d2ea5ec1</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'shopping-cart-link']</value>
+      <webElementGuid>74dd1572-22e6-4690-a62e-0b45e2cf0d58</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -81,7 +77,7 @@
       <name>xpath:attributes</name>
       <type>Main</type>
       <value>//*[@data-test = 'shopping-cart-link']</value>
-      <webElementGuid>326e9b9b-7213-44cb-b7ed-710799fcebdb</webElementGuid>
+      <webElementGuid>4396430e-88f7-4109-b0d1-2002477d4eeb</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -89,6 +85,6 @@
       <name>xpath:customAttributes</name>
       <type>Main</type>
       <value>//a[(text() = '2' or . = '2')]</value>
-      <webElementGuid>d678320e-43a7-48e7-b87b-b959f173325a</webElementGuid>
+      <webElementGuid>1aa1e653-9e30-41db-9ccd-e5e94c7b449a</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

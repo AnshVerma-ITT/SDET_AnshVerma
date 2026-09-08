@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestSuiteEntity>
    <description></description>
-   <name>SauceDemo_UI_Test_Suite</name>
+   <name>SauceDemo_UI_TEST_SUITE</name>
    <tag></tag>
    <isRerun>false</isRerun>
    <mailRecipient></mailRecipient>
-   <maxConcurrentInstances>1</maxConcurrentInstances>
+   <maxConcurrentInstances>2</maxConcurrentInstances>
    <numberOfRerun>3</numberOfRerun>
-   <orchestration>CLASSIC</orchestration>
+   <orchestration>ISOLATED_PROCESS</orchestration>
    <pageLoadTimeout>10</pageLoadTimeout>
    <pageLoadTimeoutDefault>true</pageLoadTimeoutDefault>
    <rerunFailedTestCasesOnly>false</rerunFailedTestCasesOnly>
@@ -26,19 +26,30 @@
       <isRun>true</isRun>
       <testCaseId>Test Cases/TC_Checkout_Flow</testCaseId>
       <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>DEFAULT</type>
+         <value></value>
+         <variableId>00f67cee-fb39-4e19-9b48-ec9208f3da07</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>DEFAULT</type>
+         <value></value>
+         <variableId>3553eea8-2451-4e10-828e-c06cf57446d9</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>DEFAULT</type>
+         <value></value>
+         <variableId>7e0e8ce8-e83d-46a1-9243-8b02d9916d79</variableId>
+      </variableLink>
    </testCaseLink>
    <testCaseLink>
       <guid>15265077-fb44-4e31-bdb3-8dab1bc5c4fa</guid>
       <isReuseDriver>false</isReuseDriver>
       <isRun>true</isRun>
-      <testCaseId>Test Cases/TC_Login _Test_Valid_Credentials</testCaseId>
-      <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
-   </testCaseLink>
-   <testCaseLink>
-      <guid>d3b1a36e-804f-4dfb-949f-1d2dd21c7d2e</guid>
-      <isReuseDriver>false</isReuseDriver>
-      <isRun>true</isRun>
-      <testCaseId>Test Cases/TC_Login_Test_Invalid_Username</testCaseId>
+      <testCaseId>Test Cases/TC_Login</testCaseId>
       <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
    </testCaseLink>
    <testCaseLink>
@@ -53,6 +64,13 @@
       <isReuseDriver>false</isReuseDriver>
       <isRun>true</isRun>
       <testCaseId>Test Cases/TC_Product_Sorting</testCaseId>
+      <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
+   </testCaseLink>
+   <testCaseLink>
+      <guid>d4475129-97bc-4f55-bf24-18a820728dee</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/TC_Logout</testCaseId>
       <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
    </testCaseLink>
 </TestSuiteEntity>

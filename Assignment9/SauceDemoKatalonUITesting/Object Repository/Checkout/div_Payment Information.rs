@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>div_Sauce Labs Backpack</name>
+   <name>div_Payment Information</name>
    <tag></tag>
-   <elementGuidId>acefde29-42c6-479a-b243-d26f9ac942ec</elementGuidId>
+   <elementGuidId>67e69131-a842-43f3-8fb8-ede44f13e358</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;item-4-title-link&quot;] [data-test=&quot;inventory-item-name&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'payment-info-label']</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
+         <key>CSS</key>
+         <value>[data-test=&quot;payment-info-label&quot;]</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;item-4-title-link&quot;]</value>
+         <value>[data-test=&quot;payment-info-label&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -29,62 +29,62 @@
       <name>tag</name>
       <type>Main</type>
       <value>div</value>
-      <webElementGuid>6eea63b0-7666-4f3d-93d1-bb58e21a58e9</webElementGuid>
+      <webElementGuid>3782c1fe-c7c7-48d8-996e-2eddcc4ebb45</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>inventory_item_name </value>
-      <webElementGuid>b513e098-4d63-402c-8cdd-b35337cef7c1</webElementGuid>
+      <value>summary_info_label</value>
+      <webElementGuid>9983ab84-131d-4ce4-ad0a-ccd6eca64820</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>inventory-item-name</value>
-      <webElementGuid>8ce5648a-034b-4b69-a77c-833bb8a05d0a</webElementGuid>
+      <value>payment-info-label</value>
+      <webElementGuid>f7329279-b2e5-49c1-883a-1a507ce75fb9</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Sauce Labs Backpack</value>
-      <webElementGuid>bcc77ace-1af9-4c39-8884-4d758c422aba</webElementGuid>
+      <value>Payment Information:</value>
+      <webElementGuid>640df4b0-7a8d-45e4-ae98-661c3dcd7811</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-0faf9b308f379104206a4ef527c421a7</value>
-      <webElementGuid>3042d99c-4309-4ac1-8076-168c79462433</webElementGuid>
+      <value>md5.v1-77be2ffda8909c507ef8b75318dc8e6d</value>
+      <webElementGuid>228bc003-e234-43d6-8458-a58a753053ca</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>0f6dc4a6-cf3e-4a94-8aba-eacb392af452</webElementGuid>
+      <value>//*[@data-test = 'payment-info-label']</value>
+      <webElementGuid>231a42ce-5443-4c82-b659-ae74a027114c</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>98c61b20-bc5b-46cf-8358-ca7353e699c9</webElementGuid>
+      <value>//*[@data-test = 'payment-info-label']</value>
+      <webElementGuid>bfc8ee33-a599-433a-b17c-56feaf6e3bcc</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//div[(text() = 'Sauce Labs Backpack' or . = 'Sauce Labs Backpack')]</value>
-      <webElementGuid>571db2d1-811d-4196-9a67-34322768ebfa</webElementGuid>
+      <value>//div[(text() = 'Payment Information:' or . = 'Payment Information:')]</value>
+      <webElementGuid>596f32b6-3f4d-4006-97b8-ae0c0ab36250</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

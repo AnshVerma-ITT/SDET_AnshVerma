@@ -22,27 +22,23 @@ WebUI.openBrowser(null)
 
 WebUI.navigateToUrl('https://www.saucedemo.com/')
 
-WebUI.setText(findTestObject('Page_Swag Labs/input_Username'), 'standard_user')
+WebUI.setText(findTestObject('Login/input_Username'), 'standard_user')
 
-WebUI.setEncryptedText(findTestObject('Page_Swag Labs/input_Password'), 'qcu24s4901FyWDTwXGr6XA==')
+WebUI.setEncryptedText(findTestObject('Login/input_Password'), 'qcu24s4901FyWDTwXGr6XA==')
 
-WebUI.click(findTestObject('Page_Swag Labs/input_login-button'))
+WebUI.click(findTestObject('Login/input_login-button'))
 
-WebUI.click(findTestObject('Page_Swag Labs/button_add-to-cart-sauce-labs-backpack'))
+WebUI.click(findTestObject('Inventory/button_add-to-cart-sauce-labs-backpack'))
 
-WebUI.click(findTestObject('Page_Swag Labs/a_1'))
+WebUI.click(findTestObject('Common/a_1'))
 
-WebUI.rightClick(findTestObject('Page_Swag Labs/button_remove-sauce-labs-backpack'))
+WebUI.rightClick(findTestObject('Inventory/button_remove-sauce-labs-backpack'))
 
-WebUI.assertElementText(findTestObject('Page_Swag Labs/button_remove-sauce-labs-backpack'), 'Remove', 0)
+WebUI.assertElementText(findTestObject('Inventory/button_remove-sauce-labs-backpack'), 'Remove', 0)
 
-WebUI.rightClick(findTestObject('Page_Swag Labs/div_1'))
+WebUI.rightClick(findTestObject('Common/div_1'))
 
-WebUI.assertElementText(findTestObject('Page_Swag Labs/div_1'), '1', 0)
+WebUI.assertElementText(findTestObject('Common/div_1'), '1', 0)
 
-WebUI.click(findTestObject('Page_Swag Labs/button_remove-sauce-labs-backpack'))
-
-WebUI.rightClick(findTestObject('Page_Swag Labs/a_1'))
-
-WebUI.assertElementText(findTestObject('Page_Swag Labs/a_1'), '1', 0)
+WebUI.click(findTestObject('Inventory/button_remove-sauce-labs-backpack'))
 

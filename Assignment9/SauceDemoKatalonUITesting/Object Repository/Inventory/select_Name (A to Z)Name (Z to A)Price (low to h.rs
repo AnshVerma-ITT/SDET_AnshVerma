@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>div_Sauce Labs Backpack</name>
+   <name>select_Name (A to Z)Name (Z to A)Price (low to h</name>
    <tag></tag>
-   <elementGuidId>acefde29-42c6-479a-b243-d26f9ac942ec</elementGuidId>
+   <elementGuidId>a3705af3-1162-4d3a-bb45-7665b0be4749</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>[data-test=&quot;item-4-title-link&quot;] [data-test=&quot;inventory-item-name&quot;]</value>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'product-sort-container']</value>
       </entry>
       <entry>
-         <key>XPATH</key>
-         <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
+         <key>CSS</key>
+         <value>[data-test=&quot;product-sort-container&quot;]</value>
+      </entry>
+      <entry>
+         <key>BASIC</key>
+         <value>//*[(text() = 'Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)' or . = 'Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)')]</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>[data-test=&quot;item-4-title-link&quot;]</value>
+         <value>[data-test=&quot;product-sort-container&quot;]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -28,63 +32,63 @@
       <matchCondition>equals</matchCondition>
       <name>tag</name>
       <type>Main</type>
-      <value>div</value>
-      <webElementGuid>6eea63b0-7666-4f3d-93d1-bb58e21a58e9</webElementGuid>
+      <value>select</value>
+      <webElementGuid>33180952-fbec-4460-b2cf-9add660e5243</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>class</name>
       <type>Main</type>
-      <value>inventory_item_name </value>
-      <webElementGuid>b513e098-4d63-402c-8cdd-b35337cef7c1</webElementGuid>
+      <value>product_sort_container</value>
+      <webElementGuid>471a7347-020a-4cfd-8db0-7ad8322a75bf</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>data-test</name>
       <type>Main</type>
-      <value>inventory-item-name</value>
-      <webElementGuid>8ce5648a-034b-4b69-a77c-833bb8a05d0a</webElementGuid>
+      <value>product-sort-container</value>
+      <webElementGuid>ec9d8d3a-119b-48ab-bd94-ef96e184115c</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Sauce Labs Backpack</value>
-      <webElementGuid>bcc77ace-1af9-4c39-8884-4d758c422aba</webElementGuid>
+      <value>Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)</value>
+      <webElementGuid>3439b88a-2f3f-459b-80f8-8cdbec53725b</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>parent</name>
       <type>Main</type>
-      <value>md5.v1-0faf9b308f379104206a4ef527c421a7</value>
-      <webElementGuid>3042d99c-4309-4ac1-8076-168c79462433</webElementGuid>
+      <value>md5.v1-098c9865aed2a0ebf3750c8ae187911d</value>
+      <webElementGuid>000364d0-e70d-4371-b03c-931b1c5c79b8</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>0f6dc4a6-cf3e-4a94-8aba-eacb392af452</webElementGuid>
+      <value>//*[@data-test = 'product-sort-container']</value>
+      <webElementGuid>7a5a760d-bd85-4069-a858-7f3d92f6406d</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:attributes</name>
       <type>Main</type>
-      <value>//*[@data-test = 'item-4-title-link']//*[@data-test = 'inventory-item-name']</value>
-      <webElementGuid>98c61b20-bc5b-46cf-8358-ca7353e699c9</webElementGuid>
+      <value>//*[@data-test = 'product-sort-container']</value>
+      <webElementGuid>77d49672-03a3-4dec-8224-dc330051f7a6</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//div[(text() = 'Sauce Labs Backpack' or . = 'Sauce Labs Backpack')]</value>
-      <webElementGuid>571db2d1-811d-4196-9a67-34322768ebfa</webElementGuid>
+      <value>//select[(text() = 'Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)' or . = 'Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)')]</value>
+      <webElementGuid>352b6c7e-f316-487c-8b17-16b48587410c</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

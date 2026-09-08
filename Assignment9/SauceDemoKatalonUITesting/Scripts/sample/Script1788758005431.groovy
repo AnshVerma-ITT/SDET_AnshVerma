@@ -22,22 +22,33 @@ WebUI.openBrowser(null)
 
 WebUI.navigateToUrl('https://www.saucedemo.com/')
 
+WebUI.click(findTestObject('Login/input_Username'))
+
+WebUI.rightClick(findTestObject('Login/input_Username'))
+
+WebUI.assertElementPresent(findTestObject('Login/input_Username'), 0)
+
 WebUI.setText(findTestObject('Login/input_Username'), 'standard_user')
 
 WebUI.setEncryptedText(findTestObject('Login/input_Password'), 'qcu24s4901FyWDTwXGr6XA==')
 
+WebUI.rightClick(findTestObject('Login/input_login-button'))
+
+WebUI.assertElementPresent(findTestObject('Login/input_login-button'), 0)
+
 WebUI.click(findTestObject('Login/input_login-button'))
 
-WebUI.assertElementText(findTestObject('Inventory/select_Name (A to Z)Name (Z to A)Price (low to h'), 'Name (A to Z)Name (Z to A)Price (low to high)Price (high to low)', 
-    0)
+WebUI.click(findTestObject('Inventory/div_ProductsName (A to Z)Name (A to Z)Name (Z to'))
 
-WebUI.click(findTestObject('Inventory/span_Name (A to Z)Name (A to Z)Name (Z to A)Pric'))
+WebUI.rightClick(findTestObject('Common/span_Products'))
 
-WebUI.selectOptionByValue(findTestObject('Inventory/select_Name (A to Z)Name (Z to A)Price (low to h'), 'za', false)
+WebUI.assertElementText(findTestObject('Common/span_Products'), 'Products', 0)
 
-WebUI.selectOptionByValue(findTestObject('Inventory/select_Name (A to Z)Name (Z to A)Price (low to h'), 'lohi', false)
+WebUI.click(findTestObject('Inventory/div_inventory_container'))
 
-WebUI.selectOptionByValue(findTestObject('Inventory/select_Name (A to Z)Name (Z to A)Price (low to h'), 'hilo', false)
+WebUI.click(findTestObject('Inventory/div_Sauce Labs Backpack'))
 
-WebUI.assertElementPresent(findTestObject('Inventory/select_Name (A to Z)Name (Z to A)Price (low to h'), 0)
+WebUI.rightClick(findTestObject('Inventory/div_Sauce Labs Backpack'))
+
+WebUI.assertElementText(findTestObject('Inventory/div_Sauce Labs Backpack'), 'Sauce Labs Backpack', 0)
 
