@@ -1,30 +1,48 @@
 pipeline {
+
     agent any
 
     parameters {
 
         choice(
             name: 'BROWSER',
-            choices: ['Chromium', 'WebKit'],
-            description: 'Select the browser for SauceDemoBDD test execution.'
+            choices: [
+                'Chromium',
+                'WebKit'
+            ],
+            description: 'Select the browser for SauceDemoBDD execution.'
+        )
+
+        choice(
+            name: 'TEST_CATEGORY',
+            choices: [
+                'All Tests',
+                'Authentication',
+                'Checkout',
+                'Inventory and Cart'
+            ],
+            description: 'Select which Reqnroll test category should be executed.'
+        )
+
+        choice(
+            name: 'EXECUTION_MODE',
+            choices: [
+                'Sequential',
+                'Parallel'
+            ],
+            description: 'Select sequential or parallel test execution.'
+        )
+
+        string(
+            name: 'RETRY_COUNT',
+            defaultValue: '2',
+            description: 'Number of retries for failed test cases only.'
         )
 
         string(
             name: 'EMAIL',
             defaultValue: 'anshav14@gmail.com',
             description: 'Email address for Jenkins build notification.'
-        )
-
-        string(
-            name: 'RETRY_COUNT',
-            defaultValue: '2',
-            description: 'Number of times to retry failed test execution.'
-        )
-
-        string(
-            name: 'TEST_FILTER',
-            defaultValue: '',
-            description: 'Optional test filter. Leave empty to run all tests. Example: TestCategory=Authentication'
         )
     }
 
@@ -34,101 +52,607 @@ pipeline {
 
     stages {
 
+        /*
+         * ============================================================
+         * CHECKOUT
+         * ============================================================
+         */
+
         stage('Checkout') {
+
             steps {
+
                 git branch: 'Assignment9',
                     url: 'https://github.com/AnshVerma-ITT/SDET_AnshVerma.git'
             }
         }
 
+
+        /*
+         * ============================================================
+         * RESTORE
+         * ============================================================
+         */
+
         stage('Restore') {
+
             steps {
+
                 dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
+
                     bat 'dotnet restore'
                 }
             }
         }
 
+
+        /*
+         * ============================================================
+         * BUILD
+         * ============================================================
+         */
+
         stage('Build') {
+
             steps {
+
                 dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
+
                     bat 'dotnet build --no-restore'
                 }
             }
         }
 
+
+        /*
+         * ============================================================
+         * TEST
+         * ============================================================
+         */
+
         stage('Test') {
+
             steps {
+
                 dir('Assignment9/Jenkins_Assignment/SauceDemoBDD') {
 
                     script {
 
+                        /*
+                         * ------------------------------------------------
+                         * Convert Jenkins category selection to
+                         * Reqnroll TestCategory filter.
+                         * ------------------------------------------------
+                         */
+
+                        String categoryFilter = ''
+
+                        if (params.TEST_CATEGORY == 'Authentication') {
+
+                            categoryFilter =
+                                'TestCategory=bdd&TestCategory=authentication'
+
+                        }
+                        else if (params.TEST_CATEGORY == 'Checkout') {
+
+                            categoryFilter =
+                                'TestCategory=bdd&TestCategory=checkout'
+
+                        }
+                        else if (params.TEST_CATEGORY == 'Inventory and Cart') {
+
+                            categoryFilter =
+                                'TestCategory=bdd&TestCategory=inventory&TestCategory=cart'
+
+                        }
+                        else {
+
+                            categoryFilter = ''
+                        }
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Sequential / Parallel configuration
+                         * ------------------------------------------------
+                         */
+
+                        int workers = 0
+
+                        if (params.EXECUTION_MODE == 'Parallel') {
+
+                            workers = 4
+
+                        }
+                        else {
+
+                            workers = 0
+                        }
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Retry count
+                         * ------------------------------------------------
+                         */
+
                         int retries = params.RETRY_COUNT as Integer
 
+
+                        /*
+                         * ------------------------------------------------
+                         * Directories
+                         * ------------------------------------------------
+                         */
+
+                        String testResultsDir =
+                            "${pwd()}/TestResults"
+
+                        String allureResultsDir =
+                            "${pwd()}/TestResults/allure-results"
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Create directories
+                         * ------------------------------------------------
+                         */
+
+                        bat """
+                            if not exist "TestResults" mkdir "TestResults"
+                            if not exist "TestResults\\allure-results" mkdir "TestResults\\allure-results"
+                        """
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Create Allure configuration dynamically.
+                         *
+                         * The directory is absolute so it does not
+                         * depend on bin/Debug/net10.0 location.
+                         * ------------------------------------------------
+                         */
+
+                        writeFile(
+                            file: 'allureConfig.json',
+                            text: """
+{
+    "allure": {
+        "directory": "${allureResultsDir.replace('\\', '/')}"
+    }
+}
+"""
+                        )
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Environment file for Allure.
+                         * ------------------------------------------------
+                         */
+
+                        writeFile(
+                            file: 'TestResults/allure-results/environment.properties',
+                            text: """
+Browser=${params.BROWSER}
+Test_Category=${params.TEST_CATEGORY}
+Execution_Mode=${params.EXECUTION_MODE}
+Retry_Count=${params.RETRY_COUNT}
+Jenkins_Job=${env.JOB_NAME}
+Jenkins_Build=${env.BUILD_NUMBER}
+"""
+                        )
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Create PowerShell script that extracts failed
+                         * test cases from TRX.
+                         * ------------------------------------------------
+                         */
+
+                        writeFile(
+                            file: 'extract-failed-tests.ps1',
+                            text: '''
+param(
+    [string]$TrxPath,
+    [string]$OutputPath
+)
+
+if (!(Test-Path $TrxPath)) {
+    Write-Host "TRX file not found: $TrxPath"
+    New-Item -ItemType File -Path $OutputPath -Force | Out-Null
+    exit 0
+}
+
+[xml]$trx = Get-Content -Raw $TrxPath
+
+$failedResults = Select-Xml `
+    -Path $TrxPath `
+    -XPath "//*[local-name()='UnitTestResult' and @outcome='Failed']"
+
+$failedTests = @()
+
+foreach ($resultNode in $failedResults) {
+
+    $result = $resultNode.Node
+
+    $testId = $result.testId
+
+    $definition = Select-Xml `
+        -Path $TrxPath `
+        -XPath "//*[local-name()='UnitTest' and @id='$testId']" |
+        Select-Object -First 1
+
+    if ($definition -and $definition.Node.TestMethod) {
+
+        $className = $definition.Node.TestMethod.className
+        $methodName = $definition.Node.TestMethod.name
+
+        if ($className -and $methodName) {
+
+            $failedTests += "$className.$methodName"
+
+        }
+        else {
+
+            $failedTests += [string]$result.testName
+        }
+
+    }
+    else {
+
+        $failedTests += [string]$result.testName
+    }
+}
+
+$failedTests |
+    Where-Object { $_ -and $_.Trim() -ne "" } |
+    Sort-Object -Unique |
+    Set-Content -Path $OutputPath
+
+Write-Host ""
+Write-Host "========================================"
+Write-Host "FAILED TEST CASES"
+Write-Host "========================================"
+
+if ($failedTests.Count -eq 0) {
+
+    Write-Host "No failed test cases found."
+
+}
+else {
+
+    $failedTests |
+        Sort-Object -Unique |
+        ForEach-Object {
+            Write-Host $_
+        }
+}
+'''
+                        )
+
+
+                        /*
+                         * ------------------------------------------------
+                         * Display configuration
+                         * ------------------------------------------------
+                         */
+
                         echo "========================================"
-                        echo "Running SauceDemoBDD Tests"
-                        echo "Selected Browser : ${params.BROWSER}"
+                        echo "SauceDemoBDD Test Execution"
+                        echo "========================================"
+                        echo "Browser          : ${params.BROWSER}"
+                        echo "Test Category    : ${params.TEST_CATEGORY}"
+                        echo "Category Filter  : ${categoryFilter ?: 'ALL TESTS'}"
+                        echo "Execution Mode   : ${params.EXECUTION_MODE}"
+                        echo "NUnit Workers    : ${workers}"
                         echo "Retry Count      : ${retries}"
-                        echo "Test Filter      : ${params.TEST_FILTER ?: 'ALL TESTS'}"
+                        echo "Allure Results   : ${allureResultsDir}"
                         echo "========================================"
 
-                        int attempt = 0
-                        boolean testPassed = false
 
-                        while (attempt <= retries && !testPassed) {
+                        /*
+                         * ------------------------------------------------
+                         * Delete old test results
+                         * ------------------------------------------------
+                         */
 
-                            attempt++
+                        bat """
+                            if exist "TestResults\\test-results.trx" del /Q "TestResults\\test-results.trx"
+                            if exist "TestResults\\failed-tests.txt" del /Q "TestResults\\failed-tests.txt"
+                        """
+
+
+                        /*
+                         * ------------------------------------------------
+                         * ALLURE_CONFIG
+                         *
+                         * Allure NUnit will write results here.
+                         * The Allure integration creates the directory
+                         * when necessary; we also explicitly create it
+                         * above so Jenkins always has the expected path.
+                         * ------------------------------------------------
+                         */
+
+                        withEnv([
+                            "ALLURE_CONFIG=${pwd()}\\allureConfig.json",
+                            "BROWSER=${params.BROWSER}"
+                        ]) {
+
+                            /*
+                             * ==================================================
+                             * FIRST TEST EXECUTION
+                             * ==================================================
+                             */
+
+                            String firstTestCommand
+
+                            if (categoryFilter) {
+
+                                firstTestCommand = """
+                                    dotnet test --no-build ^
+                                      --filter "${categoryFilter}" ^
+                                      --logger:"trx;LogFileName=test-results.trx" ^
+                                      --results-directory:"TestResults" ^
+                                      -- NUnit.NumberOfTestWorkers=${workers}
+                                """
+
+                            }
+                            else {
+
+                                firstTestCommand = """
+                                    dotnet test --no-build ^
+                                      --logger:"trx;LogFileName=test-results.trx" ^
+                                      --results-directory:"TestResults" ^
+                                      -- NUnit.NumberOfTestWorkers=${workers}
+                                """
+                            }
+
 
                             echo "========================================"
-                            echo "Test Execution Attempt: ${attempt}"
+                            echo "Initial Test Execution"
                             echo "========================================"
 
-                            try {
 
-                                if (params.TEST_FILTER?.trim()) {
+                            int initialStatus = bat(
+                                returnStatus: true,
+                                script: """
+                                    ${firstTestCommand}
+                                """
+                            )
 
-                                    bat """
-                                        echo Running filtered tests - Attempt ${attempt}
 
-                                        set BROWSER=${params.BROWSER}
+                            /*
+                             * ------------------------------------------------
+                             * If initial execution passed
+                             * ------------------------------------------------
+                             */
 
-                                        dotnet test --no-build ^
-                                          --filter "${params.TEST_FILTER}" ^
-                                          --logger:"trx;LogFileName=test-results.trx" ^
-                                          --results-directory:"TestResults"
-                                    """
+                            boolean testsPassed = initialStatus == 0
 
-                                } else {
+                            if (testsPassed) {
 
-                                    bat """
-                                        echo Running all tests - Attempt ${attempt}
+                                echo "========================================"
+                                echo "All selected tests passed."
+                                echo "No retry required."
+                                echo "========================================"
 
-                                        set BROWSER=${params.BROWSER}
+                            }
+                            else {
 
-                                        dotnet test --no-build ^
-                                          --logger:"trx;LogFileName=test-results.trx" ^
-                                          --results-directory:"TestResults"
-                                    """
+                                echo "========================================"
+                                echo "Initial test execution FAILED."
+                                echo "Reading failed test cases from TRX..."
+                                echo "========================================"
+
+
+                                /*
+                                 * ------------------------------------------------
+                                 * Extract failed tests
+                                 * ------------------------------------------------
+                                 */
+
+                                bat """
+                                    powershell.exe ^
+                                      -NoProfile ^
+                                      -ExecutionPolicy Bypass ^
+                                      -File "extract-failed-tests.ps1" ^
+                                      -TrxPath "TestResults\\test-results.trx" ^
+                                      -OutputPath "TestResults\\failed-tests.txt"
+                                """
+
+
+                                List<String> failedTests = []
+
+                                if (fileExists('TestResults/failed-tests.txt')) {
+
+                                    failedTests = readFile(
+                                        'TestResults/failed-tests.txt'
+                                    )
+                                    .readLines()
+                                    .collect {
+                                        it.trim()
+                                    }
+                                    .findAll {
+                                        it
+                                    }
+                                    .unique()
                                 }
 
-                                testPassed = true
 
-                                echo "Tests passed on attempt ${attempt}."
+                                /*
+                                 * ------------------------------------------------
+                                 * Display failed tests
+                                 * ------------------------------------------------
+                                 */
 
-                            } catch (Exception e) {
+                                echo "========================================"
+                                echo "Failed Test Cases"
+                                echo "========================================"
 
-                                echo "Tests failed on attempt ${attempt}."
+                                failedTests.each {
 
-                                if (attempt <= retries) {
+                                    echo "FAILED: ${it}"
+                                }
 
-                                    echo "Retrying tests..."
-                                    echo "Remaining retries: ${retries - attempt + 1}"
 
-                                } else {
+                                /*
+                                 * ------------------------------------------------
+                                 * Retry only failed test cases.
+                                 * ------------------------------------------------
+                                 */
 
-                                    echo "Maximum retry attempts reached."
+                                int attempt = 0
 
-                                    throw e
+
+                                while (
+                                    !testsPassed &&
+                                    attempt < retries &&
+                                    failedTests.size() > 0
+                                ) {
+
+                                    attempt++
+
+                                    echo "========================================"
+                                    echo "RETRY ATTEMPT ${attempt}"
+                                    echo "Retrying ONLY failed test cases"
+                                    echo "========================================"
+
+
+                                    List<String> stillFailed = []
+
+
+                                    int testIndex = 0
+
+
+                                    failedTests.each { failedTest ->
+
+                                        testIndex++
+
+                                        echo "----------------------------------------"
+                                        echo "Retrying failed test:"
+                                        echo failedTest
+                                        echo "----------------------------------------"
+
+
+                                        String safeTestName =
+                                            failedTest
+                                                .replace('"', '')
+                                                .replace('&', '')
+                                                .replace('|', '')
+
+
+                                        String retryTrx =
+                                            "retry-${attempt}-${testIndex}.trx"
+
+
+                                        int retryStatus = bat(
+                                            returnStatus: true,
+                                            script: """
+                                                set BROWSER=${params.BROWSER}
+
+                                                dotnet test --no-build ^
+                                                  --filter "FullyQualifiedName~${safeTestName}" ^
+                                                  --logger:"trx;LogFileName=${retryTrx}" ^
+                                                  --results-directory:"TestResults" ^
+                                                  -- NUnit.NumberOfTestWorkers=0
+                                            """
+                                        )
+
+
+                                        if (retryStatus == 0) {
+
+                                            echo "PASSED AFTER RETRY: ${failedTest}"
+
+                                        }
+                                        else {
+
+                                            echo "STILL FAILED: ${failedTest}"
+
+                                            stillFailed.add(
+                                                failedTest
+                                            )
+                                        }
+                                    }
+
+
+                                    /*
+                                     * --------------------------------------------
+                                     * Update remaining failed tests.
+                                     * --------------------------------------------
+                                     */
+
+                                    failedTests = stillFailed
+
+
+                                    writeFile(
+                                        file: 'TestResults/failed-tests.txt',
+                                        text: failedTests.join('\n')
+                                    )
+
+
+                                    if (failedTests.size() == 0) {
+
+                                        testsPassed = true
+
+                                        echo "========================================"
+                                        echo "All previously failed tests passed."
+                                        echo "Retry successful."
+                                        echo "========================================"
+
+                                    }
+                                    else {
+
+                                        echo "========================================"
+                                        echo "Tests still failing:"
+                                        echo "========================================"
+
+                                        failedTests.each {
+
+                                            echo it
+                                        }
+                                    }
+                                }
+
+
+                                /*
+                                 * ------------------------------------------------
+                                 * Final retry result
+                                 * ------------------------------------------------
+                                 */
+
+                                if (!testsPassed) {
+
+                                    echo "========================================"
+                                    echo "FINAL FAILED TEST CASES"
+                                    echo "========================================"
+
+                                    failedTests.each {
+
+                                        echo it
+                                    }
+
+
+                                    echo "========================================"
+                                    echo "Retry limit reached."
+                                    echo "========================================"
+
+
+                                    /*
+                                     * Mark pipeline FAILED but allow
+                                     * following report stages to run.
+                                     */
+
+                                    catchError(
+                                        buildResult: 'FAILURE',
+                                        stageResult: 'FAILURE'
+                                    ) {
+
+                                        error(
+                                            "SauceDemoBDD tests still contain failed test cases after ${retries} retry attempt(s)."
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -137,9 +661,24 @@ pipeline {
             }
         }
 
+
+        /*
+         * ============================================================
+         * GENERATE CUSTOM HTML REPORT
+         * ============================================================
+         */
+
         stage('Generate HTML Report') {
+
             steps {
+
                 script {
+
+                    String selectedCategory =
+                        params.TEST_CATEGORY == 'All Tests'
+                        ? 'All Tests'
+                        : params.TEST_CATEGORY
+
 
                     writeFile(
                         file: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/test-report.html',
@@ -150,287 +689,224 @@ pipeline {
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <title>SauceDemoBDD Jenkins Test Report</title>
+<title>SauceDemoBDD Jenkins Test Report</title>
 
-    <style>
+<style>
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f8f9fa;
-            color: #333;
-        }
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background: #f8f9fa;
+    color: #333;
+}
 
-        h1 {
-            color: #2c3e50;
-        }
+h1 {
+    color: #2c3e50;
+}
 
-        h2 {
-            color: #34495e;
-            margin-top: 30px;
-        }
+h2 {
+    color: #34495e;
+    margin-top: 30px;
+}
 
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            background-color: white;
-            margin-bottom: 25px;
-        }
+table {
+    border-collapse: collapse;
+    width: 90%;
+    background: white;
+    margin-bottom: 25px;
+}
 
-        th, td {
-            border: 1px solid #999;
-            padding: 12px;
-            text-align: left;
-        }
+th,
+td {
+    border: 1px solid #999;
+    padding: 12px;
+    text-align: left;
+}
 
-        th {
-            background-color: #eeeeee;
-        }
+th {
+    background: #eeeeee;
+}
 
-        .success {
-            font-weight: bold;
-            color: green;
-        }
+.success {
+    font-weight: bold;
+    color: green;
+}
 
-        .failed {
-            font-weight: bold;
-            color: red;
-        }
+.failed {
+    font-weight: bold;
+    color: red;
+}
 
-        .test-number {
-            width: 15%;
-        }
-
-        .description {
-            width: 60%;
-        }
-
-        .feature {
-            width: 25%;
-        }
-
-        a {
-            color: #0066cc;
-        }
-
-    </style>
+</style>
 
 </head>
 
 <body>
 
-    <h1>SauceDemoBDD Jenkins Test Report</h1>
+<h1>SauceDemoBDD Jenkins Test Report</h1>
 
 
-    <h2>Build Information</h2>
+<h2>Build Information</h2>
 
-    <table>
+<table>
 
-        <tr>
-            <th>Job Name</th>
-            <td>${env.JOB_NAME}</td>
-        </tr>
+<tr>
+    <th>Job Name</th>
+    <td>${env.JOB_NAME}</td>
+</tr>
 
-        <tr>
-            <th>Build Number</th>
-            <td>${env.BUILD_NUMBER}</td>
-        </tr>
+<tr>
+    <th>Build Number</th>
+    <td>${env.BUILD_NUMBER}</td>
+</tr>
 
-        <tr>
-            <th>Browser</th>
-            <td>${params.BROWSER}</td>
-        </tr>
+<tr>
+    <th>Browser</th>
+    <td>${params.BROWSER}</td>
+</tr>
 
-        <tr>
-            <th>Email</th>
-            <td>${params.EMAIL}</td>
-        </tr>
+<tr>
+    <th>Test Category</th>
+    <td>${selectedCategory}</td>
+</tr>
 
-        <tr>
-            <th>Retry Count</th>
-            <td>${params.RETRY_COUNT}</td>
-        </tr>
+<tr>
+    <th>Execution Mode</th>
+    <td>${params.EXECUTION_MODE}</td>
+</tr>
 
-        <tr>
-            <th>Test Filter</th>
-            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
-        </tr>
+<tr>
+    <th>Retry Count</th>
+    <td>${params.RETRY_COUNT}</td>
+</tr>
 
-        <tr>
-            <th>Build Status</th>
+<tr>
+    <th>Status</th>
 
-            <td class="${currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failed'}">
-                ${currentBuild.currentResult}
-            </td>
+    <td class="${currentBuild.currentResult == 'FAILURE' ? 'failed' : 'success'}">
+        ${currentBuild.currentResult}
+    </td>
 
-        </tr>
+</tr>
 
-        <tr>
-            <th>Build URL</th>
+<tr>
+    <th>Build URL</th>
 
-            <td>
-                <a href="${env.BUILD_URL}">
-                    ${env.BUILD_URL}
-                </a>
-            </td>
-
-        </tr>
-
-    </table>
-
-
-    <h2>Test Execution</h2>
-
-    <p>
-        SauceDemoBDD automated tests were executed using:
-    </p>
-
-    <ul>
-        <li>C#</li>
-        <li>.NET 10</li>
-        <li>NUnit</li>
-        <li>Reqnroll BDD</li>
-        <li>Microsoft Playwright</li>
-    </ul>
-
-
-    <h2>Test Cases</h2>
-
-    <table>
-
-        <tr>
-            <th class="test-number">Test Case No.</th>
-            <th class="description">Description</th>
-            <th class="feature">Feature</th>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-001</td>
-            <td>Login with the standard user</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-002</td>
-            <td>Reject invalid username credentials</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-003</td>
-            <td>Reject invalid password credentials</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-004</td>
-            <td>Reject missing username credentials</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-005</td>
-            <td>Reject missing password credentials</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-AUTH-006</td>
-            <td>Reject locked user credentials</td>
-            <td>Authentication</td>
-        </tr>
-
-        <tr>
-            <td>TC-CHK-001</td>
-            <td>Complete the Week 6 purchase journey</td>
-            <td>Checkout</td>
-        </tr>
-
-        <tr>
-            <td>TC-CHK-002</td>
-            <td>Reject missing first name</td>
-            <td>Checkout</td>
-        </tr>
-
-        <tr>
-            <td>TC-CHK-003</td>
-            <td>Reject missing last name</td>
-            <td>Checkout</td>
-        </tr>
-
-        <tr>
-            <td>TC-CHK-004</td>
-            <td>Reject missing postal code</td>
-            <td>Checkout</td>
-        </tr>
-
-        <tr>
-            <td>TC-INV-001</td>
-            <td>Sort products by price from low to high</td>
-            <td>Inventory &amp; Cart</td>
-        </tr>
-
-        <tr>
-            <td>TC-INV-002</td>
-            <td>Add selected products and retain them after continuing shopping</td>
-            <td>Inventory &amp; Cart</td>
-        </tr>
-
-        <tr>
-            <td>TC-INV-003</td>
-            <td>Remove a product from the inventory</td>
-            <td>Inventory &amp; Cart</td>
-        </tr>
-
-    </table>
-
-
-    <h2>Test Case Summary</h2>
-
-    <table>
-
-        <tr>
-            <th>Total Test Cases</th>
-            <td>13</td>
-        </tr>
-
-        <tr>
-            <th>Authentication Test Cases</th>
-            <td>6</td>
-        </tr>
-
-        <tr>
-            <th>Checkout Test Cases</th>
-            <td>4</td>
-        </tr>
-
-        <tr>
-            <th>Inventory &amp; Cart Test Cases</th>
-            <td>3</td>
-        </tr>
-
-    </table>
-
-
-    <h2>Test Result</h2>
-
-    <p>
-        The detailed test execution result is available in the
-        archived TRX file generated by <strong>dotnet test</strong>.
-    </p>
-
-    <p>
-        Jenkins Build:
-        ${env.JOB_NAME} #${env.BUILD_NUMBER}
-    </p>
-
-    <p>
+    <td>
         <a href="${env.BUILD_URL}">
             Open Jenkins Build
         </a>
-    </p>
+    </td>
+
+</tr>
+
+</table>
+
+
+<h2>Test Framework</h2>
+
+<ul>
+
+<li>C#</li>
+<li>.NET 10</li>
+<li>NUnit</li>
+<li>Reqnroll BDD</li>
+<li>Microsoft Playwright</li>
+
+</ul>
+
+
+<h2>Test Categories</h2>
+
+<table>
+
+<tr>
+    <th>Category</th>
+    <th>Tag</th>
+    <th>Test Cases</th>
+</tr>
+
+<tr>
+    <td>Authentication</td>
+    <td>@bdd @authentication</td>
+    <td>6</td>
+</tr>
+
+<tr>
+    <td>Checkout</td>
+    <td>@bdd @checkout</td>
+    <td>4</td>
+</tr>
+
+<tr>
+    <td>Inventory and Cart</td>
+    <td>@bdd @inventory @cart</td>
+    <td>3</td>
+</tr>
+
+</table>
+
+
+<h2>Test Execution</h2>
+
+<p>
+Selected Category:
+<strong>${selectedCategory}</strong>
+</p>
+
+<p>
+Execution Mode:
+<strong>${params.EXECUTION_MODE}</strong>
+</p>
+
+<p>
+Browser:
+<strong>${params.BROWSER}</strong>
+</p>
+
+
+<h2>Retry Mechanism</h2>
+
+<p>
+Only failed test cases are retried.
+The entire test category is not rerun.
+</p>
+
+<p>
+Maximum Retry Attempts:
+<strong>${params.RETRY_COUNT}</strong>
+</p>
+
+
+<h2>Reports</h2>
+
+<p>
+The Jenkins build contains:
+</p>
+
+<ul>
+
+<li>TRX test results</li>
+
+<li>Failed test case log</li>
+
+<li>Allure test results</li>
+
+<li>Allure HTML report</li>
+
+</ul>
+
+
+<p>
+
+<a href="${env.BUILD_URL}">
+Open Jenkins Build
+
+</a>
+
+</p>
 
 </body>
 
@@ -442,239 +918,296 @@ pipeline {
         }
 
 
+        /*
+         * ============================================================
+         * ARCHIVE RESULTS
+         * ============================================================
+         */
+
         stage('Archive Results') {
+
             steps {
 
                 archiveArtifacts(
-                    artifacts: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/**/*',
+                    artifacts:
+                        'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/**/*',
                     allowEmptyArchive: true
                 )
-
             }
         }
     }
 
 
+    /*
+     * ================================================================
+     * POST ACTIONS
+     * ================================================================
+     */
+
     post {
 
         always {
 
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults',
-                reportFiles: 'test-report.html',
-                reportName: 'SauceDemoBDD HTML Report',
-                escapeUnderscores: false
-            ])
+            script {
 
-            echo "========================================"
-            echo "Jenkins Build Completed"
-            echo "========================================"
-            echo "Job Name         : ${env.JOB_NAME}"
-            echo "Build Number     : ${env.BUILD_NUMBER}"
-            echo "Build Status     : ${currentBuild.currentResult}"
-            echo "Selected Browser : ${params.BROWSER}"
-            echo "Email            : ${params.EMAIL}"
-            echo "Retry Count      : ${params.RETRY_COUNT}"
-            echo "Test Filter      : ${params.TEST_FILTER ?: 'ALL TESTS'}"
-            echo "Build URL        : ${env.BUILD_URL}"
-            echo "========================================"
+                /*
+                 * ----------------------------------------------------
+                 * Allure Jenkins Plugin
+                 * ----------------------------------------------------
+                 *
+                 * Jenkins reads the raw Allure results from this
+                 * directory and generates the Allure report.
+                 */
+
+                try {
+
+                    allure(
+                        includeProperties: false,
+                        results: [[
+                            path:
+                                'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults/allure-results'
+                        ]]
+                    )
+
+                    echo "Allure report generated successfully."
+
+                }
+                catch (Exception allureException) {
+
+                    echo "Allure report generation skipped/failed:"
+                    echo "${allureException}"
+                }
+
+
+                /*
+                 * ----------------------------------------------------
+                 * Jenkins HTML report
+                 * ----------------------------------------------------
+                 */
+
+                try {
+
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir:
+                            'Assignment9/Jenkins_Assignment/SauceDemoBDD/TestResults',
+                        reportFiles:
+                            'test-report.html',
+                        reportName:
+                            'SauceDemoBDD HTML Report',
+                        escapeUnderscores: false
+                    ])
+
+                }
+                catch (Exception htmlException) {
+
+                    echo "HTML report publishing failed:"
+                    echo "${htmlException}"
+                }
+
+
+                echo "========================================"
+                echo "Jenkins Build Completed"
+                echo "========================================"
+                echo "Job Name        : ${env.JOB_NAME}"
+                echo "Build Number    : ${env.BUILD_NUMBER}"
+                echo "Build Status    : ${currentBuild.currentResult}"
+                echo "Browser         : ${params.BROWSER}"
+                echo "Test Category   : ${params.TEST_CATEGORY}"
+                echo "Execution Mode  : ${params.EXECUTION_MODE}"
+                echo "Retry Count     : ${params.RETRY_COUNT}"
+                echo "Build URL       : ${env.BUILD_URL}"
+                echo "========================================"
+            }
         }
 
 
+        /*
+         * ============================================================
+         * SUCCESS EMAIL
+         * ============================================================
+         */
+
         success {
 
-            echo 'SauceDemoBDD tests completed successfully.'
+            echo 'SauceDemoBDD pipeline completed successfully.'
 
             mail(
                 to: params.EMAIL,
-                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                subject:
+                    "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
-
                 body: """
+
 <html>
 
 <body>
 
-    <h2>SauceDemoBDD Jenkins Build - SUCCESS</h2>
+<h2>SauceDemoBDD Jenkins Build - SUCCESS</h2>
 
-    <table border="1" cellpadding="8" cellspacing="0">
+<table border="1" cellpadding="8" cellspacing="0">
 
-        <tr>
-            <th>Job Name</th>
-            <td>${env.JOB_NAME}</td>
-        </tr>
+<tr>
+    <th>Job Name</th>
+    <td>${env.JOB_NAME}</td>
+</tr>
 
-        <tr>
-            <th>Build Number</th>
-            <td>${env.BUILD_NUMBER}</td>
-        </tr>
+<tr>
+    <th>Build Number</th>
+    <td>${env.BUILD_NUMBER}</td>
+</tr>
 
-        <tr>
-            <th>Browser</th>
-            <td>${params.BROWSER}</td>
-        </tr>
+<tr>
+    <th>Browser</th>
+    <td>${params.BROWSER}</td>
+</tr>
 
-        <tr>
-            <th>Retry Count</th>
-            <td>${params.RETRY_COUNT}</td>
-        </tr>
+<tr>
+    <th>Test Category</th>
+    <td>${params.TEST_CATEGORY}</td>
+</tr>
 
-        <tr>
-            <th>Test Filter</th>
-            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
-        </tr>
+<tr>
+    <th>Execution Mode</th>
+    <td>${params.EXECUTION_MODE}</td>
+</tr>
 
-        <tr>
-            <th>Status</th>
-            <td>SUCCESS</td>
-        </tr>
+<tr>
+    <th>Retry Count</th>
+    <td>${params.RETRY_COUNT}</td>
+</tr>
 
-        <tr>
-            <th>Build URL</th>
+<tr>
+    <th>Status</th>
+    <td>SUCCESS</td>
+</tr>
 
-            <td>
-                <a href="${env.BUILD_URL}">
-                    Open Jenkins Build
-                </a>
-            </td>
+<tr>
+    <th>Build URL</th>
 
-        </tr>
+    <td>
+        <a href="${env.BUILD_URL}">
+            Open Jenkins Build
+        </a>
+    </td>
 
-    </table>
+</tr>
 
-    <br>
+</table>
 
-    <h3>Test Summary</h3>
+<p>
+SauceDemoBDD automated tests completed successfully.
+</p>
 
-    <p>
-        Total Test Cases: <strong>13</strong>
-    </p>
-
-    <p>
-        Authentication: <strong>6</strong> test cases
-    </p>
-
-    <p>
-        Checkout: <strong>4</strong> test cases
-    </p>
-
-    <p>
-        Inventory &amp; Cart: <strong>3</strong> test cases
-    </p>
-
-    <p>
-        SauceDemoBDD automated tests completed successfully.
-    </p>
-
-    <p>
-        The detailed HTML report and TRX test result
-        are available in the Jenkins build artifacts.
-    </p>
+<p>
+Allure and Jenkins HTML reports are available in the build.
+</p>
 
 </body>
 
 </html>
+
 """
             )
         }
 
 
+        /*
+         * ============================================================
+         * FAILURE EMAIL
+         * ============================================================
+         */
+
         failure {
 
-            echo 'SauceDemoBDD pipeline failed. Check Jenkins Console Output and archived test results.'
+            echo 'SauceDemoBDD pipeline failed.'
 
             mail(
                 to: params.EMAIL,
-                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                subject:
+                    "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
-
                 body: """
+
 <html>
 
 <body>
 
-    <h2>SauceDemoBDD Jenkins Build - FAILED</h2>
+<h2>SauceDemoBDD Jenkins Build - FAILED</h2>
 
-    <table border="1" cellpadding="8" cellspacing="0">
+<table border="1" cellpadding="8" cellspacing="0">
 
-        <tr>
-            <th>Job Name</th>
-            <td>${env.JOB_NAME}</td>
-        </tr>
+<tr>
+    <th>Job Name</th>
+    <td>${env.JOB_NAME}</td>
+</tr>
 
-        <tr>
-            <th>Build Number</th>
-            <td>${env.BUILD_NUMBER}</td>
-        </tr>
+<tr>
+    <th>Build Number</th>
+    <td>${env.BUILD_NUMBER}</td>
+</tr>
 
-        <tr>
-            <th>Browser</th>
-            <td>${params.BROWSER}</td>
-        </tr>
+<tr>
+    <th>Browser</th>
+    <td>${params.BROWSER}</td>
+</tr>
 
-        <tr>
-            <th>Retry Count</th>
-            <td>${params.RETRY_COUNT}</td>
-        </tr>
+<tr>
+    <th>Test Category</th>
+    <td>${params.TEST_CATEGORY}</td>
+</tr>
 
-        <tr>
-            <th>Test Filter</th>
-            <td>${params.TEST_FILTER ?: 'All Tests'}</td>
-        </tr>
+<tr>
+    <th>Execution Mode</th>
+    <td>${params.EXECUTION_MODE}</td>
+</tr>
 
-        <tr>
-            <th>Status</th>
-            <td>FAILED</td>
-        </tr>
+<tr>
+    <th>Retry Count</th>
+    <td>${params.RETRY_COUNT}</td>
+</tr>
 
-        <tr>
-            <th>Build URL</th>
+<tr>
+    <th>Status</th>
+    <td>FAILED</td>
+</tr>
 
-            <td>
-                <a href="${env.BUILD_URL}">
-                    Open Jenkins Build
-                </a>
-            </td>
+<tr>
+    <th>Build URL</th>
 
-        </tr>
+    <td>
+        <a href="${env.BUILD_URL}">
+            Open Jenkins Build
+        </a>
+    </td>
 
-    </table>
+</tr>
 
-    <br>
+</table>
 
-    <h3>Test Summary</h3>
+<p>
+Some test cases remained failed after the configured retry attempts.
+</p>
 
-    <p>
-        Total Test Cases: <strong>13</strong>
-    </p>
+<p>
+Check the Jenkins build artifacts for:
+</p>
 
-    <p>
-        Authentication: <strong>6</strong> test cases
-    </p>
+<ul>
 
-    <p>
-        Checkout: <strong>4</strong> test cases
-    </p>
+<li>TRX test results</li>
+<li>Failed test case log</li>
+<li>Allure results</li>
+<li>Allure report</li>
 
-    <p>
-        Inventory &amp; Cart: <strong>3</strong> test cases
-    </p>
-
-    <p>
-        SauceDemoBDD pipeline execution failed.
-    </p>
-
-    <p>
-        Please check the Jenkins Console Output and
-        archived test results for details.
-    </p>
+</ul>
 
 </body>
 
 </html>
+
 """
             )
         }
