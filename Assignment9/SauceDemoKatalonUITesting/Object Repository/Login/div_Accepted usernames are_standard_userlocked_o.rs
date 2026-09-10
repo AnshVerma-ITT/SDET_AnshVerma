@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_Accepted usernames are_standard_userlocked_o</name>
+   <tag></tag>
+   <elementGuidId>f5bd5422-0efe-4e16-b9ed-9661d2164592</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'login-container']</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
+         <value>[data-test=&quot;login-container&quot;]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>[data-test=&quot;login-container&quot;]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>a8faf6c4-2986-4495-9eab-a2b549d2a11a</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>login_wrapper</value>
+      <webElementGuid>ce27eb90-46c8-43c3-a2ff-084135b551bd</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-test</name>
+      <type>Main</type>
+      <value>login-container</value>
+      <webElementGuid>a6321f7f-e98f-4cf3-8194-ae8eabae457a</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce</value>
+      <webElementGuid>87bad935-f6e4-493a-912e-ba4a99797af5</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-5b30022e02caacb9cb4f5602b6ca4345</value>
+      <webElementGuid>06cb282f-99e8-49bc-aa2f-23c313c801fb</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'login-container']</value>
+      <webElementGuid>3f1a8b4a-bcd6-4ddf-ab9a-9f590436923d</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'login-container']</value>
+      <webElementGuid>48c17363-b928-4d97-b6c0-f6b76fca1a73</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce' or . = 'Accepted usernames are:standard_userlocked_out_userproblem_userperformance_glitch_usererror_uservisual_userPassword for all users:secret_sauce')]</value>
+      <webElementGuid>f1017e59-f186-4f80-aaa8-9dfa458f367a</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

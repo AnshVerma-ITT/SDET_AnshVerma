@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkpoint>
+   <description></description>
+   <name>CP_ProductTestData</name>
+   <tag></tag>
+   <source-info>
+      <is-from-test-data>true</is-from-test-data>
+      <source-url>Data Files/ProductTestData</source-url>
+   </source-info>
+   <taken-date>2026-09-08T12:32:46.784+05:30</taken-date>
+   <column-names>
+      <column-name>TestCase</column-name>
+      <column-name>Product</column-name>
+      <column-name>ExpectedQuantity</column-name>
+   </column-names>
+   <checkpoint-data><![CDATA[[
+  [
+    {
+      "value": "TC_PRODUCT_001",
+      "checked": true
+    },
+    {
+      "value": "backpack",
+      "checked": true
+    },
+    {
+      "value": "1",
+      "checked": true
+    }
+  ],
+  [
+    {
+      "value": "TC_PRODUCT_002",
+      "checked": true
+    },
+    {
+      "value": "bike light",
+      "checked": true
+    },
+    {
+      "value": "1",
+      "checked": true
+    }
+  ],
+  [
+    {
+      "value": "TC_PRODUCT_003",
+      "checked": false
+    },
+    {
+      "value": "bolt t-shirt",
+      "checked": false
+    },
+    {
+      "value": "1",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_PRODUCT_004",
+      "checked": false
+    },
+    {
+      "value": "backpack",
+      "checked": false
+    },
+    {
+      "value": "2",
+      "checked": false
+    }
+  ]
+]]]></checkpoint-data>
+</checkpoint>

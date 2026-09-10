@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>TC_Add_To_Cart</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>28a0dd0b-473c-4a1a-ad29-0adb4a9ea76a</testCaseGuid>
+   <testDataLinks>
+      <combinationType>ONE</combinationType>
+      <id>6f90d617-203c-403f-9056-058dab86bf89</id>
+      <iterationEntity>
+         <iterationType>ALL</iterationType>
+         <value></value>
+      </iterationEntity>
+      <testDataId>Data Files/LoginTestData (1)</testDataId>
+   </testDataLinks>
+   <testDataLinks>
+      <combinationType>ONE</combinationType>
+      <id>96875f23-8732-44da-867b-e2146e529160</id>
+      <iterationEntity>
+         <iterationType>ALL</iterationType>
+         <value></value>
+      </iterationEntity>
+      <testDataId>Data Files/ProductTestData</testDataId>
+   </testDataLinks>
+</TestCaseEntity>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_Total_ 32.39</name>
+   <tag></tag>
+   <elementGuidId>ffb1a4c7-f8f5-4662-a6a3-e730e33cb486</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'total-label']</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
+         <value>[data-test=&quot;total-label&quot;]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>[data-test=&quot;total-label&quot;]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>d6056b35-078e-4c96-990d-029f67fe5bcf</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>summary_total_label</value>
+      <webElementGuid>9085957e-f5c3-4575-a0d2-291c4e8238e6</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-test</name>
+      <type>Main</type>
+      <value>total-label</value>
+      <webElementGuid>dda0d55d-aa81-4594-b093-8c53cee4be9c</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Total: $32.39</value>
+      <webElementGuid>438cc49f-cfe8-491b-8cb5-f0944ce08109</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-99f376dca68b73209b7877831a9c3f1a</value>
+      <webElementGuid>f8e5e487-ca90-427f-9250-17077ca47da5</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'total-label']</value>
+      <webElementGuid>a758d32f-159d-476c-8149-80b4ab45c878</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'total-label']</value>
+      <webElementGuid>a90773f6-3be5-4fb8-86d5-e203fb0152a9</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'Total: $32.39' or . = 'Total: $32.39')]</value>
+      <webElementGuid>aac20ff0-02e9-42a0-911e-ef96592ae151</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>TC_Checkout_Flow</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>5c071528-ba71-4cd4-ab69-2c3115f22e66</testCaseGuid>
+   <testDataLinks>
+      <combinationType>ONE</combinationType>
+      <id>b2f0be20-9a3a-4645-ac03-0033aa354bf1</id>
+      <iterationEntity>
+         <iterationType>ALL</iterationType>
+         <value></value>
+      </iterationEntity>
+      <testDataId>Data Files/CheckoutTestData</testDataId>
+   </testDataLinks>
+   <variableLinks>
+      <testDataLinkId>b2f0be20-9a3a-4645-ac03-0033aa354bf1</testDataLinkId>
+      <type>DATA_COLUMN</type>
+      <value>FirstName</value>
+      <variableId>00f67cee-fb39-4e19-9b48-ec9208f3da07</variableId>
+   </variableLinks>
+   <variableLinks>
+      <testDataLinkId>b2f0be20-9a3a-4645-ac03-0033aa354bf1</testDataLinkId>
+      <type>DATA_COLUMN</type>
+      <value>LastName</value>
+      <variableId>3553eea8-2451-4e10-828e-c06cf57446d9</variableId>
+   </variableLinks>
+   <variableLinks>
+      <testDataLinkId>b2f0be20-9a3a-4645-ac03-0033aa354bf1</testDataLinkId>
+      <type>DATA_COLUMN</type>
+      <value>PostalCode</value>
+      <variableId>7e0e8ce8-e83d-46a1-9243-8b02d9916d79</variableId>
+   </variableLinks>
+   <variable>
+      <defaultValue>'Ansh'</defaultValue>
+      <description></description>
+      <id>00f67cee-fb39-4e19-9b48-ec9208f3da07</id>
+      <masked>false</masked>
+      <name>FirstName</name>
+   </variable>
+   <variable>
+      <defaultValue>'Verma'</defaultValue>
+      <description></description>
+      <id>3553eea8-2451-4e10-828e-c06cf57446d9</id>
+      <masked>false</masked>
+      <name>LastName</name>
+   </variable>
+   <variable>
+      <defaultValue>'201014'</defaultValue>
+      <description></description>
+      <id>7e0e8ce8-e83d-46a1-9243-8b02d9916d79</id>
+      <masked>false</masked>
+      <name>PostalCode</name>
+   </variable>
+</TestCaseEntity>

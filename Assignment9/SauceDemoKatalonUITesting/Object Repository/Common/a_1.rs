@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>a_1</name>
+   <tag></tag>
+   <elementGuidId>89fe6d8b-2d00-41f6-99c1-a3e1c96f200e</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'shopping-cart-link']</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
+         <value>[data-test=&quot;shopping-cart-link&quot;]</value>
+      </entry>
+      <entry>
+         <key>BASIC</key>
+         <value>//*[(text() = '1' or . = '1')]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>[data-test=&quot;shopping-cart-link&quot;]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>a</value>
+      <webElementGuid>7edd06c7-5345-4c43-ac71-1bab1ecd1ee9</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>shopping_cart_link</value>
+      <webElementGuid>22774327-e503-40a4-9c75-599a7b8da449</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-test</name>
+      <type>Main</type>
+      <value>shopping-cart-link</value>
+      <webElementGuid>7cb1154e-3e24-498b-9e0f-7faefdbbcb9f</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>1</value>
+      <webElementGuid>0970fe67-478a-4b03-9e70-22ccdc8ab04c</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-dad98c8c665aeabb5ba3b0fb3e841602</value>
+      <webElementGuid>d5b8a47d-fd54-4fc4-a521-923c362d464a</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'shopping-cart-link']</value>
+      <webElementGuid>443dab96-7a51-4fea-af76-52e023b65ded</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'shopping-cart-link']</value>
+      <webElementGuid>7c2729c7-0e28-4a05-bfdc-922c5ce81fa1</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//a[(text() = '1' or . = '1')]</value>
+      <webElementGuid>907da1ac-27fe-436c-84b8-905f219a2ef7</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

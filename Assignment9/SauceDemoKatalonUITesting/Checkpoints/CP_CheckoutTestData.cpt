@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkpoint>
+   <description></description>
+   <name>CP_CheckoutTestData</name>
+   <tag></tag>
+   <source-info>
+      <is-from-test-data>true</is-from-test-data>
+      <source-url>Data Files/CheckoutTestData</source-url>
+   </source-info>
+   <taken-date>2026-09-08T12:46:56.419+05:30</taken-date>
+   <column-names>
+      <column-name>TestCase</column-name>
+      <column-name>FirstName</column-name>
+      <column-name>LastName</column-name>
+      <column-name>PostalCode</column-name>
+      <column-name>ExpectedResult</column-name>
+   </column-names>
+   <checkpoint-data><![CDATA[[
+  [
+    {
+      "value": "TC_CHECKOUT_001",
+      "checked": true
+    },
+    {
+      "value": "Ansh",
+      "checked": true
+    },
+    {
+      "value": "Verma",
+      "checked": true
+    },
+    {
+      "value": "324001",
+      "checked": true
+    },
+    {
+      "value": "Success",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_CHECKOUT_002",
+      "checked": false
+    },
+    {
+      "value": "",
+      "checked": false
+    },
+    {
+      "value": "Verma",
+      "checked": false
+    },
+    {
+      "value": "324001",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_CHECKOUT_003",
+      "checked": false
+    },
+    {
+      "value": "Ansh",
+      "checked": false
+    },
+    {
+      "value": "",
+      "checked": false
+    },
+    {
+      "value": "324001",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_CHECKOUT_004",
+      "checked": false
+    },
+    {
+      "value": "Ansh",
+      "checked": false
+    },
+    {
+      "value": "Verma",
+      "checked": false
+    },
+    {
+      "value": "",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ]
+]]]></checkpoint-data>
+</checkpoint>

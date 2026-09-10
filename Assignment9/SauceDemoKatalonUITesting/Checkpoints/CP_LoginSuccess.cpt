@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkpoint>
+   <description></description>
+   <name>CP_LoginSuccess</name>
+   <tag></tag>
+   <source-info>
+      <is-from-test-data>true</is-from-test-data>
+      <source-url>Data Files/LoginTestData (1)</source-url>
+   </source-info>
+   <taken-date>2026-09-08T12:00:19.187+05:30</taken-date>
+   <column-names>
+      <column-name>TestCase</column-name>
+      <column-name>Username</column-name>
+      <column-name>Password</column-name>
+      <column-name>ExpectedResult</column-name>
+   </column-names>
+   <checkpoint-data><![CDATA[[
+  [
+    {
+      "value": "TC_LOGIN_001",
+      "checked": true
+    },
+    {
+      "value": "standard_user",
+      "checked": true
+    },
+    {
+      "value": "secret_sauce",
+      "checked": true
+    },
+    {
+      "value": "Success",
+      "checked": true
+    }
+  ],
+  [
+    {
+      "value": "TC_LOGIN_002",
+      "checked": false
+    },
+    {
+      "value": "invalid_user",
+      "checked": false
+    },
+    {
+      "value": "secret_sauce",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_LOGIN_003",
+      "checked": false
+    },
+    {
+      "value": "standard_user",
+      "checked": false
+    },
+    {
+      "value": "wrong_password",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_LOGIN_004",
+      "checked": false
+    },
+    {
+      "value": "",
+      "checked": true
+    },
+    {
+      "value": "secret_sauce",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_LOGIN_005",
+      "checked": false
+    },
+    {
+      "value": "standard_user",
+      "checked": false
+    },
+    {
+      "value": "",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ],
+  [
+    {
+      "value": "TC_LOGIN_006",
+      "checked": false
+    },
+    {
+      "value": "locked_out_user",
+      "checked": false
+    },
+    {
+      "value": "secret_sauce",
+      "checked": false
+    },
+    {
+      "value": "Failure",
+      "checked": false
+    }
+  ]
+]]]></checkpoint-data>
+</checkpoint>

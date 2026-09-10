@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>button_add-to-cart-sauce-labs-backpack</name>
+   <tag></tag>
+   <elementGuidId>a49c8221-8a83-4a32-8cca-92968044dd19</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>[data-test=&quot;add-to-cart-sauce-labs-backpack&quot;]</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//*[@data-test = 'add-to-cart-sauce-labs-backpack']</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>[data-test=&quot;add-to-cart-sauce-labs-backpack&quot;]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>button</value>
+      <webElementGuid>c24c9307-c1a3-46cf-b5b2-d4dabe140c14</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>btn btn_primary btn_small btn_inventory </value>
+      <webElementGuid>ce27f32a-4826-4129-a7a6-5ab84a38060b</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-test</name>
+      <type>Main</type>
+      <value>add-to-cart-sauce-labs-backpack</value>
+      <webElementGuid>f6e9e11f-471f-4e00-9b44-9dff8908a5a1</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>id</name>
+      <type>Main</type>
+      <value>add-to-cart-sauce-labs-backpack</value>
+      <webElementGuid>26a4f1e9-e634-4583-a9dc-6e11241fc137</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>name</name>
+      <type>Main</type>
+      <value>add-to-cart-sauce-labs-backpack</value>
+      <webElementGuid>3dbecac8-490f-4dfd-957e-cd3bda05752f</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Add to cart</value>
+      <webElementGuid>29e2da0e-9aa7-489e-b3a5-278b6a9bfa67</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>parent</name>
+      <type>Main</type>
+      <value>md5.v1-f85ed3b757471eabdf0734a2322909cf</value>
+      <webElementGuid>9a1df3ca-7ea9-466f-8457-57c227a64e38</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'add-to-cart-sauce-labs-backpack']</value>
+      <webElementGuid>b7239212-62c9-40c8-a99c-b3033e7bd1ea</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//*[@data-test = 'add-to-cart-sauce-labs-backpack']</value>
+      <webElementGuid>445bbe17-925e-4790-a535-c83300e51ca1</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//button[@id = 'add-to-cart-sauce-labs-backpack' and @name = 'add-to-cart-sauce-labs-backpack' and (text() = 'Add to cart' or . = 'Add to cart')]</value>
+      <webElementGuid>9cd8a880-9ac6-4283-a944-74f0cbadb6b7</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>
