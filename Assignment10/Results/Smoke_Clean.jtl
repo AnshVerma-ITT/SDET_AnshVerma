@@ -1,0 +1,18 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1789177621593,1250,GET Countries,200,OK,API Performance Tests 1-1,text,true,,762,241,1,1,https://api.restcountries.com/countries/v5?q=searchTerm,1250,0,487
+1789177626382,373,POST Create Object,405,Method Not Allowed,API Performance Tests 1-1,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[405]]]
+
+****** comparison: [[[200]]]
+
+/",1117,356,1,1,https://api.restful-api.dev/objects,371,0,214
+1789177629828,152,GET Created Object,405,Method Not Allowed,API Performance Tests 1-1,text,false,"Test failed: code expected to equal /
+
+****** received  : [[[405]]]
+
+****** comparison: [[[200]]]
+
+/",1109,167,1,1,https://api.restful-api.dev/objects/NOT_FOUND,152,0,0
+1789177618506,1775,Complete API Transaction,,"Number of samples in transaction : 3, number of failing samples : 2",API Performance Tests 1-1,,false,,2988,764,1,1,null,1773,9688,701
+1789177632989,570,GET Countries,200,OK,API Performance Tests 1-1,text,true,,7392,237,1,1,https://api.restcountries.com/countries/v5?q=Canada,561,0,0
