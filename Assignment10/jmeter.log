@@ -1,0 +1,368 @@
+2026-09-12 10:02:57,553 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-09-12 10:02:57,652 INFO o.a.j.JMeter: Loading user properties from: C:\apache-jmeter-5.6.3\bin\user.properties
+2026-09-12 10:02:57,657 INFO o.a.j.JMeter: Loading system properties from: C:\apache-jmeter-5.6.3\bin\system.properties
+2026-09-12 10:02:57,659 INFO o.a.j.JMeter: Setting JMeter property: threads=150
+2026-09-12 10:02:57,659 INFO o.a.j.JMeter: Setting JMeter property: rampup=30
+2026-09-12 10:02:57,659 INFO o.a.j.JMeter: Setting JMeter property: duration=60
+2026-09-12 10:02:57,661 INFO o.a.j.JMeter: Setting JMeter property: scenario=STRESS
+2026-09-12 10:02:57,693 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-09-12 10:02:57,693 INFO o.a.j.JMeter: Version 5.6.3
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: java.version=21.0.12.1
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: os.name=Windows 11
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: os.arch=amd64
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: os.version=10.0
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: java.awt.headless=true
+2026-09-12 10:02:57,695 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-09-12 10:02:57,697 INFO o.a.j.JMeter: Available Processors =8
+2026-09-12 10:02:57,725 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-09-12 10:02:57,735 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-09-12 10:02:57,737 INFO o.a.j.JMeter: JMeterHome=C:\apache-jmeter-5.6.3
+2026-09-12 10:02:57,738 INFO o.a.j.JMeter: user.dir  =C:\Users\ansh.verma\SDET_Ansh_Verma_training\Assignment10
+2026-09-12 10:02:57,740 INFO o.a.j.JMeter: PWD       =C:\Users\ansh.verma\SDET_Ansh_Verma_training\Assignment10
+2026-09-12 10:02:57,768 INFO o.a.j.JMeter: IP: 192.168.1.6 Name: ITT-ANSH-VER FullName: ITT-ANSH-VER
+2026-09-12 10:02:57,820 INFO o.a.j.s.FileServer: Default base='C:\Users\ansh.verma\SDET_Ansh_Verma_training\Assignment10'
+2026-09-12 10:02:57,827 INFO o.a.j.s.FileServer: Set new base='C:\Users\ansh.verma\SDET_Ansh_Verma_training\Assignment10\.\TestPlan'
+2026-09-12 10:02:58,558 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-09-12 10:02:58,671 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-09-12 10:02:58,673 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-09-12 10:02:58,688 INFO o.a.j.s.SaveService: Loading file: .\TestPlan\API Performance Test.jmx
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-09-12 10:02:58,906 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-09-12 10:02:59,336 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-09-12 10:02:59,377 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-09-12 10:02:59,377 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-09-12 10:02:59,377 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-09-12 10:02:59,393 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-09-12 10:02:59,393 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-09-12 10:03:00,427 INFO o.a.j.JMeter: Running test (1789187580427)
+2026-09-12 10:03:00,482 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : API Performance Tests
+2026-09-12 10:03:00,482 INFO o.a.j.e.StandardJMeterEngine: Starting 150 threads for group API Performance Tests.
+2026-09-12 10:03:00,482 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-09-12 10:03:00,482 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=150 ramp-up=30 delayedStart=false
+2026-09-12 10:03:00,511 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-09-12 10:03:00,511 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-09-12 10:03:00,511 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-09-12 10:03:00,511 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-09-12 10:03:00,554 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-1
+2026-09-12 10:03:00,558 INFO o.a.j.s.FileServer: Stored: C:/Users/ansh.verma/SDET_Ansh_Verma_training/Assignment10/TestData/TestData.csv
+2026-09-12 10:03:00,743 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-2
+2026-09-12 10:03:00,910 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-09-12 10:03:00,910 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-09-12 10:03:00,949 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-3
+2026-09-12 10:03:01,139 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-4
+2026-09-12 10:03:01,329 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-5
+2026-09-12 10:03:01,535 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-6
+2026-09-12 10:03:01,725 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-7
+2026-09-12 10:03:01,917 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-8
+2026-09-12 10:03:02,106 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-9
+2026-09-12 10:03:02,313 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-10
+2026-09-12 10:03:02,505 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-11
+2026-09-12 10:03:02,696 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-12
+2026-09-12 10:03:02,902 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-13
+2026-09-12 10:03:03,091 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-14
+2026-09-12 10:03:03,297 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-15
+2026-09-12 10:03:03,505 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-16
+2026-09-12 10:03:03,684 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = ITT-ANSH-VER
+2026-09-12 10:03:03,695 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-17
+2026-09-12 10:03:03,703 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-09-12 10:03:03,901 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-18
+2026-09-12 10:03:04,091 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-19
+2026-09-12 10:03:04,297 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-20
+2026-09-12 10:03:04,502 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-21
+2026-09-12 10:03:04,526 INFO o.a.j.r.Summariser: summary +      1 in 00:00:04 =    0.2/s Avg:   182 Min:   182 Max:   182 Err:     0 (0.00%) Active: 21 Started: 21 Finished: 0
+2026-09-12 10:03:04,693 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-22
+2026-09-12 10:03:04,898 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-23
+2026-09-12 10:03:05,103 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-24
+2026-09-12 10:03:05,309 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-25
+2026-09-12 10:03:05,498 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-26
+2026-09-12 10:03:05,705 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-27
+2026-09-12 10:03:05,897 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-28
+2026-09-12 10:03:06,102 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-29
+2026-09-12 10:03:06,301 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-30
+2026-09-12 10:03:06,504 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-31
+2026-09-12 10:03:06,701 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-32
+2026-09-12 10:03:06,897 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-33
+2026-09-12 10:03:07,088 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-34
+2026-09-12 10:03:07,292 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-35
+2026-09-12 10:03:07,499 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-36
+2026-09-12 10:03:07,704 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-37
+2026-09-12 10:03:07,911 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-38
+2026-09-12 10:03:08,103 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-39
+2026-09-12 10:03:08,295 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-40
+2026-09-12 10:03:08,487 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-41
+2026-09-12 10:03:08,710 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-42
+2026-09-12 10:03:08,903 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-43
+2026-09-12 10:03:09,095 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-44
+2026-09-12 10:03:09,303 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-45
+2026-09-12 10:03:09,494 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-46
+2026-09-12 10:03:09,700 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-47
+2026-09-12 10:03:09,906 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-48
+2026-09-12 10:03:10,097 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-49
+2026-09-12 10:03:10,289 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-50
+2026-09-12 10:03:10,496 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-51
+2026-09-12 10:03:10,703 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-52
+2026-09-12 10:03:10,895 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-53
+2026-09-12 10:03:11,101 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-54
+2026-09-12 10:03:11,293 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-55
+2026-09-12 10:03:11,499 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-56
+2026-09-12 10:03:11,690 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-57
+2026-09-12 10:03:11,898 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-58
+2026-09-12 10:03:12,089 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-59
+2026-09-12 10:03:12,296 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-60
+2026-09-12 10:03:12,488 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-61
+2026-09-12 10:03:12,694 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-62
+2026-09-12 10:03:12,901 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-63
+2026-09-12 10:03:13,091 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-64
+2026-09-12 10:03:13,298 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-65
+2026-09-12 10:03:13,489 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-66
+2026-09-12 10:03:13,695 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-67
+2026-09-12 10:03:13,902 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-68
+2026-09-12 10:03:14,091 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-69
+2026-09-12 10:03:14,300 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-70
+2026-09-12 10:03:14,504 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-71
+2026-09-12 10:03:14,719 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-72
+2026-09-12 10:03:14,902 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-73
+2026-09-12 10:03:15,094 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-74
+2026-09-12 10:03:15,284 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-75
+2026-09-12 10:03:15,493 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-76
+2026-09-12 10:03:15,699 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-77
+2026-09-12 10:03:15,905 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-78
+2026-09-12 10:03:16,097 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-79
+2026-09-12 10:03:16,287 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-80
+2026-09-12 10:03:16,493 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-81
+2026-09-12 10:03:16,685 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-82
+2026-09-12 10:03:16,907 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-83
+2026-09-12 10:03:17,098 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-84
+2026-09-12 10:03:17,289 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-85
+2026-09-12 10:03:17,495 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-86
+2026-09-12 10:03:17,701 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-87
+2026-09-12 10:03:17,896 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-88
+2026-09-12 10:03:18,098 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-89
+2026-09-12 10:03:18,289 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-90
+2026-09-12 10:03:18,497 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-91
+2026-09-12 10:03:18,688 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-92
+2026-09-12 10:03:18,896 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-93
+2026-09-12 10:03:19,088 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-94
+2026-09-12 10:03:19,295 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-95
+2026-09-12 10:03:19,488 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-96
+2026-09-12 10:03:19,695 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-97
+2026-09-12 10:03:19,887 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-98
+2026-09-12 10:03:20,094 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-99
+2026-09-12 10:03:20,301 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-100
+2026-09-12 10:03:20,493 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-101
+2026-09-12 10:03:20,700 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-102
+2026-09-12 10:03:20,890 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-103
+2026-09-12 10:03:21,098 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-104
+2026-09-12 10:03:21,306 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-105
+2026-09-12 10:03:21,496 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-106
+2026-09-12 10:03:21,689 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-107
+2026-09-12 10:03:21,897 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-108
+2026-09-12 10:03:22,088 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-109
+2026-09-12 10:03:22,297 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-110
+2026-09-12 10:03:22,486 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-111
+2026-09-12 10:03:22,694 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-112
+2026-09-12 10:03:22,887 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-113
+2026-09-12 10:03:23,093 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-114
+2026-09-12 10:03:23,299 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-115
+2026-09-12 10:03:23,490 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-116
+2026-09-12 10:03:23,697 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-117
+2026-09-12 10:03:23,905 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-118
+2026-09-12 10:03:24,096 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-119
+2026-09-12 10:03:24,287 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-120
+2026-09-12 10:03:24,496 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-121
+2026-09-12 10:03:24,687 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-122
+2026-09-12 10:03:24,894 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-123
+2026-09-12 10:03:25,086 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-124
+2026-09-12 10:03:25,293 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-125
+2026-09-12 10:03:25,501 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-126
+2026-09-12 10:03:25,693 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-127
+2026-09-12 10:03:25,899 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-128
+2026-09-12 10:03:26,091 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-129
+2026-09-12 10:03:26,299 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-130
+2026-09-12 10:03:26,506 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-131
+2026-09-12 10:03:26,697 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-132
+2026-09-12 10:03:26,905 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-133
+2026-09-12 10:03:27,097 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-134
+2026-09-12 10:03:27,289 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-135
+2026-09-12 10:03:27,496 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-136
+2026-09-12 10:03:27,686 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-137
+2026-09-12 10:03:27,892 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-138
+2026-09-12 10:03:28,099 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-139
+2026-09-12 10:03:28,307 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-140
+2026-09-12 10:03:28,498 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-141
+2026-09-12 10:03:28,689 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-142
+2026-09-12 10:03:28,913 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-143
+2026-09-12 10:03:29,120 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-144
+2026-09-12 10:03:29,296 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-145
+2026-09-12 10:03:29,503 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-146
+2026-09-12 10:03:29,694 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-147
+2026-09-12 10:03:29,901 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-148
+2026-09-12 10:03:30,031 INFO o.a.j.r.Summariser: summary +    630 in 00:00:26 =   24.7/s Avg:    72 Min:    44 Max:   182 Err:     0 (0.00%) Active: 148 Started: 148 Finished: 0
+2026-09-12 10:03:30,031 INFO o.a.j.r.Summariser: summary =    631 in 00:00:30 =   21.3/s Avg:    72 Min:    44 Max:   182 Err:     0 (0.00%)
+2026-09-12 10:03:30,092 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-149
+2026-09-12 10:03:30,299 INFO o.a.j.t.JMeterThread: Thread started: API Performance Tests 1-150
+2026-09-12 10:03:57,713 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-25
+2026-09-12 10:03:57,722 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-56
+2026-09-12 10:03:57,769 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-41
+2026-09-12 10:03:57,859 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-72
+2026-09-12 10:03:57,861 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-103
+2026-09-12 10:03:57,876 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-134
+2026-09-12 10:03:57,937 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-88
+2026-09-12 10:03:57,943 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-26
+2026-09-12 10:03:57,943 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-57
+2026-09-12 10:03:57,982 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-119
+2026-09-12 10:03:57,993 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-42
+2026-09-12 10:03:58,016 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-150
+2026-09-12 10:03:58,024 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-73
+2026-09-12 10:03:58,073 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-104
+2026-09-12 10:03:58,079 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-135
+2026-09-12 10:03:58,094 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-27
+2026-09-12 10:03:58,103 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-58
+2026-09-12 10:03:58,148 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-89
+2026-09-12 10:03:58,153 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-43
+2026-09-12 10:03:58,183 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-120
+2026-09-12 10:03:58,251 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-74
+2026-09-12 10:03:58,271 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-28
+2026-09-12 10:03:58,276 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-105
+2026-09-12 10:03:58,289 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-136
+2026-09-12 10:03:58,319 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-59
+2026-09-12 10:03:58,327 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-90
+2026-09-12 10:03:58,380 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-44
+2026-09-12 10:03:58,394 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-121
+2026-09-12 10:03:58,430 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-75
+2026-09-12 10:03:58,471 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-106
+2026-09-12 10:03:58,477 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-29
+2026-09-12 10:03:58,489 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-137
+2026-09-12 10:03:58,517 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-60
+2026-09-12 10:03:58,548 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-91
+2026-09-12 10:03:58,594 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-122
+2026-09-12 10:03:58,594 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-45
+2026-09-12 10:03:58,642 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-76
+2026-09-12 10:03:58,663 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-107
+2026-09-12 10:03:58,682 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-138
+2026-09-12 10:03:58,700 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-30
+2026-09-12 10:03:58,720 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-61
+2026-09-12 10:03:58,731 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-92
+2026-09-12 10:03:58,764 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-46
+2026-09-12 10:03:58,796 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-123
+2026-09-12 10:03:58,853 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-108
+2026-09-12 10:03:58,857 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-77
+2026-09-12 10:03:58,886 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-62
+2026-09-12 10:03:58,886 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-139
+2026-09-12 10:03:58,894 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-31
+2026-09-12 10:03:58,943 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-93
+2026-09-12 10:03:58,965 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-124
+2026-09-12 10:03:58,998 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-47
+2026-09-12 10:03:59,029 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-109
+2026-09-12 10:03:59,043 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-78
+2026-09-12 10:03:59,070 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-32
+2026-09-12 10:03:59,087 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-63
+2026-09-12 10:03:59,089 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-140
+2026-09-12 10:03:59,137 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-94
+2026-09-12 10:03:59,185 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-125
+2026-09-12 10:03:59,185 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-48
+2026-09-12 10:03:59,250 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-110
+2026-09-12 10:03:59,285 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-33
+2026-09-12 10:03:59,285 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-79
+2026-09-12 10:03:59,298 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-64
+2026-09-12 10:03:59,314 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-141
+2026-09-12 10:03:59,314 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-95
+2026-09-12 10:03:59,362 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-49
+2026-09-12 10:03:59,391 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-126
+2026-09-12 10:03:59,407 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-80
+2026-09-12 10:03:59,425 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-111
+2026-09-12 10:03:59,519 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-34
+2026-09-12 10:03:59,519 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-142
+2026-09-12 10:03:59,581 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-65
+2026-09-12 10:03:59,581 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-50
+2026-09-12 10:03:59,583 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-96
+2026-09-12 10:03:59,613 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-127
+2026-09-12 10:03:59,630 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-81
+2026-09-12 10:03:59,645 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-112
+2026-09-12 10:03:59,676 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-35
+2026-09-12 10:03:59,694 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-66
+2026-09-12 10:03:59,694 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-143
+2026-09-12 10:03:59,726 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-97
+2026-09-12 10:03:59,789 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-51
+2026-09-12 10:03:59,805 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-128
+2026-09-12 10:03:59,821 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-82
+2026-09-12 10:03:59,838 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-10
+2026-09-12 10:03:59,838 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-11
+2026-09-12 10:03:59,838 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-18
+2026-09-12 10:03:59,838 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-1
+2026-09-12 10:03:59,838 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-7
+2026-09-12 10:03:59,846 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-8
+2026-09-12 10:03:59,846 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-17
+2026-09-12 10:03:59,846 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-113
+2026-09-12 10:03:59,846 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-3
+2026-09-12 10:03:59,846 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-13
+2026-09-12 10:03:59,854 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-14
+2026-09-12 10:03:59,854 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-4
+2026-09-12 10:03:59,854 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-19
+2026-09-12 10:03:59,855 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-15
+2026-09-12 10:03:59,854 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-16
+2026-09-12 10:03:59,860 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-9
+2026-09-12 10:03:59,866 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-67
+2026-09-12 10:03:59,866 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-6
+2026-09-12 10:03:59,866 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-2
+2026-09-12 10:03:59,868 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-20
+2026-09-12 10:03:59,874 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-36
+2026-09-12 10:03:59,874 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-12
+2026-09-12 10:03:59,874 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-5
+2026-09-12 10:03:59,900 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-144
+2026-09-12 10:03:59,916 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-98
+2026-09-12 10:03:59,977 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-129
+2026-09-12 10:03:59,993 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-21
+2026-09-12 10:04:00,042 INFO o.a.j.r.Summariser: summary +   1461 in 00:00:30 =   48.7/s Avg:    69 Min:    42 Max:   152 Err:     0 (0.00%) Active: 38 Started: 150 Finished: 112
+2026-09-12 10:04:00,042 INFO o.a.j.r.Summariser: summary =   2092 in 00:01:00 =   35.1/s Avg:    70 Min:    42 Max:   182 Err:     0 (0.00%)
+2026-09-12 10:04:00,045 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-83
+2026-09-12 10:04:00,045 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-114
+2026-09-12 10:04:00,074 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-52
+2026-09-12 10:04:00,074 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-145
+2026-09-12 10:04:00,088 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-68
+2026-09-12 10:04:00,104 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-37
+2026-09-12 10:04:00,136 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-22
+2026-09-12 10:04:00,136 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-99
+2026-09-12 10:04:00,170 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-130
+2026-09-12 10:04:00,215 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-53
+2026-09-12 10:04:00,230 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-115
+2026-09-12 10:04:00,262 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-84
+2026-09-12 10:04:00,278 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-69
+2026-09-12 10:04:00,294 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-146
+2026-09-12 10:04:00,309 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-38
+2026-09-12 10:04:00,326 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-100
+2026-09-12 10:04:00,341 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-23
+2026-09-12 10:04:00,389 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-131
+2026-09-12 10:04:00,389 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-54
+2026-09-12 10:04:00,419 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-85
+2026-09-12 10:04:00,435 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-116
+2026-09-12 10:04:00,482 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-70
+2026-09-12 10:04:00,487 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-39
+2026-09-12 10:04:00,516 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-101
+2026-09-12 10:04:00,516 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-147
+2026-09-12 10:04:00,547 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-24
+2026-09-12 10:04:00,562 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-55
+2026-09-12 10:04:00,593 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-132
+2026-09-12 10:04:00,626 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-86
+2026-09-12 10:04:00,642 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-117
+2026-09-12 10:04:00,656 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: API Performance Tests 1-40
+2026-09-12 10:04:00,658 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-40
+2026-09-12 10:04:00,692 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-148
+2026-09-12 10:04:00,694 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-71
+2026-09-12 10:04:00,752 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-102
+2026-09-12 10:04:00,801 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-133
+2026-09-12 10:04:00,847 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: API Performance Tests 1-118
+2026-09-12 10:04:00,847 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: API Performance Tests 1-87
+2026-09-12 10:04:00,847 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-118
+2026-09-12 10:04:00,847 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-87
+2026-09-12 10:04:00,865 INFO o.a.j.t.JMeterThread: Thread finished: API Performance Tests 1-149
+2026-09-12 10:04:00,867 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-09-12 10:04:00,867 INFO o.a.j.s.FileServer: Close: C:/Users/ansh.verma/SDET_Ansh_Verma_training/Assignment10/TestData/TestData.csv
+2026-09-12 10:04:00,880 INFO o.a.j.r.Summariser: summary +     37 in 00:00:01 =   44.1/s Avg:    70 Min:    47 Max:    97 Err:     0 (0.00%) Active: 0 Started: 150 Finished: 150
+2026-09-12 10:04:00,880 INFO o.a.j.r.Summariser: summary =   2129 in 00:01:00 =   35.2/s Avg:    70 Min:    42 Max:   182 Err:     0 (0.00%)
