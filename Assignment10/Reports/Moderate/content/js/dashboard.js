@@ -133,7 +133,7 @@ $(document).ready(function() {
         widgets: ['zebra']
     });
 
-    var data = {"OkPercent": 100.0, "KoPercent": 0.0};
+    var data = {"OkPercent": 26.329113924050635, "KoPercent": 73.67088607594937};
     var dataset = [
         {
             "label" : "FAIL",
@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Creates APDEX table
-    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [1.0, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [1.0, 500, 1500, "Complete API Transaction"], "isController": true}, {"data": [1.0, 500, 1500, "GET Created Object"], "isController": false}, {"data": [1.0, 500, 1500, "GET Countries"], "isController": false}, {"data": [1.0, 500, 1500, "POST Create Object"], "isController": false}]}, function(index, item){
+    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.1580952380952381, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [0.007692307692307693, 500, 1500, "Complete API Transaction"], "isController": true}, {"data": [0.07894736842105263, 500, 1500, "GET Created Object"], "isController": false}, {"data": [0.43, 500, 1500, "GET Countries"], "isController": false}, {"data": [0.0648854961832061, 500, 1500, "POST Create Object"], "isController": false}]}, function(index, item){
         switch(index){
             case 0:
                 item = item.toFixed(3);
@@ -187,7 +187,7 @@ $(document).ready(function() {
     }, [[0, 0]], 3);
 
     // Create statistics table
-    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 713, 0, 0.0, 70.15427769985973, 42, 195, 64.0, 97.0, 98.0, 111.0, 0.27746775069775553, 0.07627444479208986, 0.07808492916205517], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["Complete API Transaction", 237, 0, 0.0, 206.59493670886073, 138, 364, 209.0, 218.0, 225.0, 336.7600000000002, 0.09233110323201715, 0.07440953748155812, 0.07654044840093827], "isController": true}, {"data": ["GET Created Object", 222, 0, 0.0, 50.46396396396396, 42, 80, 49.0, 56.0, 57.0, 59.77000000000001, 0.0867020192197287, 0.021082815220422307, 0.0153252592566122], "isController": false}, {"data": ["GET Countries", 253, 0, 0.0, 64.86956521739135, 52, 193, 64.0, 67.6, 69.0, 170.18000000000026, 0.09845821441163628, 0.029037481203431796, 0.023138090831983586], "isController": false}, {"data": ["POST Create Object", 238, 0, 0.0, 94.13865546218484, 82, 195, 96.0, 99.0, 104.09999999999997, 113.60999999999999, 0.0928239663680829, 0.02628803735033598, 0.03976456046779379], "isController": false}]}, function(index, item){
+    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 395, 291, 73.67088607594937, 2552.222784810126, 129, 21541, 328.0, 21360.2, 21397.2, 21509.2, 6.901009818651945, 15.494940669878403, 2.131382888116286], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["Complete API Transaction", 130, 122, 93.84615384615384, 7697.769230769238, 452, 22995, 981.5, 22516.9, 22642.45, 22927.42, 2.4207664519012324, 14.752072926753193, 2.1701611148095044], "isController": true}, {"data": ["GET Created Object", 114, 105, 92.10526315789474, 209.40350877192984, 129, 378, 154.0, 336.5, 341.25, 374.8499999999999, 2.4143846495965438, 2.251800033621365, 0.5739582340576488], "isController": false}, {"data": ["GET Countries", 150, 67, 44.666666666666664, 549.4533333333331, 266, 1423, 417.0, 969.7, 1002.9, 1278.1600000000026, 2.629549119977561, 11.531035116532852, 0.6599894379777015], "isController": false}, {"data": ["POST Create Object", 131, 119, 90.83969465648855, 6884.259541984736, 141, 21541, 344.0, 21410.8, 21470.8, 21535.88, 2.52126717733554, 2.363443640777166, 1.1017951097521075], "isController": false}]}, function(index, item){
         switch(index){
             // Errors pct
             case 3:
@@ -217,7 +217,7 @@ $(document).ready(function() {
     }, [[0, 0]], 0, summaryTableHeader);
 
     // Create error table
-    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": []}, function(index, item){
+    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": [{"data": ["The operation lasted too long: It took 21,460 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, 0.3436426116838488, 0.25316455696202533], "isController": false}, {"data": ["The operation lasted too long: It took 21,398 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, 0.3436426116838488, 0.25316455696202533], "isController": false}, {"data": ["The operation lasted too long: It took 21,348 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, 0.3436426116838488, 0.25316455696202533], "isController": false}, {"data": ["The operation lasted too long: It took 21,384 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, 0.3436426116838488, 0.25316455696202533], "isController": false}, {"data": ["429/Too Many Requests", 286, 98.28178694158076, 72.40506329113924], "isController": false}, {"data": ["The operation lasted too long: It took 21,418 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, 0.3436426116838488, 0.25316455696202533], "isController": false}]}, function(index, item){
         switch(index){
             case 2:
             case 3:
@@ -228,7 +228,7 @@ $(document).ready(function() {
     }, [[1, 1]]);
 
         // Create top5 errors by sampler
-    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 713, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
+    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 395, 291, "429/Too Many Requests", 286, "The operation lasted too long: It took 21,460 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,398 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,348 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,384 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": ["GET Created Object", 114, 105, "429/Too Many Requests", 105, "", "", "", "", "", "", "", ""], "isController": false}, {"data": ["GET Countries", 150, 67, "429/Too Many Requests", 67, "", "", "", "", "", "", "", ""], "isController": false}, {"data": ["POST Create Object", 131, 119, "429/Too Many Requests", 114, "The operation lasted too long: It took 21,460 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,398 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,348 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1, "The operation lasted too long: It took 21,384 milliseconds, but should not have lasted longer than 3,000 milliseconds.", 1], "isController": false}]}, function(index, item){
         return item;
     }, [[0, 0]], 0);
 

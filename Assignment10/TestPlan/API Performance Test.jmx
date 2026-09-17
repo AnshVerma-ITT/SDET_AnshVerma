@@ -5,13 +5,15 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Test Data">
         <stringProp name="delimiter">,</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
         <stringProp name="filename">C:/Users/ansh.verma/SDET_Ansh_Verma_training/Assignment10/TestData/TestData.csv</stringProp>
-        <boolProp name="ignoreFirstLine">false</boolProp>
+        <boolProp name="ignoreFirstLine">true</boolProp>
         <boolProp name="quotedData">false</boolProp>
         <boolProp name="recycle">true</boolProp>
         <stringProp name="shareMode">shareMode.all</stringProp>
@@ -76,10 +78,30 @@
             <stringProp name="Argument.value">8080</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="GET_COUNTRIES_PATH_MOCK" elementType="Argument">
+            <stringProp name="Argument.name">GET_COUNTRIES_PATH_MOCK</stringProp>
+            <stringProp name="Argument.value">/countries/v5?q</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="POST_COLLECTIONS_OBJECT_PATH" elementType="Argument">
+            <stringProp name="Argument.name">POST_COLLECTIONS_OBJECT_PATH</stringProp>
+            <stringProp name="Argument.value">/collections/jmeter-test/objects</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RESTCOUNTRIES_PROTOCOL" elementType="Argument">
+            <stringProp name="Argument.name">RESTCOUNTRIES_PROTOCOL</stringProp>
+            <stringProp name="Argument.value">https</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RESTFUL_API_PROTOCOL" elementType="Argument">
+            <stringProp name="Argument.name">RESTFUL_API_PROTOCOL</stringProp>
+            <stringProp name="Argument.value">https</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Common HTTP Headers">
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Common HTTP Headers" enabled="true">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">Accept</stringProp>
@@ -102,9 +124,9 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="API Requests"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="API Requests" enabled="true"/>
         <hashTree>
-          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Complete API Transaction">
+          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Complete API Transaction" enabled="true">
             <boolProp name="TransactionController.includeTimers">false</boolProp>
           </TransactionController>
           <hashTree>
@@ -115,10 +137,9 @@
             </DebugSampler>
             <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET Countries">
-              <stringProp name="HTTPSampler.domain">${PERF_HOST}</stringProp>
-              <stringProp name="HTTPSampler.port">${PERF_PORT}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${PERF_PROTOCOL}</stringProp>
-              <stringProp name="HTTPSampler.path">/countries/v5?q=${searchTerm}</stringProp>
+              <stringProp name="HTTPSampler.domain">${RESTCOUNTRIES_HOST}</stringProp>
+              <stringProp name="HTTPSampler.protocol">https</stringProp>
+              <stringProp name="HTTPSampler.path">/countries/v5/names.common/${searchTerm}</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -136,7 +157,7 @@
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="GET - Response Code Assertion">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- Response Code ">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="49586">200</stringProp>
                 </collectionProp>
@@ -146,7 +167,7 @@
                 <intProp name="Assertion.test_type">8</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="GET - Duration Assertion">
+              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Assert- Duration ">
                 <stringProp name="DurationAssertion.duration">${MAX_RESPONSE_TIME}</stringProp>
               </DurationAssertion>
               <hashTree/>
@@ -163,25 +184,32 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <JMESPathAssertion guiclass="JMESPathAssertionGui" testclass="JMESPathAssertion" testname="JSON JMESPath Assertion">
-                <stringProp name="JMES_PATH">data.objects[0].cca2</stringProp>
-                <stringProp name="EXPECTED_VALUE">IN</stringProp>
-                <boolProp name="JSONVALIDATION">false</boolProp>
-                <boolProp name="EXPECT_NULL">false</boolProp>
-                <boolProp name="INVERT">false</boolProp>
-                <boolProp name="ISREGEX">true</boolProp>
-              </JMESPathAssertion>
+              <JSR223Assertion guiclass="TestBeanGUI" testclass="JSR223Assertion" testname="Assert- JSON Response ">
+                <stringProp name="cacheKey">true</stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="script">import groovy.json.JsonSlurper
+
+def response = prev.getResponseDataAsString()
+def json = new JsonSlurper().parseText(response)
+
+assert json.data != null : &quot;Response does not contain &apos;data&apos;&quot;
+assert json.data.objects != null : &quot;Response does not contain &apos;data.objects&apos;&quot;
+assert json.data.objects.size() &gt; 0 : &quot;No country objects returned&quot;
+
+def actualCountry = json.data.objects[0].names.common.toString()
+def expectedCountry = vars.get(&quot;searchTerm&quot;)
+
+assert actualCountry.equalsIgnoreCase(expectedCountry) :
+    &quot;Country mismatch. Expected: ${expectedCountry}, Actual: ${actualCountry}&quot;</stringProp>
+                <stringProp name="scriptLanguage">groovy</stringProp>
+              </JSR223Assertion>
               <hashTree/>
             </hashTree>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="User Think Time">
-              <stringProp name="ConstantTimer.delay">3000</stringProp>
-            </ConstantTimer>
-            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST Create Object">
-              <stringProp name="HTTPSampler.domain">${PERF_HOST}</stringProp>
-              <stringProp name="HTTPSampler.port">${PERF_PORT}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${PERF_PROTOCOL}</stringProp>
-              <stringProp name="HTTPSampler.path">/collections/jmeter-test/objects</stringProp>
+              <stringProp name="HTTPSampler.domain">${RESTFUL_API_HOST}</stringProp>
+              <stringProp name="HTTPSampler.protocol">HTTPS</stringProp>
+              <stringProp name="HTTPSampler.path">${POST_COLLECTIONS_OBJECT_PATH}</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -203,7 +231,19 @@
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST JSON Headers">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="PreProcess - Generate Dynamic Data">
+                <stringProp name="cacheKey">true</stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="script">def productName = vars.get(&apos;productName&apos;)
+def timestamp = System.currentTimeMillis().toString()
+
+vars.put(&apos;requestTimestamp&apos;, timestamp)
+vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp)</stringProp>
+                <stringProp name="scriptLanguage">groovy</stringProp>
+              </JSR223PreProcessor>
+              <hashTree/>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Restful API Headers">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -220,7 +260,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="POST - Response Code Assertion">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- Response Code ">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="49586">200</stringProp>
                 </collectionProp>
@@ -230,11 +270,11 @@
                 <intProp name="Assertion.test_type">8</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="POST - Duration Assertion" enabled="true">
+              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Assert- Duration">
                 <stringProp name="DurationAssertion.duration">${MAX_RESPONSE_TIME}</stringProp>
               </DurationAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="POST - JSON Content Assertion" enabled="true">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- JSON Content">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="1116933">&quot;id&quot;</stringProp>
                 </collectionProp>
@@ -244,30 +284,21 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <JMESPathExtractor guiclass="JMESPathExtractorGui" testclass="JMESPathExtractor" testname="POST - Extract Object ID" enabled="true">
+              <JMESPathExtractor guiclass="JMESPathExtractorGui" testclass="JMESPathExtractor" testname="Extract Object ID">
                 <stringProp name="JMESExtractor.referenceName">createdObjectId</stringProp>
                 <stringProp name="JMESExtractor.jmesPathExpr">id</stringProp>
                 <stringProp name="JMESExtractor.matchNumber">1</stringProp>
                 <stringProp name="JMESExtractor.defaultValue">NOT_FOUND</stringProp>
               </JMESPathExtractor>
               <hashTree/>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="POST - Generate Dynamic Data">
-                <stringProp name="cacheKey">true</stringProp>
-                <stringProp name="filename"></stringProp>
-                <stringProp name="parameters"></stringProp>
-                <stringProp name="script">def productName = vars.get(&apos;productName&apos;)
-def timestamp = System.currentTimeMillis().toString()
-
-vars.put(&apos;requestTimestamp&apos;, timestamp)
-vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp)</stringProp>
-                <stringProp name="scriptLanguage">groovy</stringProp>
-              </JSR223PreProcessor>
-              <hashTree/>
             </hashTree>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="User Think Time">
+              <stringProp name="ConstantTimer.delay">3000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET Created Object">
-              <stringProp name="HTTPSampler.domain">${PERF_HOST}</stringProp>
-              <stringProp name="HTTPSampler.port">${PERF_PORT}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${PERF_PROTOCOL}</stringProp>
+              <stringProp name="HTTPSampler.domain">${RESTFUL_API_HOST}</stringProp>
+              <stringProp name="HTTPSampler.protocol">HTTPS</stringProp>
               <stringProp name="HTTPSampler.path">/collections/jmeter-test/objects/${createdObjectId}</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -278,7 +309,7 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="GET Created Object - Response Code Assertion" enabled="true">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- Response Code">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="49586">200</stringProp>
                 </collectionProp>
@@ -288,11 +319,11 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
                 <intProp name="Assertion.test_type">8</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="GET Created Object - Duration Assertion" enabled="true">
+              <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Assert- Duration ">
                 <stringProp name="DurationAssertion.duration">${MAX_RESPONSE_TIME}</stringProp>
               </DurationAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="GET Created Object - JSON Content Assertion" enabled="true">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- JSON Content">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="1116933">&quot;id&quot;</stringProp>
                 </collectionProp>
@@ -302,7 +333,7 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="GET Created Object - ID Correlation Assertion" enabled="true">
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert- ID Correlation ">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="-411591726">${createdObjectId}</stringProp>
                 </collectionProp>
@@ -311,6 +342,19 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
+              <hashTree/>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Restful API Header">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-api-key</stringProp>
+                    <stringProp name="Header.value">${RESTFUL_API_KEY}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
               <hashTree/>
             </hashTree>
           </hashTree>
@@ -352,7 +396,7 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="Listener - View Results in Table">
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="Listener - View Results in Table" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>
@@ -389,7 +433,7 @@ vars.put(&apos;dynamicProductName&apos;, productName + &apos;-&apos; + timestamp
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>

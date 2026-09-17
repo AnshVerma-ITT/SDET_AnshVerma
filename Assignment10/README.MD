@@ -1,68 +1,63 @@
-# API Performance Testing - JMeter Project
+# JMeter API Performance Testing Assignment
 
 ## Project Details
 
-| Field | Value |
-| --- | --- |
-| Project Name | API Performance Testing - JMeter |
-| Developed By | Ansh Verma |
-| Application Type | API Performance Testing Project |
-| Performance Testing Tool | Apache JMeter |
-| APIs Tested | REST Countries API and RESTful API |
-| Test Data | CSV Parameterization |
-| Scripting | Groovy |
-| Reporting | JMeter HTML Dashboard |
-| Load Scenarios | Light, Moderate, Heavy, Stress, Spike, Soak, Volume |
-| Mock Server | Java HTTP Server |
+| Item | Details |
+|---|---|
+| Assignment | Assignment 10 – Performance Testing |
+| Tool | Apache JMeter 5.6.3 |
+| Test Type | API Performance Testing |
+| APIs | REST Countries API and RESTful API Dev |
+| Execution Mode | Non-GUI / CLI |
+| Report | JMeter HTML Dashboard |
 
 ## Project Description
 
-The API Performance Testing project is a JMeter-based performance testing project developed to validate API functionality and measure API performance under different load conditions.
+This project implements API performance testing using Apache JMeter.
 
-The project demonstrates performance testing concepts including load generation, response-time measurement, throughput analysis, percentile analysis, assertions, parameterization, dynamic data generation, API chaining, correlation, timers, and HTML reporting.
+The test plan covers CSV-based parameterization, REST Countries GET testing, RESTful API Dev POST/GET testing, dynamic data generation, response ID extraction and correlation, assertions, think time, multiple load scenarios, JTL result generation and JMeter HTML dashboard generation.
 
-The test plan contains API requests for retrieving country information and creating and retrieving objects.
+## APIs Tested
 
-A local Java mock API server is also included for safe and repeatable performance testing without consuming the request quota of the external APIs.
-
-## Assignment Implementation Summary
-
-- **API Performance Testing:** API endpoints are tested under multiple load conditions.
-- **JMeter Test Plan:** A complete JMeter test plan is created containing Thread Groups, HTTP Request Samplers, Assertions, Timers, Listeners, CSV Data Set Config, and configuration elements.
-- **CSV Parameterization:** Test data is read dynamically from `TestData.csv`.
-- **Dynamic Data:** Product names are dynamically generated using the product name from CSV and the current timestamp.
-- **API Chaining:** The object ID returned from the POST request is extracted and passed to the following GET request.
-- **Correlation:** The `createdObjectId` JMeter variable is used to correlate the POST response with the subsequent GET request.
-- **Response Assertions:** Response code, response duration, and JSON response content are validated.
-- **Think Time:** A Constant Timer is used to simulate a 3-second user think time between API operations.
-- **Configurable Load:** Thread count, ramp-up time, duration, loop count, startup delay, and scenario name can be passed as JMeter properties.
-- **Multiple Load Scenarios:** Light, Moderate, Heavy, Stress, Spike, Soak, and Volume scenarios are executed.
-- **HTML Reporting:** JMeter HTML dashboards are generated for each performance scenario.
-- **Performance Metrics:** Average response time, median, percentiles, throughput, sample count, and error percentage are analyzed.
-- **CPU and Memory Monitoring:** System CPU and memory utilization are observed during the Stress test using Windows Task Manager.
-- **HTTPS Test Script Recorder:** A separate HTTPS Test Script Recorder demonstration is included.
-
-## Features Implemented
-
-### 1. API Testing
-
-- GET country information
-- POST object creation
-- GET created object
-- HTTP response validation
-- JSON response validation
-- Response duration validation
-- API request chaining
-
-### 2. CSV Parameterization
-
-Test data is stored in:
+### REST Countries API
 
 ```text
-TestData/TestData.csv
+Protocol: HTTPS
+Host: api.restcountries.com
+Endpoint:
+/countries/v5/names.common/${searchTerm}
 ```
 
-Example:
+Authentication:
+```text
+Authorization: Bearer ${RESTCOUNTRIES_API_KEY}
+```
+
+Header:
+```text
+Accept: application/json
+```
+
+### RESTful API Dev
+
+Create object:
+```text
+POST /collections/jmeter-test/objects
+```
+
+Get created object:
+```text
+GET /collections/jmeter-test/objects/${createdObjectId}
+```
+
+Required headers:
+```text
+x-api-key: <API_KEY>
+Content-Type: application/json
+Accept: application/json
+```
+
+## Test Data
 
 ```csv
 searchTerm,productName,productDescription
@@ -72,19 +67,61 @@ India,MacBook Air,Apple laptop
 France,Dell XPS,Laptop computer
 ```
 
-JMeter reads the values dynamically using the CSV Data Set Config element.
-
-The following variables are used:
-
+Variables:
 ```text
-${searchTerm}
-${productName}
-${productDescription}
+searchTerm
+productName
+productDescription
 ```
 
-### 3. Dynamic Test Data
+## Test Flow
 
-A JSR223 PreProcessor using Groovy generates dynamic product names.
+```text
+CSV Data
+   ↓
+GET Countries
+   ↓
+Response Code / Duration / JSON Assertions
+   ↓
+3 Second Think Time
+   ↓
+Generate Dynamic Product Name + Timestamp
+   ↓
+POST Create Object
+   ↓
+Extract Object ID
+   ↓
+createdObjectId
+   ↓
+GET Created Object
+   ↓
+Response Code / Duration / ID Correlation Assertions
+```
+
+## Assertions
+
+### GET Countries
+- Response Code = `200`
+- Response Time <= `3000 ms`
+- `data` exists
+- `data.objects` exists
+- At least one country object is returned
+- `names.common` exists and is non-empty
+
+### POST Create Object
+- Response Code = `200`
+- Response Time <= `3000 ms`
+- JSON response validation
+- Object ID extraction
+
+### GET Created Object
+- Response Code = `200`
+- Response Time <= `3000 ms`
+- Returned object ID matches the ID extracted from POST
+
+## Dynamic Data and Correlation
+
+JSR223 PreProcessor:
 
 ```groovy
 def productName = vars.get("productName")
@@ -95,210 +132,20 @@ vars.put("requestTimestamp", timestamp)
 vars.put("dynamicProductName", dynamicProductName)
 ```
 
-This prevents every POST request from using exactly the same product name.
-
-### 4. API Correlation
-
-The POST response returns a dynamically generated object ID.
-
-The ID is extracted using a JSON/JMESPath extractor:
+POST response ID extraction:
 
 ```text
-Variable Name:
-createdObjectId
-
-JMESPath Expression:
-id
+Variable: createdObjectId
+JMESPath: id
 ```
 
-The extracted value is then used in the following GET request:
+The extracted ID is used in:
 
 ```text
 /collections/jmeter-test/objects/${createdObjectId}
 ```
 
-This demonstrates API chaining and correlation in JMeter.
-
-### 5. Assertions
-
-The test plan contains assertions for:
-
-- HTTP response code
-- Maximum response duration
-- JSON response content
-- Correlated object ID
-
-GET Countries:
-
-```text
-Expected Response Code:
-200
-
-JSON JMESPath:
-data.objects[0].cca2
-
-Expected Value:
-IN
-```
-
-POST Create Object:
-
-```text
-Expected Response Code:
-200
-```
-
-GET Created Object:
-
-```text
-Expected Response Code:
-200
-```
-
-The maximum configured response time is:
-
-```text
-3000 ms
-```
-
-### 6. Think Time
-
-A Constant Timer is configured between the country GET request and object creation request.
-
-```text
-Think Time:
-3000 ms
-```
-
-This simulates a user spending some time between two API operations.
-
-## Performance Test Scenarios
-
-| Scenario | Threads | Ramp-up | Duration |
-| --- | ---: | ---: | ---: |
-| Light | 10 | 10 sec | 60 sec |
-| Moderate | 50 | 30 sec | 60 sec |
-| Heavy | 100 | 60 sec | 60 sec |
-| Stress | 150 | 30 sec | 60 sec |
-| Spike | 100 | 1 sec | 30 sec |
-| Soak | 20 | 20 sec | 300 sec |
-| Volume | 50 | 30 sec | 120 sec |
-
-### Scenario Purpose
-
-**Light Load**
-
-Represents a small number of concurrent users and establishes a basic performance baseline.
-
-**Moderate Load**
-
-Represents a normal increase in concurrent users.
-
-**Heavy Load**
-
-Tests the system with a higher number of concurrent users.
-
-**Stress Test**
-
-Uses the highest configured load to observe system behavior under heavy pressure.
-
-**Spike Test**
-
-Rapidly increases the number of users using a 1-second ramp-up period to observe the effect of a sudden traffic increase.
-
-**Soak Test**
-
-Runs for an extended period to check performance stability over time.
-
-**Volume Test**
-
-Uses a larger amount of API activity to observe system behavior when processing a higher transaction volume.
-
-## Local Performance Test Environment
-
-Performance execution was performed against a local Java mock API server.
-
-The local server runs on:
-
-```text
-http://localhost:8080
-```
-
-The following endpoints are provided:
-
-```text
-GET
-/countries/v5?q=${searchTerm}
-```
-
-```text
-POST
-/collections/jmeter-test/objects
-```
-
-```text
-GET
-/collections/jmeter-test/objects/${createdObjectId}
-```
-
-The local mock server provides predictable responses and avoids consuming the request quota of the external API during load testing.
-
-## Mock API Server
-
-The mock API server is implemented using Java's built-in HTTP server.
-
-Project location:
-
-```text
-MockApiServer/
-├── MockApiServer.java
-└── MockApiServer.class
-```
-
-Compile the server using:
-
-```powershell
-& "C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\javac.exe" -d . .\MockApiServer.java
-```
-
-Start the server using:
-
-```powershell
-& "C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe" -cp . MockApiServer
-```
-
-The server displays:
-
-```text
-==========================================
-Local Mock API Server Started
-Base URL: http://localhost:8080
-Press Ctrl+C to stop the server.
-==========================================
-```
-
-## JMeter Configuration
-
-The performance environment uses the following configuration variables:
-
-| Variable | Value |
-| --- | --- |
-| `PERF_PROTOCOL` | `http` |
-| `PERF_HOST` | `localhost` |
-| `PERF_PORT` | `8080` |
-
-The Thread Group also supports configurable JMeter properties:
-
-| Property | Purpose |
-| --- | --- |
-| `threads` | Number of virtual users |
-| `rampup` | User ramp-up time |
-| `duration` | Test duration |
-| `loops` | Loop count |
-| `delay` | Startup delay |
-| `scenario` | Performance scenario name |
-
-Example Thread Group configuration:
+## Thread Group Configuration
 
 ```text
 Threads:
@@ -312,315 +159,166 @@ ${__P(loops,-1)}
 
 Duration:
 ${__P(duration,60)}
-
-Startup Delay:
-${__P(delay,0)}
-
-Scenario:
-${__P(scenario,LOCAL)}
 ```
 
-## JMeter Test Plan Structure
+## Performance Test Scenarios
 
-```text
-API Performance Testing - RestCountries and Restful API
-│
-├── CSV Test Data
-├── Environment Variables
-├── Common HTTP Headers
-│
-└── API Performance Tests
-    │
-    ├── API Requests
-    │   │
-    │   └── Complete API Transaction
-    │       │
-    │       ├── Debug Sampler
-    │       │
-    │       ├── GET Countries
-    │       │   ├── GET - Response Code Assertion
-    │       │   ├── GET - Duration Assertion
-    │       │   └── GET - JSON Content Assertion
-    │       │
-    │       ├── User Think Time
-    │       │
-    │       ├── POST Create Object
-    │       │   ├── POST - Response Code Assertion
-    │       │   ├── POST - Duration Assertion
-    │       │   ├── POST - JSON Content Assertion
-    │       │   ├── POST - Extract Object ID
-    │       │   └── POST - Generate Dynamic Data
-    │       │
-    │       └── GET Created Object
-    │           ├── GET Created Object - Response Code Assertion
-    │           ├── GET Created Object - Duration Assertion
-    │           ├── GET Created Object - JSON Content Assertion
-    │           └── GET Created Object - ID Correlation Assertion
-    │
-    ├── View Results Tree
-    ├── View Results in Table
-    └── Summary Report
+| Scenario | Threads | Ramp-up | Duration |
+|---|---:|---:|---:|
+| Light | 10 | 10 sec | 60 sec |
+| Moderate | 50 | 30 sec | 60 sec |
+| Heavy | 100 | 60 sec | 60 sec |
+| Stress | 150 | 30 sec | 60 sec |
+| Spike | 100 | 1 sec | 30 sec |
+| Soak | 20 | 20 sec | 300 sec |
+| Volume | 50 | 30 sec | 120 sec |
+
+# Running the Tests and Generating HTML Reports
+
+Run all commands from the root of the `Assignment10` folder.
+
+Example:
+
+```powershell
+cd "C:\path\to\Assignment10"
 ```
 
-> The Debug Sampler is used only for debugging and should be disabled during actual performance execution because it adds additional samples to the test results.
-
-## Running JMeter Tests
-
-JMeter can be executed from the command line using non-GUI mode.
-
-JMeter executable:
+The JMeter executable is:
 
 ```text
 C:\apache-jmeter-5.6.3\bin\jmeter.bat
 ```
 
-Example Light Load execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=10 -Jrampup=10 -Jduration=60 -Jscenario=LIGHT -l ".\Results\Light\Light_Load.jtl"
-```
-
-Example Moderate Load execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=50 -Jrampup=30 -Jduration=60 -Jscenario=MODERATE -l ".\Results\Moderate\Moderate_Load.jtl"
-```
-
-Example Heavy Load execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=100 -Jrampup=60 -Jduration=60 -Jscenario=HEAVY -l ".\Results\Heavy\Heavy_Load.jtl"
-```
-
-Example Stress execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=150 -Jrampup=30 -Jduration=60 -Jscenario=STRESS -l ".\Results\Stress\Stress_Load.jtl"
-```
-
-Example Spike execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=100 -Jrampup=1 -Jduration=30 -Jscenario=SPIKE -l ".\Results\Spike\Spike_Load.jtl"
-```
-
-Example Soak execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=20 -Jrampup=20 -Jduration=300 -Jscenario=SOAK -l ".\Results\Soak\Soak_Load.jtl"
-```
-
-Example Volume execution:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=50 -Jrampup=30 -Jduration=120 -Jscenario=VOLUME -l ".\Results\Volume\Volume_Load.jtl"
-```
-
-## HTML Performance Reports
-
-JMeter HTML dashboards are generated from the `.jtl` result files.
-
-Example:
-
-```powershell
-& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -g ".\Results\Stress\Stress_Load.jtl" -o ".\Reports\Stress"
-```
-
-The same process is used for the other scenarios.
-
-The generated HTML reports contain performance information such as:
-
-- Response time
-- Throughput
-- Error percentage
-- Response time distribution
-- Percentiles
-- Active threads
-- Requests per second
-- Statistics
-- Response time over time
-
-## Performance Metrics
-
-The following metrics are analyzed:
-
-| Metric | Description |
-| --- | --- |
-| Average | Average response time of requests |
-| Median | Middle response time |
-| P90 | 90% of requests completed within this time |
-| P95 | 95% of requests completed within this time |
-| P99 | 99% of requests completed within this time |
-| Throughput | Number of requests processed per unit of time |
-| Error % | Percentage of failed requests |
-| Samples | Total number of requests executed |
-
-## Performance Test Results
-
-| Scenario | Threads | Samples | Error % | Avg (ms) | Median (ms) | P90 (ms) | P95 (ms) | P99 (ms) | Throughput |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Light | 10 | 176 | 0% | 72.65 | 65.00 | 98.00 | 100.35 | 164.90 | 0.07 |
-| Moderate | 50 | 713 | 0% | 70.15 | 64.00 | 97.00 | 98.00 | 111.00 | 0.28 |
-| Heavy | 100 | 944 | 0% | 68.41 | 63.00 | 95.00 | 97.00 | 101.10 | 0.36 |
-| Stress | 150 | 2134 | 0% | 67.70 | 64.00 | 95.00 | 97.00 | 106.65 | 0.81 |
-| Spike | 100 | 803 | 0% | 91.44 | 80.00 | 147.00 | 194.00 | 214.96 | 0.30 |
-| Soak | 20 | 1880 | 0% | 68.09 | 64.00 | 96.00 | 97.00 | 98.00 | 0.63 |
-| Volume | 50 | 1686 | 0% | 67.90 | 64.00 | 96.00 | 97.00 | 98.00 | 0.55 |
-
-## Performance Analysis
-
-### Light Load
-
-The Light scenario used 10 threads with a 10-second ramp-up and 60-second duration.
-
-The test executed 176 samples with a 0% error rate.
-
-The average response time was 72.65 ms and the median response time was 65 ms. P90 was 98 ms, P95 was 100.35 ms, and P99 was 164.90 ms.
-
-The system showed stable behavior under the light workload.
-
-### Moderate Load
-
-The Moderate scenario used 50 threads with a 30-second ramp-up and 60-second duration.
-
-A total of 713 samples were executed with 0% errors.
-
-The average response time was 70.15 ms and the median was 64 ms. P90 was 97 ms, P95 was 98 ms, and P99 was 111 ms.
-
-The response time remained stable compared with the Light scenario.
-
-### Heavy Load
-
-The Heavy scenario used 100 threads with a 60-second ramp-up and 60-second duration.
-
-The test executed 944 samples with 0% errors.
-
-The average response time was 68.41 ms and the median was 63 ms. P90 was 95 ms, P95 was 97 ms, and P99 was 101.10 ms.
-
-No significant performance degradation was observed.
-
-### Stress Load
-
-The Stress scenario used the highest configured load of 150 threads.
-
-A total of 2134 samples were executed with a 0% error rate.
-
-The average response time was 67.70 ms and the median was 64 ms. P90 was 95 ms, P95 was 97 ms, and P99 was 106.65 ms.
-
-Throughput reached 0.81.
-
-The system remained stable under the highest configured load in the local test environment.
-
-### Spike Load
-
-The Spike scenario used 100 threads with a 1-second ramp-up and 30-second duration.
-
-The test executed 803 samples with 0% errors.
-
-The average response time increased to 91.44 ms.
-
-P90 increased to 147 ms, P95 increased to 194 ms, and P99 reached 214.96 ms.
-
-This scenario showed the highest response-time percentiles, demonstrating the effect of a sudden increase in traffic.
-
-### Soak Load
-
-The Soak scenario used 20 threads for 300 seconds.
-
-A total of 1880 samples were executed with 0% errors.
-
-The average response time was 68.09 ms and the median was 64 ms.
-
-P90 was 96 ms, P95 was 97 ms, and P99 was 98 ms.
-
-The results indicate stable behavior during the longer-duration test.
-
-### Volume Load
-
-The Volume scenario used 50 threads for 120 seconds.
-
-A total of 1686 samples were executed with 0% errors.
-
-The average response time was 67.90 ms and the median was 64 ms.
-
-P90 was 96 ms, P95 was 97 ms, and P99 was 98 ms.
-
-The system remained stable while processing the higher transaction volume.
-
-## Overall Findings
-
-- All seven performance scenarios completed with a **0% error rate**.
-- Average response times were generally between approximately **67 ms and 73 ms**.
-- The Spike test produced the highest average response time at **91.44 ms**.
-- The Spike test also produced the highest P95 and P99 response times.
-- The Stress test used the highest configured load of **150 threads**.
-- The Stress test executed **2134 samples** with **0% errors**.
-- The highest observed throughput was **0.81** during the Stress scenario.
-- The Soak test remained stable during the 300-second execution.
-- The Volume test also maintained stable response times.
-- No significant performance degradation was observed in the local performance testing environment.
-
-## CPU and Memory Analysis
-
-System resource utilization was observed using Windows Task Manager during the Stress test.
-
-| Resource | Observation |
-| --- | --- |
-| CPU Utilization | Approximately 14% - 91% |
-| Memory Utilization | Approximately 79% |
-
-During the Stress test, CPU utilization varied from approximately 14% to 91%, indicating significant CPU activity under the highest configured load.
-
-Memory utilization was approximately 79%, showing relatively high but manageable memory usage during the test.
-
-These values were observed from Windows Task Manager and should be considered approximate system-level observations.
-
-## HTTPS Test Script Recorder
-
-A separate JMeter HTTPS Test Script Recorder demonstration is included.
-
-File:
+The JMX file is:
 
 ```text
-Recorder/HTTPS_Recorder_Demonstration.jmx
+.\TestPlan\API Performance Test.jmx
 ```
 
-The recorder demonstration contains:
+## Real API Test Commands
+
+### Light
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=10 -Jrampup=10 -Jduration=60 -Jscenario=LIGHT -l ".\Results\Light\Light_Load.jtl" -e -o ".\Reports\Light"
+```
+
+### Moderate
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=50 -Jrampup=30 -Jduration=60 -Jscenario=MODERATE -l ".\Results\Moderate\Moderate_Load.jtl" -e -o ".\Reports\Moderate"
+```
+
+### Heavy
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=100 -Jrampup=60 -Jduration=60 -Jscenario=HEAVY -l ".\Results\Heavy\Heavy_Load.jtl" -e -o ".\Reports\Heavy"
+```
+
+### Stress
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=150 -Jrampup=30 -Jduration=60 -Jscenario=STRESS -l ".\Results\Stress\Stress_Load.jtl" -e -o ".\Reports\Stress"
+```
+
+### Spike
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=100 -Jrampup=1 -Jduration=30 -Jscenario=SPIKE -l ".\Results\Spike\Spike_Load.jtl" -e -o ".\Reports\Spike"
+```
+
+### Soak
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=20 -Jrampup=20 -Jduration=300 -Jscenario=SOAK -l ".\Results\Soak\Soak_Load.jtl" -e -o ".\Reports\Soak"
+```
+
+### Volume
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=50 -Jrampup=30 -Jduration=120 -Jscenario=VOLUME -l ".\Results\Volume\Volume_Load.jtl" -e -o ".\Reports\Volume"
+```
+
+## Generated Reports
+
+Each command generates a JTL result file and an HTML dashboard.
 
 ```text
-HTTPS Test Script Recorder - Demonstration
-│
-├── HTTP(S) Test Script Recorder
-│
-└── Recording Thread Group
-    └── Recording Controller
+Results
+├── Light/Light_Load.jtl
+├── Moderate/Moderate_Load.jtl
+├── Heavy/Heavy_Load.jtl
+├── Stress/Stress_Load.jtl
+├── Spike/Spike_Load.jtl
+├── Soak/Soak_Load.jtl
+└── Volume/Volume_Load.jtl
+
+Reports
+├── Light/index.html
+├── Moderate/index.html
+├── Heavy/index.html
+├── Stress/index.html
+├── Spike/index.html
+├── Soak/index.html
+└── Volume/index.html
 ```
 
-Recorder configuration includes:
+Open a report:
 
-```text
-Port:
-8888
-
-Target Controller:
-Use Recording Controller
-
-Grouping:
-Do not group samplers
-
-Capture HTTP Headers:
-Enabled
-
-Add Assertions:
-Disabled
-
-Regex Matching:
-Disabled
+```powershell
+Start-Process ".\Reports\Light\index.html"
 ```
 
-The recorder can be used to capture HTTP/HTTPS requests and generate JMeter samplers from recorded browser traffic.
+Change `Light` to the required scenario.
 
-## Project Structure
+# Real API Test Results
+
+| Scenario | Samples | Failed | Error % | Average (ms) | Min (ms) | Max (ms) | Median (ms) | P90 (ms) | P95 (ms) | P99 (ms) | Transactions/s | Received (KB/s) | Sent (KB/s) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Light | 105 | 9 | 8.57% | 2157.53 | 132 | 21443 | 334 | 1341.20 | 21405.50 | 21442.70 | 1.84 | 6.05 | 0.58 |
+| Moderate | 395 | 291 | 73.67% | 2552.22 | 129 | 21541 | 328 | 21360.20 | 21397.20 | 21509.20 | 6.90 | 15.49 | 2.13 |
+| Heavy | 513 | 440 | 85.77% | 3318.25 | 128 | 21738 | 329 | 21062.60 | 21402.00 | 21540.86 | 6.68 | 12.00 | 2.09 |
+| Stress | 2040 | 1858 | 91.08% | 208.32 | 84 | 1231 | 152 | 355.80 | 454.00 | 734.77 | 35.71 | 51.79 | 10.99 |
+| Spike | 800 | 677 | 84.63% | 387.95 | 90 | 3939 | 167 | 804.60 | 1383.00 | 3094.95 | 30.25 | 59.76 | 9.58 |
+| Soak | 1762 | 1381 | 78.38% | 278.16 | 127 | 1100 | 222 | 425.00 | 782.40 | 966.74 | 5.93 | 13.54 | 1.82 |
+| Volume | 1593 | 1491 | 93.60% | 258.66 | 91 | 1411 | 208 | 415.00 | 563.60 | 974.08 | 13.60 | 17.51 | 4.19 |
+
+# Performance Analysis
+
+The real API execution produced failures across all seven scenarios.
+
+- Light: 105 samples, 9 failures, 8.57% error rate.
+- Moderate: 395 samples, 291 failures, 73.67% error rate.
+- Heavy: 513 samples, 440 failures, 85.77% error rate.
+- Stress: 2040 samples, 1858 failures, 91.08% error rate.
+- Spike: 800 samples, 677 failures, 84.63% error rate.
+- Soak: 1762 samples, 1381 failures, 78.38% error rate.
+- Volume: 1593 samples, 1491 failures, 93.60% error rate.
+
+The highest average response time was recorded in the Heavy scenario at 3318.25 ms.
+
+Light, Moderate and Heavy showed maximum response times of approximately 21 seconds.
+
+The percentile metrics also show higher tail response times. For example, Volume had a median of 208 ms and a P99 of 974.08 ms.
+
+The results should be interpreted using response time, percentiles, throughput and error rate together rather than average response time alone.
+
+# Graphs Reviewed
+
+The HTML reports can be reviewed for:
+
+- Response Time Over Time
+- Response Time Percentiles
+- Response Time Distribution
+- Active Threads Over Time
+- Transactions per Second
+- Hits per Second
+- Response Codes per Second
+- Latency Over Time
+- Connect Time Over Time
+- Network Throughput
+
+# Project Structure
 
 ```text
 Assignment10
@@ -657,60 +355,598 @@ Assignment10
 │   └── MockApiServer.class
 │
 ├── Performance_Test_Report.md
-│
 └── README.md
 ```
 
-## Technologies and Concepts Used
+# Technologies and Concepts Used
 
-- Apache JMeter
-- REST API
-- HTTP methods
-- GET requests
-- POST requests
-- JSON
-- JSON/JMESPath assertions
-- Response code assertions
-- Duration assertions
+- Apache JMeter 5.6.3
+- REST API testing
+- HTTP/HTTPS
 - CSV Data Set Config
-- Parameterization
-- JMeter variables
-- JMeter properties
-- API chaining
-- Correlation
-- JSON/JMESPath extraction
-- JSR223 PreProcessor
-- Groovy
-- Constant Timer
 - Thread Groups
 - HTTP Request Samplers
+- Response Assertions
+- JSR223 Assertion
+- JSR223 PreProcessor
+- JMESPath Extractor
+- API correlation
+- Dynamic test data
+- Timers / Think Time
+- CLI execution
+- JTL result files
+- JMeter HTML Dashboard
+- Performance metrics and percentile analysis
+- Load, Stress, Spike, Soak and Volume testing
+
+# Conclusion
+
+The Assignment 10 JMeter test plan was implemented with parameterized API requests, dynamic data, assertions, response correlation and multiple performance-test scenarios.
+
+The real API execution results are documented above, and the corresponding JMeter HTML dashboards are generated under the `Reports` directory.
+
+# Syllabus Topics Covered
+
+The following Performance Testing and JMeter syllabus topics are covered by this assignment.
+
+## 1. Introduction to Performance Testing
+
+### What is Performance Testing?
+Performance testing evaluates an application's behavior, responsiveness, stability and resource usage under a defined workload.
+
+### Need for Performance Testing
+The assignment measures response time, latency, throughput, error rate and percentile performance under different workloads.
+
+### Performance Testing in the SDLC
+Performance considerations are incorporated during testing rather than being treated only as a final-stage activity. The JMeter test plan provides repeatable performance validation.
+
+### Types of Performance Testing Covered
+
+| Type | Assignment Scenario |
+|---|---|
+| Load Testing | Light / Moderate / Heavy |
+| Stress Testing | Stress |
+| Spike Testing | Spike |
+| Soak / Endurance Testing | Soak |
+| Volume Testing | Volume |
+
+---
+
+## 2. Performance Testing Tools
+
+Apache JMeter is used as the primary performance-testing tool for this assignment.
+
+The assignment demonstrates:
+- Test-plan creation
+- Thread-based virtual users
+- HTTP/API load generation
+- Assertions
+- Parameterization
+- Correlation
+- Result collection
+- CLI execution
+- HTML reporting
+
+---
+
+## 3. Apache JMeter Overview and Test Plan Structure
+
+The project uses an Apache JMeter `.jmx` test plan containing:
+
+- Test Plan
+- Thread Group
+- HTTP Request Samplers
+- Controllers
+- Config Elements
+- PreProcessors
+- PostProcessors
+- Assertions
+- Timers
 - Listeners
+
+---
+
+## 4. Thread Groups
+
+The Thread Group represents virtual users and controls:
+
+- Number of threads/users
+- Ramp-up period
+- Loop count
+- Test duration
+- Startup delay
+
+The assignment parameterizes these values using JMeter properties:
+
+```text
+${__P(threads,10)}
+${__P(rampup,10)}
+${__P(loops,-1)}
+${__P(duration,60)}
+```
+
+This allows one JMX file to execute multiple performance scenarios.
+
+---
+
+## 5. Samplers
+
+HTTP Request samplers are used to test REST APIs.
+
+Implemented requests:
+
+```text
+GET Countries
+POST Create Object
+GET Created Object
+```
+
+The requests demonstrate API performance testing using HTTP/HTTPS.
+
+---
+
+## 6. Controllers
+
+The test plan uses controllers to organize the API transaction flow.
+
+The API transaction is structured as:
+
+```text
+API Requests
+    ↓
+Complete API Transaction
+    ├── GET Countries
+    ├── Think Time
+    ├── POST Create Object
+    └── GET Created Object
+```
+
+---
+
+## 7. Listeners
+
+The test plan uses JMeter listeners for functional verification and result analysis.
+
+Implemented listeners include:
+
 - View Results Tree
 - View Results in Table
 - Summary Report
-- Non-GUI execution
-- JTL result files
-- HTML Dashboard
-- Response time
-- Latency
-- Throughput
-- Percentiles
-- Load testing
-- Stress testing
-- Spike testing
-- Soak testing
-- Volume testing
-- CPU monitoring
-- Memory monitoring
-- HTTPS Test Script Recorder
-- Java Mock API Server
 
-## Conclusion
+For performance execution, results are saved to JTL files and converted into HTML dashboards.
 
-This project demonstrates API performance testing using Apache JMeter.
+---
 
-It covers API request creation, CSV parameterization, dynamic test data, assertions, timers, API chaining, correlation, configurable load testing, multiple performance testing scenarios, command-line execution, JTL result generation, HTML performance reports, and system resource monitoring.
+## 8. Load Configuration
 
-The executed tests showed a 0% error rate across all configured scenarios in the local performance environment. Response times remained generally stable under Light, Moderate, Heavy, Stress, Soak, and Volume workloads, while the Spike scenario showed increased response-time percentiles because of the sudden traffic increase.
+The assignment demonstrates the major load parameters:
 
-The project also includes an HTTPS Test Script Recorder demonstration and a local Java mock API server for repeatable performance testing.
+### Number of Users
+
+Controls the number of concurrent virtual users.
+
+### Ramp-up
+
+Controls how quickly JMeter starts the configured users.
+
+### Duration
+
+Controls how long the test remains active.
+
+### Loop Count
+
+Controls iteration behavior when the test is executed without a fixed duration.
+
+---
+
+## 9. HTTP Request Testing
+
+The assignment uses HTTP Request samplers for:
+
+### REST Countries
+
+```text
+GET /countries/v5/names.common/${searchTerm}
+```
+
+### RESTful API Dev
+
+```text
+POST /collections/jmeter-test/objects
+GET /collections/jmeter-test/objects/${createdObjectId}
+```
+
+---
+
+## 10. Assertions
+
+Assertions are used to validate functional correctness while measuring performance.
+
+Implemented validations include:
+
+- HTTP response code
+- Response duration
+- JSON response structure
+- Country response content
+- Created object response
+- Correlated object ID
+
+---
+
+## 11. Timers and Think Time
+
+A 3-second Constant Timer is used between the country GET request and the object POST request.
+
+```text
+GET Countries
+      ↓
+3 second Think Time
+      ↓
+POST Create Object
+```
+
+This simulates a pause between user actions instead of sending requests continuously.
+
+---
+
+## 12. Parameterization
+
+CSV Data Set Config is used to avoid hardcoded test data.
+
+Example:
+
+```csv
+searchTerm,productName,productDescription
+Canada,iPhone 15,Apple smartphone
+Germany,Samsung Galaxy,Android smartphone
+India,MacBook Air,Apple laptop
+France,Dell XPS,Laptop computer
+```
+
+JMeter variables are then used in requests:
+
+```text
+${searchTerm}
+${productName}
+${productDescription}
+```
+
+---
+
+## 13. JMeter Variables and Properties
+
+JMeter variables are used for data available during a test execution:
+
+```text
+${searchTerm}
+${productName}
+${productDescription}
+${createdObjectId}
+```
+
+JMeter properties are used to parameterize execution from the command line:
+
+```text
+-Jthreads
+-Jrampup
+-Jduration
+-Jscenario
+```
+
+---
+
+## 14. PreProcessors
+
+A JSR223 PreProcessor is used before the POST request to generate dynamic test data.
+
+```groovy
+def productName = vars.get("productName")
+def timestamp = System.currentTimeMillis().toString()
+def dynamicProductName = "${productName}-${timestamp}"
+
+vars.put("requestTimestamp", timestamp)
+vars.put("dynamicProductName", dynamicProductName)
+```
+
+This demonstrates preprocessing and dynamic request-data generation.
+
+---
+
+## 15. PostProcessors
+
+A JMESPath Extractor is used after the POST response to extract the generated object ID.
+
+```text
+Variable:
+createdObjectId
+
+JMESPath:
+id
+```
+
+The extracted value is used by the next request.
+
+---
+
+## 16. Correlation
+
+The assignment demonstrates API correlation:
+
+```text
+POST Create Object
+        ↓
+Extract id
+        ↓
+createdObjectId
+        ↓
+GET /collections/jmeter-test/objects/${createdObjectId}
+```
+
+This ensures that the GET request operates on the object created by the preceding POST request.
+
+---
+
+## 17. Dynamic Data
+
+Dynamic product names and timestamps are generated for POST requests:
+
+```text
+productName + timestamp
+```
+
+This prevents every virtual user from repeatedly sending exactly the same product name.
+
+---
+
+## 18. API Authentication and Headers
+
+The real API configuration demonstrates authenticated API performance testing.
+
+REST Countries:
+
+```text
+Authorization: Bearer ${RESTCOUNTRIES_API_KEY}
+Accept: application/json
+```
+
+RESTful API Dev:
+
+```text
+x-api-key: <API_KEY>
+Content-Type: application/json
+Accept: application/json
+```
+
+---
+
+## 19. Performance Metrics
+
+The generated JMeter reports capture:
+
+- Samples
+- Failed requests
+- Error percentage
+- Average response time
+- Minimum response time
+- Maximum response time
+- Median
+- P90
+- P95
+- P99
+- Transactions per second
+- Received throughput
+- Sent throughput
+
+### Response Time
+
+Time taken for a request to complete.
+
+### Latency
+
+Time until the response begins to arrive.
+
+### Connect Time
+
+Time required to establish the connection.
+
+### Throughput
+
+Amount of processing/request activity completed per unit of time.
+
+### Percentiles
+
+- P90: 90% of recorded requests are at or below the reported response time.
+- P95: 95% are at or below the reported response time.
+- P99: 99% are at or below the reported response time.
+
+---
+
+## 20. Response Time Analysis
+
+The assignment analyzes:
+
+- Average response time
+- Median response time
+- Minimum response time
+- Maximum response time
+- P90
+- P95
+- P99
+- Response-time trends
+
+The HTML dashboards provide graphical response-time analysis.
+
+---
+
+## 21. Throughput Analysis
+
+Transactions per second and network throughput are captured in the JMeter reports.
+
+These metrics are compared across the different workload scenarios.
+
+---
+
+## 22. Error Analysis
+
+The test results include:
+
+```text
+#Samples
+FAIL
+Error %
+```
+
+The real API results are recorded in the Results table above, allowing failure rates to be compared across Light, Moderate, Heavy, Stress, Spike, Soak and Volume scenarios.
+
+---
+
+## 23. HTML Performance Reports
+
+JMeter is executed in non-GUI mode with:
+
+```text
+-n
+```
+
+Results are saved to JTL files using:
+
+```text
+-l
+```
+
+HTML dashboards are generated using:
+
+```text
+-e -o
+```
+
+Example:
+
+```powershell
+& "C:\apache-jmeter-5.6.3\bin\jmeter.bat" -n -t ".\TestPlan\API Performance Test.jmx" -Jthreads=10 -Jrampup=10 -Jduration=60 -Jscenario=LIGHT -l ".\Results\Light\Light_Load.jtl" -e -o ".\Reports\Light"
+```
+
+---
+
+## 24. CLI Test Execution
+
+All seven performance scenarios can be executed without the JMeter GUI.
+
+The same `.jmx` test plan is reused with different command-line properties.
+
+Covered scenarios:
+
+```text
+Light
+Moderate
+Heavy
+Stress
+Spike
+Soak
+Volume
+```
+
+---
+
+## 25. Performance Graph Analysis
+
+The generated HTML dashboards provide graphs used for analysis, including:
+
+- Response Time Over Time
+- Response Time Percentiles
+- Response Time Distribution
+- Active Threads Over Time
+- Transactions per Second
+- Hits per Second
+- Response Codes per Second
+- Latency Over Time
+- Connect Time Over Time
+- Network Throughput
+
+These graphs help identify changes in response time, throughput, concurrency, latency, connection time and HTTP response-code behavior during the tests.
+
+---
+
+## 26. HTTPS Test Script Recorder
+
+A separate recorder demonstration is included:
+
+```text
+Recorder
+└── HTTPS_Recorder_Demonstration.jmx
+```
+
+The recorder configuration demonstrates:
+
+- HTTP(S) Test Script Recorder
+- Recording Thread Group
+- Recording Controller
+- Port `8888`
+- Recording into the Recording Controller
+- HTTP header capture
+
+---
+
+## 27. Resource and System Observation
+
+During performance execution, system-level CPU and memory observations can be recorded using Windows Task Manager.
+
+These observations are kept separate from JMeter application metrics because they represent the test machine's resource utilization.
+
+---
+
+## 28. Complete Topic Coverage Summary
+
+| Syllabus Topic | Covered |
+|---|---|
+| Performance Testing Introduction | Yes |
+| Need for Performance Testing | Yes |
+| Performance Testing in SDLC | Yes |
+| Load Testing | Yes |
+| Stress Testing | Yes |
+| Spike Testing | Yes |
+| Soak Testing | Yes |
+| Volume Testing | Yes |
+| JMeter Overview | Yes |
+| JMeter Setup | Yes |
+| Test Plan | Yes |
+| Thread Groups | Yes |
+| Samplers | Yes |
+| Listeners | Yes |
+| Controllers | Yes |
+| Throughput | Yes |
+| Response Time | Yes |
+| Latency | Yes |
+| Connect Time | Yes |
+| Average | Yes |
+| Median | Yes |
+| P90 | Yes |
+| P95 | Yes |
+| P99 | Yes |
+| PreProcessors | Yes |
+| PostProcessors | Yes |
+| CSV Data Set Config | Yes |
+| JMeter Variables | Yes |
+| Parameterization | Yes |
+| API Correlation | Yes |
+| Dynamic Data | Yes |
+| Response Assertions | Yes |
+| Timers / Think Time | Yes |
+| HTTPS Test Script Recorder | Yes |
+| Load Users | Yes |
+| Ramp-up | Yes |
+| Duration | Yes |
+| Loop Count | Yes |
+| CLI `.jmx` Execution | Yes |
+| JTL Results | Yes |
+| HTML Reports | Yes |
+| Performance Graph Analysis | Yes |
+| CPU / Memory Observation | Yes |
+
+---
+
+# Conclusion
+
+The Assignment 10 JMeter test plan was implemented with parameterized API requests, dynamic data, assertions, response correlation and multiple performance-test scenarios.
+
+The real API execution results are documented above, and the corresponding JMeter HTML dashboards are generated under the `Reports` directory.
