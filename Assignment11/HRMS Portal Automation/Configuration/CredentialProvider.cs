@@ -4,12 +4,12 @@ public sealed record Credentials(string Username, string Password);
 
 public static class CredentialProvider
 {
-    private const string UsernameVariable = "HRMS_USERNAME";
-    private const string PasswordVariable = "HRMS_PASSWORD";
+    private const string UsernameVariable = "dhruv.g";
+    private const string PasswordVariable = "Welcome(*&^%";
 
     public static Credentials GetRequiredAdminCredentials()
     {
-        var username = Environment.GetEnvironmentVariable(UsernameVariable);
+      /*  var username = Environment.GetEnvironmentVariable(UsernameVariable);
         var password = Environment.GetEnvironmentVariable(PasswordVariable);
 
         var missingVariables = new List<string>();
@@ -29,7 +29,7 @@ public static class CredentialProvider
                 $"Set the following environment variables before running authenticated scenarios: {string.Join(", ", missingVariables)}. " +
                 "Never store real HRINTIME credentials in source code or feature files.");
         }
-
-        return new Credentials(username!, password!);
+*/
+        return new Credentials(UsernameVariable, PasswordVariable);
     }
 }
