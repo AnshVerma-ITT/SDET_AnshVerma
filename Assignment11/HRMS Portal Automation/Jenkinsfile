@@ -334,7 +334,7 @@ pipeline {
                     </html>
                 """
 
-                emailext(
+                mail(
                     to: 'YOUR_EMAIL@example.com',
                     subject: "HRMS Automation - Build #${env.BUILD_NUMBER} - ${buildStatus}",
                     body: emailBody,
