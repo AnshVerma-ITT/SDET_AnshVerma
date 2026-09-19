@@ -1,302 +1,365 @@
 pipeline {
 
-    agent any
+```
+agent any
 
-    parameters {
+parameters {
 
-        choice(
-            name: 'EXECUTION_MODE',
-            choices: [
-                'Parallel',
-                'Sequential'
-            ],
-            description: 'Select test execution mode'
-        )
+    choice(
+        name: 'EXECUTION_MODE',
+        choices: [
+            'Parallel',
+            'Sequential'
+        ],
+        description: 'Select test execution mode'
+    )
 
-        choice(
-            name: 'BROWSER',
-            choices: [
-                'Chromium',
-                'WebKit',
-                'All'
-            ],
-            description: 'Select browser'
-        )
+    choice(
+        name: 'BROWSER',
+        choices: [
+            'Chromium',
+            'WebKit',
+            'All'
+        ],
+        description: 'Select browser'
+    )
 
-        choice(
-            name: 'TEST_CATEGORY',
-            choices: [
-                'All',
-                'smoke',
-                'regression'
-            ],
-            description: 'Select test category'
-        )
+    choice(
+        name: 'TEST_CATEGORY',
+        choices: [
+            'All',
+            'smoke',
+            'regression'
+        ],
+        description: 'Select test category'
+    )
 
-        choice(
-            name: 'RETRY_COUNT',
-            choices: [
-                '0',
-                '1',
-                '2',
-                '3'
-            ],
-            description: 'Number of retries for failed tests'
-        )
+    choice(
+        name: 'RETRY_COUNT',
+        choices: [
+            '0',
+            '1',
+            '2',
+            '3'
+        ],
+        description: 'Number of retries for failed tests'
+    )
+}
+
+triggers {
+    pollSCM('H/2 * * * *')
+}
+
+environment {
+    PROJECT_FILE = 'Assignment11/HRMS Portal Automation/HRIntimeAutomation.csproj'
+    TEST_RESULTS = 'Assignment11/HRMS Portal Automation/TestResults'
+    ALLURE_RESULTS = 'Assignment11/HRMS Portal Automation/Reports/allure-results'
+}
+
+stages {
+
+    stage('Prepare') {
+        steps {
+            powershell '''
+                Write-Host "======================================"
+                Write-Host "HRMS Jenkins Pipeline"
+                Write-Host "Execution Mode : $env:EXECUTION_MODE"
+                Write-Host "Browser        : $env:BROWSER"
+                Write-Host "Category       : $env:TEST_CATEGORY"
+                Write-Host "Retry Count    : $env:RETRY_COUNT"
+                Write-Host "======================================"
+
+                $projectDirectory = "Assignment11/HRMS Portal Automation"
+
+                if (Test-Path "$projectDirectory/TestResults") {
+                    Remove-Item "$projectDirectory/TestResults" -Recurse -Force
+                }
+
+                if (Test-Path "$projectDirectory/Reports/allure-results") {
+                    Remove-Item "$projectDirectory/Reports/allure-results" -Recurse -Force
+                }
+
+                New-Item -ItemType Directory -Force -Path "$projectDirectory/TestResults" | Out-Null
+                New-Item -ItemType Directory -Force -Path "$projectDirectory/Reports/allure-results" | Out-Null
+            '''
+        }
     }
 
-    triggers {
-        pollSCM('H/2 * * * *')
+    stage('Restore') {
+        steps {
+            bat 'dotnet restore "%PROJECT_FILE%"'
+        }
     }
 
-    environment {
-        PROJECT_FILE = 'Assignment11/HRMS Portal Automation/HRIntimeAutomation.csproj'
-        TEST_RESULTS = 'Assignment11/HRMS Portal Automation/TestResults'
-        ALLURE_RESULTS = 'Assignment11/HRMS Portal Automation/Reports/allure-results'
+    stage('Build') {
+        steps {
+            bat 'dotnet build "%PROJECT_FILE%" --no-restore'
+        }
     }
 
-    stages {
+    stage('Run Tests') {
+        steps {
+            powershell '''
+                if ($env:EXECUTION_MODE -eq "Parallel") {
+                    $env:PARALLEL_ENABLED = "true"
+                    $env:PARALLEL_WORKERS = "3"
+                }
+                else {
+                    $env:PARALLEL_ENABLED = "false"
+                    $env:PARALLEL_WORKERS = "1"
+                }
 
-        stage('Prepare') {
-            steps {
-                powershell '''
-                    Write-Host "======================================"
-                    Write-Host "HRMS Jenkins Pipeline"
-                    Write-Host "Execution Mode : $env:EXECUTION_MODE"
-                    Write-Host "Browser        : $env:BROWSER"
-                    Write-Host "Category       : $env:TEST_CATEGORY"
-                    Write-Host "Retry Count    : $env:RETRY_COUNT"
-                    Write-Host "======================================"
+                $categoryArgument = ""
 
-                    $projectDirectory = "Assignment11/HRMS Portal Automation"
+                if ($env:TEST_CATEGORY -ne "All") {
+                    $categoryArgument = "--filter `"TestCategory=$env:TEST_CATEGORY`""
+                }
 
-                    if (Test-Path "$projectDirectory/TestResults") {
-                        Remove-Item "$projectDirectory/TestResults" -Recurse -Force
-                    }
+                if ($env:BROWSER -eq "All") {
 
-                    if (Test-Path "$projectDirectory/Reports/allure-results") {
-                        Remove-Item "$projectDirectory/Reports/allure-results" -Recurse -Force
-                    }
+                    Write-Host "Running tests on Chromium"
+                    $env:BROWSER = "Chromium"
 
-                    New-Item -ItemType Directory -Force -Path "$projectDirectory/TestResults" | Out-Null
-                    New-Item -ItemType Directory -Force -Path "$projectDirectory/Reports/allure-results" | Out-Null
-                '''
-            }
+                    dotnet test "$env:PROJECT_FILE" `
+                        --no-build `
+                        --logger "trx;LogFileName=chromium.trx" `
+                        $categoryArgument
+
+                    Write-Host "Running tests on WebKit"
+                    $env:BROWSER = "WebKit"
+
+                    dotnet test "$env:PROJECT_FILE" `
+                        --no-build `
+                        --logger "trx;LogFileName=webkit.trx" `
+                        $categoryArgument
+                }
+                else {
+
+                    Write-Host "Running tests on $env:BROWSER"
+
+                    dotnet test "$env:PROJECT_FILE" `
+                        --no-build `
+                        --logger "trx;LogFileName=initial.trx" `
+                        $categoryArgument
+                }
+
+                exit 0
+            '''
         }
+    }
 
-        stage('Restore') {
-            steps {
-                bat 'dotnet restore "%PROJECT_FILE%"'
-            }
-        }
+    stage('Retry Failed Tests') {
+        steps {
+            powershell '''
+                $retryCount = [int]$env:RETRY_COUNT
 
-        stage('Build') {
-            steps {
-                bat 'dotnet build "%PROJECT_FILE%" --no-restore'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                powershell '''
-                    if ($env:EXECUTION_MODE -eq "Parallel") {
-                        $env:PARALLEL_ENABLED = "true"
-                        $env:PARALLEL_WORKERS = "3"
-                    }
-                    else {
-                        $env:PARALLEL_ENABLED = "false"
-                        $env:PARALLEL_WORKERS = "1"
-                    }
-
-                    $categoryArgument = ""
-
-                    if ($env:TEST_CATEGORY -ne "All") {
-                        $categoryArgument = "--filter `"TestCategory=$env:TEST_CATEGORY`""
-                    }
-
-                    if ($env:BROWSER -eq "All") {
-
-                        Write-Host "Running tests on Chromium"
-                        $env:BROWSER = "Chromium"
-
-                        dotnet test "$env:PROJECT_FILE" `
-                            --no-build `
-                            --logger "trx;LogFileName=chromium.trx" `
-                            $categoryArgument
-
-                        Write-Host "Running tests on WebKit"
-                        $env:BROWSER = "WebKit"
-
-                        dotnet test "$env:PROJECT_FILE" `
-                            --no-build `
-                            --logger "trx;LogFileName=webkit.trx" `
-                            $categoryArgument
-                    }
-                    else {
-
-                        Write-Host "Running tests on $env:BROWSER"
-
-                        dotnet test "$env:PROJECT_FILE" `
-                            --no-build `
-                            --logger "trx;LogFileName=initial.trx" `
-                            $categoryArgument
-                    }
-
+                if ($retryCount -eq 0) {
+                    Write-Host "Retry disabled."
                     exit 0
-                '''
-            }
-        }
+                }
 
-        stage('Retry Failed Tests') {
-            steps {
-                powershell '''
-                    $retryCount = [int]$env:RETRY_COUNT
+                $trxFile = Get-ChildItem "$env:TEST_RESULTS" -Filter "*.trx" |
+                    Where-Object {
+                        $_.Name -eq "initial.trx" -or
+                        $_.Name -eq "chromium.trx" -or
+                        $_.Name -eq "webkit.trx"
+                    } |
+                    Sort-Object LastWriteTime -Descending |
+                    Select-Object -First 1
 
-                    if ($retryCount -eq 0) {
-                        Write-Host "Retry disabled."
-                        exit 0
+                if ($null -eq $trxFile) {
+                    Write-Host "No initial TRX file found. Nothing to retry."
+                    exit 0
+                }
+
+                [xml]$trx = Get-Content $trxFile.FullName
+
+                $failedTests = @(
+                    $trx.TestRun.Results.UnitTestResult |
+                    Where-Object {
+                        $_.outcome -eq "Failed"
+                    }
+                )
+
+                if ($failedTests.Count -eq 0) {
+                    Write-Host "No failed tests found."
+                    exit 0
+                }
+
+                Write-Host "Failed tests found: $($failedTests.Count)"
+
+                $failedTests |
+                    ForEach-Object {
+                        Write-Host "FAILED: $($_.testName)"
                     }
 
-                    $trxFile = Get-ChildItem "$env:TEST_RESULTS" -Filter "*.trx" |
-                        Sort-Object LastWriteTime -Descending |
-                        Select-Object -First 1
+                $remainingFailures = @($failedTests)
 
-                    if ($null -eq $trxFile) {
-                        Write-Host "No TRX file found. Nothing to retry."
-                        exit 0
+                for ($attempt = 1; $attempt -le $retryCount; $attempt++) {
+
+                    if ($remainingFailures.Count -eq 0) {
+                        break
                     }
 
-                    [xml]$trx = Get-Content $trxFile.FullName
+                    Write-Host "======================================"
+                    Write-Host "Retry attempt $attempt"
+                    Write-Host "Tests to retry: $($remainingFailures.Count)"
+                    Write-Host "======================================"
 
-                    $failedTests = @(
-                        $trx.TestRun.Results.UnitTestResult |
-                        Where-Object {
-                            $_.outcome -eq "Failed"
+                    $nextFailures = @()
+
+                    foreach ($failedTest in $remainingFailures) {
+
+                        $testName = $failedTest.testName
+
+                        Write-Host "Retrying: $testName"
+
+                        $safeName = $testName -replace '[^a-zA-Z0-9_-]', '_'
+
+                        $retryTrx = "$env:TEST_RESULTS/retry_${attempt}_${safeName}.trx"
+
+                        dotnet test "$env:PROJECT_FILE" `
+                            --no-build `
+                            --filter "FullyQualifiedName~$testName" `
+                            --logger "trx;LogFileName=$([System.IO.Path]::GetFileName($retryTrx))"
+
+                        if ($LASTEXITCODE -ne 0) {
+                            $nextFailures += $failedTest
                         }
-                    )
-
-                    if ($failedTests.Count -eq 0) {
-                        Write-Host "No failed tests found."
-                        exit 0
                     }
 
-                    Write-Host "Failed tests found: $($failedTests.Count)"
+                    $remainingFailures = @($nextFailures)
+                }
 
-                    $failedTests |
+                if ($remainingFailures.Count -gt 0) {
+                    Write-Host "Tests still failing after retries:"
+
+                    $remainingFailures |
                         ForEach-Object {
-                            Write-Host "FAILED: $($_.testName)"
+                            Write-Host $_.testName
                         }
+                }
+                else {
+                    Write-Host "All previously failed tests passed during retry."
+                }
+            '''
+        }
+    }
 
-                    $remainingFailures = @($failedTests)
-
-                    for ($attempt = 1; $attempt -le $retryCount; $attempt++) {
-
-                        if ($remainingFailures.Count -eq 0) {
-                            break
-                        }
-
-                        Write-Host "======================================"
-                        Write-Host "Retry attempt $attempt"
-                        Write-Host "Tests to retry: $($remainingFailures.Count)"
-                        Write-Host "======================================"
-
-                        $nextFailures = @()
-
-                        foreach ($failedTest in $remainingFailures) {
-
-                            $testName = $failedTest.testName
-
-                            Write-Host "Retrying: $testName"
-
-                            $safeName = $testName -replace '[^a-zA-Z0-9_-]', '_'
-
-                            $retryTrx = "$env:TEST_RESULTS/retry_${attempt}_${safeName}.trx"
-
-                            dotnet test "$env:PROJECT_FILE" `
-                                --no-build `
-                                --filter "FullyQualifiedName~$testName" `
-                                --logger "trx;LogFileName=$([System.IO.Path]::GetFileName($retryTrx))"
-
-                            if ($LASTEXITCODE -ne 0) {
-                                $nextFailures += $failedTest
-                            }
-                        }
-
-                        $remainingFailures = @($nextFailures)
-                    }
-
-                    if ($remainingFailures.Count -gt 0) {
-                        Write-Host "Tests still failing after retries:"
-
-                        $remainingFailures |
-                            ForEach-Object {
-                                Write-Host $_.testName
-                            }
-                    }
-                    else {
-                        Write-Host "All previously failed tests passed during retry."
-                    }
-                '''
+    stage('Allure Report') {
+        steps {
+            script {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    results: [
+                        [path: "${env.ALLURE_RESULTS}"]
+                    ]
+                ])
             }
         }
+    }
 
-        stage('Allure Report') {
-            steps {
-                script {
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        results: [
-                            [path: "${env.ALLURE_RESULTS}"]
-                        ]
-                    ])
+    stage('Archive Results') {
+        steps {
+            archiveArtifacts(
+                artifacts: 'Assignment11/HRMS Portal Automation/TestResults/**/*.trx, Assignment11/HRMS Portal Automation/Screenshots/**/*, Assignment11/HRMS Portal Automation/Traces/**/*',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}
+
+post {
+
+    always {
+
+        script {
+
+            def buildStatus = currentBuild.currentResult
+
+            def passedTests = 0
+            def failedTests = 0
+            def totalTests = 0
+
+            def initialTrxFiles = findFiles(
+                glob: 'Assignment11/HRMS Portal Automation/TestResults/*.trx'
+            ).findAll {
+                it.name == 'initial.trx' ||
+                it.name == 'chromium.trx' ||
+                it.name == 'webkit.trx'
+            }
+
+            initialTrxFiles.each { trxFile ->
+
+                def trxContent = readFile(trxFile.path)
+
+                def passedMatch = trxContent =~ /passed="(\d+)"/
+                def failedMatch = trxContent =~ /failed="(\d+)"/
+
+                if (passedMatch.find()) {
+                    passedTests += passedMatch[0][1].toInteger()
+                }
+
+                if (failedMatch.find()) {
+                    failedTests += failedMatch[0][1].toInteger()
                 }
             }
-        }
 
-        stage('Archive Results') {
-            steps {
-                archiveArtifacts(
-                    artifacts: 'Assignment11/HRMS Portal Automation/TestResults/**/*.trx, Assignment11/HRMS Portal Automation/Screenshots/**/*, Assignment11/HRMS Portal Automation/Traces/**/*',
-                    allowEmptyArchive: true
-                )
-            }
-        }
-    }
+            totalTests = passedTests + failedTests
 
-    post {
+            def emailBody = """
+```
 
-        always {
-
-            script {
-
-                def buildStatus = currentBuild.currentResult
-
-                def emailBody = """
 HRMS Portal Automation - Jenkins Build
+
+========================================
+BUILD INFORMATION
+=================
 
 Build Number   : ${env.BUILD_NUMBER}
 Build Status   : ${buildStatus}
+Build Duration : ${currentBuild.durationString}
+
+========================================
+TEST SUMMARY
+============
+
+Total Tests    : ${totalTests}
+Passed Tests   : ${passedTests}
+Failed Tests   : ${failedTests}
+
+========================================
+EXECUTION DETAILS
+=================
+
 Browser        : ${params.BROWSER}
 Execution Mode : ${params.EXECUTION_MODE}
 Test Category  : ${params.TEST_CATEGORY}
 Retry Count    : ${params.RETRY_COUNT}
-Build Duration : ${currentBuild.durationString}
+
+========================================
+REPORTS
+=======
 
 Detailed Allure Report:
 ${env.BUILD_URL}allure/
 
 Jenkins Build:
 ${env.BUILD_URL}
+
+========================================
 """
 
-                mail(
-                    to: 'anshav14@gmail.com',
-                    subject: "HRMS Automation - Build #${env.BUILD_NUMBER} - ${buildStatus}",
-                    body: emailBody
-                )
-            }
+```
+            mail(
+                to: 'anshav14@gmail.com',
+                subject: "HRMS Automation - Build #${env.BUILD_NUMBER} - ${buildStatus}",
+                body: emailBody
+            )
         }
     }
 }
+```
 
+}
