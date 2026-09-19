@@ -1,4 +1,3 @@
-```groovy
 pipeline {
 
     agent any
@@ -300,4 +299,4 @@ ${env.BUILD_URL}
         }
     }
 }
-```
+
