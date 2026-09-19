@@ -1,3 +1,4 @@
+```groovy
 pipeline {
 
     agent any
@@ -50,9 +51,9 @@ pipeline {
     }
 
     environment {
-        PROJECT_FILE = 'HRIntimeAutomation.csproj'
-        TEST_RESULTS = 'TestResults'
-        ALLURE_RESULTS = 'Reports/allure-results'
+        PROJECT_FILE = 'Assignment11/HRMS Portal Automation/HRIntimeAutomation.csproj'
+        TEST_RESULTS = 'Assignment11/HRMS Portal Automation/TestResults'
+        ALLURE_RESULTS = 'Assignment11/HRMS Portal Automation/Reports/allure-results'
     }
 
     stages {
@@ -68,16 +69,18 @@ pipeline {
                     Write-Host "Retry Count    : $env:RETRY_COUNT"
                     Write-Host "======================================"
 
-                    if (Test-Path "TestResults") {
-                        Remove-Item "TestResults" -Recurse -Force
+                    $projectDirectory = "Assignment11/HRMS Portal Automation"
+
+                    if (Test-Path "$projectDirectory/TestResults") {
+                        Remove-Item "$projectDirectory/TestResults" -Recurse -Force
                     }
 
-                    if (Test-Path "Reports/allure-results") {
-                        Remove-Item "Reports/allure-results" -Recurse -Force
+                    if (Test-Path "$projectDirectory/Reports/allure-results") {
+                        Remove-Item "$projectDirectory/Reports/allure-results" -Recurse -Force
                     }
 
-                    New-Item -ItemType Directory -Force -Path "TestResults" | Out-Null
-                    New-Item -ItemType Directory -Force -Path "Reports/allure-results" | Out-Null
+                    New-Item -ItemType Directory -Force -Path "$projectDirectory/TestResults" | Out-Null
+                    New-Item -ItemType Directory -Force -Path "$projectDirectory/Reports/allure-results" | Out-Null
                 '''
             }
         }
@@ -155,7 +158,7 @@ pipeline {
                         exit 0
                     }
 
-                    $trxFile = Get-ChildItem "TestResults" -Filter "*.trx" |
+                    $trxFile = Get-ChildItem "$env:TEST_RESULTS" -Filter "*.trx" |
                         Sort-Object LastWriteTime -Descending |
                         Select-Object -First 1
 
@@ -208,7 +211,7 @@ pipeline {
 
                             $safeName = $testName -replace '[^a-zA-Z0-9_-]', '_'
 
-                            $retryTrx = "TestResults/retry_${attempt}_${safeName}.trx"
+                            $retryTrx = "$env:TEST_RESULTS/retry_${attempt}_${safeName}.trx"
 
                             dotnet test "$env:PROJECT_FILE" `
                                 --no-build `
@@ -225,6 +228,7 @@ pipeline {
 
                     if ($remainingFailures.Count -gt 0) {
                         Write-Host "Tests still failing after retries:"
+
                         $remainingFailures |
                             ForEach-Object {
                                 Write-Host $_.testName
@@ -244,7 +248,7 @@ pipeline {
                         includeProperties: false,
                         jdk: '',
                         results: [
-                            [path: 'Reports/allure-results']
+                            [path: "${env.ALLURE_RESULTS}"]
                         ]
                     ])
                 }
@@ -254,7 +258,7 @@ pipeline {
         stage('Archive Results') {
             steps {
                 archiveArtifacts(
-                    artifacts: 'TestResults/**/*.trx, Screenshots/**/*, Traces/**/*',
+                    artifacts: 'Assignment11/HRMS Portal Automation/TestResults/**/*.trx, Assignment11/HRMS Portal Automation/Screenshots/**/*, Assignment11/HRMS Portal Automation/Traces/**/*',
                     allowEmptyArchive: true
                 )
             }
@@ -270,78 +274,30 @@ pipeline {
                 def buildStatus = currentBuild.currentResult
 
                 def emailBody = """
-                    <html>
-                    <body>
+HRMS Portal Automation - Jenkins Build
 
-                    <h2>HRMS Automation Jenkins Build</h2>
+Build Number   : ${env.BUILD_NUMBER}
+Build Status   : ${buildStatus}
+Browser        : ${params.BROWSER}
+Execution Mode : ${params.EXECUTION_MODE}
+Test Category  : ${params.TEST_CATEGORY}
+Retry Count    : ${params.RETRY_COUNT}
+Build Duration : ${currentBuild.durationString}
 
-                    <table border="1" cellpadding="6" cellspacing="0">
+Detailed Allure Report:
+${env.BUILD_URL}allure/
 
-                    <tr>
-                        <td><b>Build</b></td>
-                        <td>${env.BUILD_NUMBER}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Status</b></td>
-                        <td>${buildStatus}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Browser</b></td>
-                        <td>${params.BROWSER}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Execution Mode</b></td>
-                        <td>${params.EXECUTION_MODE}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Test Category</b></td>
-                        <td>${params.TEST_CATEGORY}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Retry Count</b></td>
-                        <td>${params.RETRY_COUNT}</td>
-                    </tr>
-
-                    <tr>
-                        <td><b>Build Duration</b></td>
-                        <td>${currentBuild.durationString}</td>
-                    </tr>
-
-                    </table>
-
-                    <br/>
-
-                    <h3>Reports</h3>
-
-                    <p>
-                        <a href="${env.BUILD_URL}allure/">
-                            Open Detailed Allure Report
-                        </a>
-                    </p>
-
-                    <p>
-                        <a href="${env.BUILD_URL}">
-                            Open Jenkins Build
-                        </a>
-                    </p>
-
-                    </body>
-                    </html>
-                """
+Jenkins Build:
+${env.BUILD_URL}
+"""
 
                 mail(
-                    to: 'YOUR_EMAIL@example.com',
+                    to: 'anshav14@gmail.com',
                     subject: "HRMS Automation - Build #${env.BUILD_NUMBER} - ${buildStatus}",
-                    body: emailBody,
-                    mimeType: 'text/html',
-                    attachLog: true
+                    body: emailBody
                 )
             }
         }
     }
 }
+```
