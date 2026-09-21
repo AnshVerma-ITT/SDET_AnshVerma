@@ -107,125 +107,138 @@ pipeline {
 
             steps {
 
-                powershell '''
-
-                    if ($env:EXECUTION_MODE -eq "Parallel") {
-
-                        $env:PARALLEL_ENABLED = "true"
-                        $env:PARALLEL_WORKERS = "3"
-
-                        Write-Host "Parallel execution ENABLED"
-                    }
-                    else {
-
-                        $env:PARALLEL_ENABLED = "false"
-                        $env:PARALLEL_WORKERS = "1"
-
-                        Write-Host "Parallel execution DISABLED"
-                    }
-
-                    $testArgs = @(
-                        "$env:PROJECT_FILE",
-                        "--no-build"
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'hrms-login',
+                        usernameVariable: 'HRMS_USERNAME',
+                        passwordVariable: 'HRMS_PASSWORD'
                     )
+                ]) {
 
-                    if ($env:TEST_CATEGORY -ne "All") {
-
-                        Write-Host "Running category: $env:TEST_CATEGORY"
-
-                        $testArgs += "--filter"
-                        $testArgs += "TestCategory=$env:TEST_CATEGORY"
-                    }
-
-                    $overallExitCode = 0
-
-                    if ($env:BROWSER -eq "All") {
+                    powershell '''
 
                         Write-Host "======================================"
-                        Write-Host "Running tests on Chromium"
+                        Write-Host "Starting Test Execution"
+                        Write-Host "Credentials loaded from Jenkins"
                         Write-Host "======================================"
 
-                        $env:BROWSER = "Chromium"
+                        if ($env:EXECUTION_MODE -eq "Parallel") {
 
-                        $chromiumArgs = @(
-                            "$env:PROJECT_FILE",
-                            "--no-build",
-                            "--logger",
-                            "trx;LogFileName=chromium.trx"
-                        )
+                            $env:PARALLEL_ENABLED = "true"
+                            $env:PARALLEL_WORKERS = "3"
 
-                        if ($env:TEST_CATEGORY -ne "All") {
+                            Write-Host "Parallel execution ENABLED"
+                        }
+                        else {
 
-                            $chromiumArgs += "--filter"
-                            $chromiumArgs += "TestCategory=$env:TEST_CATEGORY"
+                            $env:PARALLEL_ENABLED = "false"
+                            $env:PARALLEL_WORKERS = "1"
+
+                            Write-Host "Parallel execution DISABLED"
                         }
 
-                        dotnet test @chromiumArgs
+                        $overallExitCode = 0
 
-                        if ($LASTEXITCODE -ne 0) {
-                            $overallExitCode = $LASTEXITCODE
-                            Write-Host "Chromium tests contain failures."
+                        if ($env:BROWSER -eq "All") {
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on Chromium"
+                            Write-Host "======================================"
+
+                            $env:BROWSER = "Chromium"
+
+                            $chromiumArgs = @(
+                                "$env:PROJECT_FILE",
+                                "--no-build",
+                                "--logger",
+                                "trx;LogFileName=chromium.trx"
+                            )
+
+                            if ($env:TEST_CATEGORY -ne "All") {
+
+                                Write-Host "Running category: $env:TEST_CATEGORY"
+
+                                $chromiumArgs += "--filter"
+                                $chromiumArgs += "TestCategory=$env:TEST_CATEGORY"
+                            }
+
+                            dotnet test @chromiumArgs
+
+                            if ($LASTEXITCODE -ne 0) {
+
+                                $overallExitCode = $LASTEXITCODE
+
+                                Write-Host "Chromium tests contain failures."
+                            }
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on WebKit"
+                            Write-Host "======================================"
+
+                            $env:BROWSER = "WebKit"
+
+                            $webkitArgs = @(
+                                "$env:PROJECT_FILE",
+                                "--no-build",
+                                "--logger",
+                                "trx;LogFileName=webkit.trx"
+                            )
+
+                            if ($env:TEST_CATEGORY -ne "All") {
+
+                                $webkitArgs += "--filter"
+                                $webkitArgs += "TestCategory=$env:TEST_CATEGORY"
+                            }
+
+                            dotnet test @webkitArgs
+
+                            if ($LASTEXITCODE -ne 0) {
+
+                                $overallExitCode = $LASTEXITCODE
+
+                                Write-Host "WebKit tests contain failures."
+                            }
+                        }
+                        else {
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on $env:BROWSER"
+                            Write-Host "======================================"
+
+                            $singleBrowserArgs = @(
+                                "$env:PROJECT_FILE",
+                                "--no-build",
+                                "--logger",
+                                "trx;LogFileName=initial.trx"
+                            )
+
+                            if ($env:TEST_CATEGORY -ne "All") {
+
+                                Write-Host "Running category: $env:TEST_CATEGORY"
+
+                                $singleBrowserArgs += "--filter"
+                                $singleBrowserArgs += "TestCategory=$env:TEST_CATEGORY"
+                            }
+
+                            dotnet test @singleBrowserArgs
+
+                            if ($LASTEXITCODE -ne 0) {
+
+                                $overallExitCode = $LASTEXITCODE
+
+                                Write-Host "Initial test execution contains failures."
+                            }
                         }
 
                         Write-Host "======================================"
-                        Write-Host "Running tests on WebKit"
+                        Write-Host "Initial Test Execution Completed"
+                        Write-Host "Exit Code: $overallExitCode"
                         Write-Host "======================================"
 
-                        $env:BROWSER = "WebKit"
-
-                        $webkitArgs = @(
-                            "$env:PROJECT_FILE",
-                            "--no-build",
-                            "--logger",
-                            "trx;LogFileName=webkit.trx"
-                        )
-
-                        if ($env:TEST_CATEGORY -ne "All") {
-
-                            $webkitArgs += "--filter"
-                            $webkitArgs += "TestCategory=$env:TEST_CATEGORY"
-                        }
-
-                        dotnet test @webkitArgs
-
-                        if ($LASTEXITCODE -ne 0) {
-                            $overallExitCode = $LASTEXITCODE
-                            Write-Host "WebKit tests contain failures."
-                        }
-                    }
-                    else {
-
-                        Write-Host "======================================"
-                        Write-Host "Running tests on $env:BROWSER"
-                        Write-Host "======================================"
-
-                        $singleBrowserArgs = @(
-                            "$env:PROJECT_FILE",
-                            "--no-build",
-                            "--logger",
-                            "trx;LogFileName=initial.trx"
-                        )
-
-                        if ($env:TEST_CATEGORY -ne "All") {
-
-                            $singleBrowserArgs += "--filter"
-                            $singleBrowserArgs += "TestCategory=$env:TEST_CATEGORY"
-                        }
-
-                        dotnet test @singleBrowserArgs
-
-                        if ($LASTEXITCODE -ne 0) {
-                            $overallExitCode = $LASTEXITCODE
-                            Write-Host "Initial test execution contains failures."
-                        }
-                    }
-
-                    Write-Host "Initial test execution completed."
-                    Write-Host "Exit code: $overallExitCode"
-
-                    # Do not fail here.
-                    # Retry stage will handle failed tests.
-                '''
+                        # Do not fail the stage here.
+                        # Failed tests are handled by the retry stage.
+                    '''
+                }
             }
         }
 
@@ -233,142 +246,161 @@ pipeline {
 
             steps {
 
-                powershell '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'hrms-login',
+                        usernameVariable: 'HRMS_USERNAME',
+                        passwordVariable: 'HRMS_PASSWORD'
+                    )
+                ]) {
 
-                    $retryCount = [int]$env:RETRY_COUNT
+                    powershell '''
 
-                    if ($retryCount -eq 0) {
+                        $retryCount = [int]$env:RETRY_COUNT
 
-                        Write-Host "Retry disabled."
-                        exit 0
-                    }
+                        if ($retryCount -eq 0) {
 
-                    Write-Host "======================================"
-                    Write-Host "Searching for failed tests"
-                    Write-Host "======================================"
-
-                    $trxFiles = Get-ChildItem "$env:TEST_RESULTS" -Filter "*.trx" |
-                        Where-Object {
-                            $_.Name -eq "initial.trx" -or
-                            $_.Name -eq "chromium.trx" -or
-                            $_.Name -eq "webkit.trx"
+                            Write-Host "Retry disabled."
+                            exit 0
                         }
 
-                    if ($null -eq $trxFiles -or $trxFiles.Count -eq 0) {
+                        Write-Host "======================================"
+                        Write-Host "Searching for Failed Tests"
+                        Write-Host "======================================"
 
-                        Write-Host "No TRX files found. Nothing to retry."
-                        exit 0
-                    }
-
-                    $failedTestNames = New-Object System.Collections.Generic.List[string]
-
-                    foreach ($trxFile in $trxFiles) {
-
-                        Write-Host "Reading: $($trxFile.Name)"
-
-                        [xml]$trx = Get-Content $trxFile.FullName
-
-                        $failedResults = @(
-                            $trx.TestRun.Results.UnitTestResult |
+                        $trxFiles = @(
+                            Get-ChildItem "$env:TEST_RESULTS" -Filter "*.trx" |
                             Where-Object {
-                                $_.outcome -eq "Failed"
+                                $_.Name -eq "initial.trx" -or
+                                $_.Name -eq "chromium.trx" -or
+                                $_.Name -eq "webkit.trx"
                             }
                         )
 
-                        foreach ($failedResult in $failedResults) {
+                        if ($trxFiles.Count -eq 0) {
 
-                            if (-not $failedTestNames.Contains($failedResult.testName)) {
-
-                                $failedTestNames.Add($failedResult.testName)
-                            }
-                        }
-                    }
-
-                    if ($failedTestNames.Count -eq 0) {
-
-                        Write-Host "No failed tests found."
-                        exit 0
-                    }
-
-                    Write-Host "======================================"
-                    Write-Host "Failed Tests"
-                    Write-Host "======================================"
-
-                    foreach ($testName in $failedTestNames) {
-
-                        Write-Host "FAILED: $testName"
-                    }
-
-                    $remainingFailures = @($failedTestNames)
-
-                    for ($attempt = 1; $attempt -le $retryCount; $attempt++) {
-
-                        if ($remainingFailures.Count -eq 0) {
-                            break
+                            Write-Host "No TRX files found."
+                            Write-Host "Nothing to retry."
+                            exit 0
                         }
 
-                        Write-Host "======================================"
-                        Write-Host "Retry Attempt $attempt"
-                        Write-Host "Tests to retry: $($remainingFailures.Count)"
-                        Write-Host "======================================"
+                        $failedTestNames = New-Object System.Collections.Generic.List[string]
 
-                        $nextFailures = New-Object System.Collections.Generic.List[string]
+                        foreach ($trxFile in $trxFiles) {
 
-                        foreach ($testName in $remainingFailures) {
+                            Write-Host "Reading: $($trxFile.Name)"
 
-                            Write-Host "Retrying: $testName"
+                            [xml]$trx = Get-Content $trxFile.FullName
 
-                            $safeName = $testName -replace '[^a-zA-Z0-9_-]', '_'
-
-                            $retryFileName = "retry_${attempt}_${safeName}.trx"
-
-                            $retryArgs = @(
-                                "$env:PROJECT_FILE",
-                                "--no-build",
-                                "--filter",
-                                "FullyQualifiedName~$testName",
-                                "--logger",
-                                "trx;LogFileName=$retryFileName"
+                            $failedResults = @(
+                                $trx.TestRun.Results.UnitTestResult |
+                                Where-Object {
+                                    $_.outcome -eq "Failed"
+                                }
                             )
 
-                            dotnet test @retryArgs
+                            foreach ($failedResult in $failedResults) {
 
-                            if ($LASTEXITCODE -ne 0) {
+                                $testName = [string]$failedResult.testName
 
-                                Write-Host "FAILED AGAIN: $testName"
+                                if (
+                                    -not [string]::IsNullOrWhiteSpace($testName) -and
+                                    -not $failedTestNames.Contains($testName)
+                                ) {
 
-                                $nextFailures.Add($testName)
-                            }
-                            else {
-
-                                Write-Host "PASSED ON RETRY: $testName"
+                                    $failedTestNames.Add($testName)
+                                }
                             }
                         }
 
-                        $remainingFailures = @($nextFailures)
-                    }
+                        if ($failedTestNames.Count -eq 0) {
 
-                    Write-Host "======================================"
-                    Write-Host "Retry Summary"
-                    Write-Host "======================================"
+                            Write-Host "No failed tests found."
+                            exit 0
+                        }
 
-                    if ($remainingFailures.Count -gt 0) {
+                        Write-Host "======================================"
+                        Write-Host "Failed Tests"
+                        Write-Host "======================================"
 
-                        Write-Host "Tests still failing after retries:"
-
-                        foreach ($testName in $remainingFailures) {
+                        foreach ($testName in $failedTestNames) {
 
                             Write-Host "FAILED: $testName"
                         }
 
-                        # Do not explicitly fail here.
-                        # Final build status is handled after result collection.
-                    }
-                    else {
+                        $remainingFailures = @($failedTestNames)
 
-                        Write-Host "All previously failed tests passed during retry."
-                    }
-                '''
+                        for (
+                            $attempt = 1;
+                            $attempt -le $retryCount;
+                            $attempt++
+                        ) {
+
+                            if ($remainingFailures.Count -eq 0) {
+                                break
+                            }
+
+                            Write-Host "======================================"
+                            Write-Host "Retry Attempt $attempt"
+                            Write-Host "Tests to retry: $($remainingFailures.Count)"
+                            Write-Host "======================================"
+
+                            $nextFailures = New-Object System.Collections.Generic.List[string]
+
+                            foreach ($testName in $remainingFailures) {
+
+                                Write-Host "Retrying: $testName"
+
+                                $safeName = $testName -replace '[^a-zA-Z0-9_-]', '_'
+
+                                $retryFileName =
+                                    "retry_${attempt}_${safeName}.trx"
+
+                                $retryArgs = @(
+                                    "$env:PROJECT_FILE",
+                                    "--no-build",
+                                    "--filter",
+                                    "FullyQualifiedName~$testName",
+                                    "--logger",
+                                    "trx;LogFileName=$retryFileName"
+                                )
+
+                                dotnet test @retryArgs
+
+                                if ($LASTEXITCODE -ne 0) {
+
+                                    Write-Host "FAILED AGAIN: $testName"
+
+                                    $nextFailures.Add($testName)
+                                }
+                                else {
+
+                                    Write-Host "PASSED ON RETRY: $testName"
+                                }
+                            }
+
+                            $remainingFailures = @($nextFailures)
+                        }
+
+                        Write-Host "======================================"
+                        Write-Host "Retry Summary"
+                        Write-Host "======================================"
+
+                        if ($remainingFailures.Count -gt 0) {
+
+                            Write-Host "Tests still failing after retries:"
+
+                            foreach ($testName in $remainingFailures) {
+
+                                Write-Host "FAILED: $testName"
+                            }
+                        }
+                        else {
+
+                            Write-Host "All previously failed tests passed during retry."
+                        }
+                    '''
+                }
             }
         }
 
@@ -419,7 +451,7 @@ pipeline {
 
                 /*
                  * Count only the initial browser executions.
-                 * Retry TRX files are not included in the initial total.
+                 * Retry TRX files are excluded from the initial test total.
                  */
                 def initialTrxFiles = trxFiles.findAll {
 
@@ -432,17 +464,22 @@ pipeline {
 
                     def trxContent = readFile(trxFile.path)
 
-                    def passedMatch = trxContent =~ /passed="(\d+)"/
-                    def failedMatch = trxContent =~ /failed="(\d+)"/
+                    def passedMatch =
+                        trxContent =~ /passed="(\d+)"/
+
+                    def failedMatch =
+                        trxContent =~ /failed="(\d+)"/
 
                     if (passedMatch.find()) {
 
-                        passedTests += passedMatch[0][1].toInteger()
+                        passedTests +=
+                            passedMatch[0][1].toInteger()
                     }
 
                     if (failedMatch.find()) {
 
-                        failedTests += failedMatch[0][1].toInteger()
+                        failedTests +=
+                            failedMatch[0][1].toInteger()
                     }
                 }
 
