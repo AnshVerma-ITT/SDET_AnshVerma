@@ -81,15 +81,14 @@ pipeline {
             steps {
 
                 powershell '''
+
                     Write-Host "======================================"
                     Write-Host "HRMS Jenkins Pipeline"
                     Write-Host "======================================"
-
                     Write-Host "Execution Mode : $env:EXECUTION_MODE"
                     Write-Host "Browser        : $env:BROWSER"
                     Write-Host "Category       : $env:TEST_CATEGORY"
                     Write-Host "Retry Count    : $env:RETRY_COUNT"
-
                     Write-Host "======================================"
 
                     $projectDirectory = $env:PROJECT_DIRECTORY
@@ -187,14 +186,12 @@ pipeline {
                         Write-Host "======================================"
                         Write-Host "Starting Test Execution"
                         Write-Host "======================================"
-
                         Write-Host "Credentials loaded from Jenkins."
-
                         Write-Host "======================================"
 
-                        // ------------------------------------------------
-                        // Parallel / Sequential configuration
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Parallel / Sequential configuration
+                        # ------------------------------------------------
 
                         if ($env:EXECUTION_MODE -eq "Parallel") {
 
@@ -216,9 +213,9 @@ pipeline {
                         $overallExitCode = 0
 
 
-                        // ------------------------------------------------
-                        // Test category filter
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Test category filter
+                        # ------------------------------------------------
 
                         function Add-TestCategoryFilter {
 
@@ -240,15 +237,15 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Run All Browsers
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Run All Browsers
+                        # ------------------------------------------------
 
                         if ($env:BROWSER -eq "All") {
 
-                            // ============================================
-                            // Chromium
-                            // ============================================
+                            # ============================================
+                            # Chromium
+                            # ============================================
 
                             Write-Host "======================================"
                             Write-Host "Running tests on Chromium"
@@ -289,9 +286,9 @@ pipeline {
                             }
 
 
-                            // ============================================
-                            // WebKit
-                            // ============================================
+                            # ============================================
+                            # WebKit
+                            # ============================================
 
                             Write-Host "======================================"
                             Write-Host "Running tests on WebKit"
@@ -333,9 +330,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Run Single Browser
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Run Single Browser
+                        # ------------------------------------------------
 
                         else {
 
@@ -380,9 +377,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Initial execution result
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Initial execution result
+                        # ------------------------------------------------
 
                         Write-Host "======================================"
                         Write-Host "Initial Test Execution Completed"
@@ -398,9 +395,8 @@ pipeline {
                             Write-Host `
                                 "The pipeline will continue to the retry stage."
 
-                            // IMPORTANT:
-                            // Do not fail this stage.
-                            // Retry/report/archive stages must continue.
+                            # Do not fail this stage.
+                            # Retry/report/archive stages must continue.
 
                             exit 0
                         }
@@ -443,9 +439,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Retry disabled
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Retry disabled
+                        # ------------------------------------------------
 
                         if ($retryCount -eq 0) {
 
@@ -479,15 +475,17 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Get initial TRX files only
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Get initial TRX files only
+                        # ------------------------------------------------
 
                         $trxFiles = @(
+
                             Get-ChildItem `
                                 -Path $env:TEST_RESULTS `
                                 -Filter "*.trx" `
                                 -File |
+
                             Where-Object {
 
                                 $_.Name -eq "initial.trx" -or
@@ -510,9 +508,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Find failed tests
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Find failed tests
+                        # ------------------------------------------------
 
                         $failedTestNames =
                             New-Object System.Collections.Generic.List[string]
@@ -531,8 +529,11 @@ pipeline {
 
 
                                 $failedResults = @(
+
                                     $trx.TestRun.Results.UnitTestResult |
+
                                     Where-Object {
+
                                         $_.outcome -eq "Failed"
                                     }
                                 )
@@ -571,9 +572,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // No failed tests
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # No failed tests
+                        # ------------------------------------------------
 
                         if ($failedTestNames.Count -eq 0) {
 
@@ -589,9 +590,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Display failed tests
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Display failed tests
+                        # ------------------------------------------------
 
                         Write-Host "======================================"
                         Write-Host "Failed Tests"
@@ -608,13 +609,16 @@ pipeline {
                             @($failedTestNames)
 
 
-                        // ------------------------------------------------
-                        // Retry loop
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Retry loop
+                        # ------------------------------------------------
 
                         for (
+
                             $attempt = 1;
+
                             $attempt -le $retryCount;
+
                             $attempt++
                         ) {
 
@@ -695,7 +699,6 @@ pipeline {
                                         $testName
                                     )
                                 }
-
                                 else {
 
                                     Write-Host `
@@ -709,9 +712,9 @@ pipeline {
                         }
 
 
-                        // ------------------------------------------------
-                        // Retry summary
-                        // ------------------------------------------------
+                        # ------------------------------------------------
+                        # Retry summary
+                        # ------------------------------------------------
 
                         Write-Host "======================================"
                         Write-Host "Retry Summary"
@@ -722,6 +725,7 @@ pipeline {
 
                             Write-Host `
                                 "Tests still failing after retries:"
+
 
                             foreach ($testName in $remainingFailures) {
 
@@ -737,7 +741,6 @@ pipeline {
                             Write-Host `
                                 "Remaining failure count: $($remainingFailures.Count)"
                         }
-
                         else {
 
                             Write-Host `
@@ -750,8 +753,8 @@ pipeline {
                         }
 
 
-                        // Retry stage itself should not fail.
-                        // Final result is decided in post actions.
+                        # Retry stage itself should not fail.
+                        # Final result is decided in post actions.
 
                         exit 0
                     '''
@@ -771,8 +774,11 @@ pipeline {
                 script {
 
                     allure(
+
                         includeProperties: false,
+
                         jdk: '',
+
                         results: [
                             [
                                 path: "${env.ALLURE_RESULTS}"
@@ -793,6 +799,7 @@ pipeline {
             steps {
 
                 archiveArtifacts(
+
                     artifacts:
                         'Assignment11/HRMS Portal Automation/TestResults/**/*.trx, ' +
                         'Assignment11/HRMS Portal Automation/TestResults/*.txt, ' +
@@ -853,10 +860,12 @@ pipeline {
                     if (Test-Path $resultsDirectory) {
 
                         $trxFiles = @(
+
                             Get-ChildItem `
                                 -Path $resultsDirectory `
                                 -Filter "*.trx" `
                                 -File |
+
                             Where-Object {
 
                                 $_.Name -eq "initial.trx" -or
@@ -886,9 +895,9 @@ pipeline {
                                         -Raw
 
 
-                                // ----------------------------------------
-                                // Read TestRun counters
-                                // ----------------------------------------
+                                # ----------------------------------------
+                                # Read TestRun counters
+                                # ----------------------------------------
 
                                 $counters =
                                     $trx.TestRun.ResultSummary.Counters
@@ -899,18 +908,21 @@ pipeline {
                                     $fileTotal =
                                         [int]$counters.total
 
+
                                     $filePassed =
                                         [int]$counters.passed
+
 
                                     $fileFailed =
                                         [int]$counters.failed
 
+
                                     $fileSkipped = 0
 
 
-                                    // ------------------------------------
-                                    // Calculate skipped / not executed
-                                    // ------------------------------------
+                                    # ------------------------------------
+                                    # Calculate skipped / not executed
+                                    # ------------------------------------
 
                                     if ($null -ne $counters.notExecuted) {
 
@@ -931,6 +943,7 @@ pipeline {
                                             $filePassed -
                                             $fileFailed
 
+
                                         if ($fileSkipped -lt 0) {
 
                                             $fileSkipped = 0
@@ -939,8 +952,11 @@ pipeline {
 
 
                                     $totalTests += $fileTotal
+
                                     $passedTests += $filePassed
+
                                     $failedTests += $fileFailed
+
                                     $skippedTests += $fileSkipped
 
 
@@ -960,9 +976,9 @@ pipeline {
 
                                 else {
 
-                                    // ------------------------------------
-                                    // Fallback: count UnitTestResult
-                                    // ------------------------------------
+                                    # ------------------------------------
+                                    # Fallback: count UnitTestResult
+                                    # ------------------------------------
 
                                     Write-Host `
                                         "Counters not found. Using UnitTestResult fallback."
@@ -981,22 +997,27 @@ pipeline {
                                         switch ($result.outcome) {
 
                                             "Passed" {
+
                                                 $passedTests++
                                             }
 
                                             "Failed" {
+
                                                 $failedTests++
                                             }
 
                                             "NotExecuted" {
+
                                                 $skippedTests++
                                             }
 
                                             "Skipped" {
+
                                                 $skippedTests++
                                             }
 
                                             default {
+
                                                 $skippedTests++
                                             }
                                         }
@@ -1017,9 +1038,9 @@ pipeline {
                     }
 
 
-                    // ----------------------------------------------------
-                    // Final console summary
-                    // ----------------------------------------------------
+                    # ----------------------------------------------------
+                    # Final console summary
+                    # ----------------------------------------------------
 
                     Write-Host "======================================"
                     Write-Host "FINAL TEST SUMMARY"
@@ -1040,9 +1061,9 @@ pipeline {
                     Write-Host "======================================"
 
 
-                    // ----------------------------------------------------
-                    // Write summary file for Jenkins/Groovy
-                    // ----------------------------------------------------
+                    # ----------------------------------------------------
+                    # Write summary file for Jenkins/Groovy
+                    # ----------------------------------------------------
 
                     @"
 TOTAL=$totalTests
@@ -1159,8 +1180,15 @@ SKIPPED=$skippedTests
 
                     if (initialFailures > 0) {
 
-                        currentBuild.result =
-                            'FAILURE'
+                        finalFailedTests = initialFailures
+
+                        currentBuild.result = 'FAILURE'
+                    }
+                    else {
+
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
                     }
                 }
 
@@ -1168,14 +1196,23 @@ SKIPPED=$skippedTests
 
                     if (remainingFailures > 0) {
 
-                        currentBuild.result =
-                            'FAILURE'
+                        finalFailedTests = remainingFailures
+
+                        currentBuild.result = 'FAILURE'
                     }
 
                     else if (initialFailures > 0) {
 
-                        currentBuild.result =
-                            'SUCCESS'
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
+                    }
+
+                    else {
+
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
                     }
                 }
 
@@ -1189,7 +1226,6 @@ SKIPPED=$skippedTests
                 // ----------------------------------------------------
 
                 def passPercentage =
-
                     totalTests > 0
                         ? String.format(
                             "%.2f",
@@ -1260,7 +1296,9 @@ ${env.BUILD_URL}
                 echo "======================================"
                 echo "EMAIL SUMMARY"
                 echo "======================================"
+
                 echo emailBody
+
                 echo "======================================"
 
 
@@ -1271,6 +1309,7 @@ ${env.BUILD_URL}
                 try {
 
                     mail(
+
                         to: 'anshav14@gmail.com',
 
                         subject:
