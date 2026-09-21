@@ -20,8 +20,13 @@ public sealed class LeaveApplicationPage : BasePage
     private const string MonthYearFormat = "MMMM yyyy";
     private const string ChipDateFormat = "d MMM yyyy";
     private const string DescriptionTimestampFormat = "yyyyMMdd_HHmmss";
+    private const string RecordDateFormat = "dd-MMM-yyyy";
+    private const string LeaveTypeOmission = "leave type";
+    private const string DateOmission = "date";
     private const string TextColorScript = "element => getComputedStyle(element).color";
     private const string BorderColorScript = "element => getComputedStyle(element).borderColor";
+    private const string ValidationSelector = ".mantine-InputWrapper-error:visible, [data-error='true']:visible";
+    private const int ValidationResponseTimeoutMilliseconds = 3000;
     private const int CalendarNavigationAttemptLimit = 14;
 
     public LeaveApplicationPage(IPage page) : base(page) { }
@@ -70,11 +75,7 @@ public sealed class LeaveApplicationPage : BasePage
         var halfDayBorderColor = await halfDayBadge.EvaluateAsync<string>(BorderColorScript);
 
         await SubmitButton.ClickAsync();
-        await Notification.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = responseTimeoutMilliseconds
-        });
+        await WaitForSubmissionNotificationAsync(responseTimeoutMilliseconds);
 
         return new LeaveApplicationResult(
             startDate,
@@ -85,6 +86,101 @@ public sealed class LeaveApplicationPage : BasePage
             halfDayTextColor,
             halfDayBorderColor,
             (await Notification.InnerTextAsync()).Trim());
+    }
+
+    public ILocator CreatedRecord(DateTime startDate, DateTime endDate, string leaveType) =>
+        Page.GetByRole(AriaRole.Row)
+            .Filter(new() { HasText = startDate.ToString(RecordDateFormat, CultureInfo.InvariantCulture) })
+            .Filter(new() { HasText = endDate.ToString(RecordDateFormat, CultureInfo.InvariantCulture) })
+            .Filter(new() { HasText = leaveType })
+            .First;
+
+    public async Task<FormValidationResult> SubmitIncompleteLeaveAsync(
+        string omittedField,
+        LeaveApplicationRequest request)
+    {
+        await ApplyLeaveButton.ClickAsync();
+
+        if (!omittedField.Equals(LeaveTypeOmission, StringComparison.OrdinalIgnoreCase))
+        {
+            await LeaveTypeField.ClickAsync();
+            await Page.GetByRole(AriaRole.Option,
+                new() { Name = request.LeaveType, Exact = true }).ClickAsync();
+        }
+
+        if (!omittedField.Equals(DateOmission, StringComparison.OrdinalIgnoreCase))
+        {
+            var firstOfTargetMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)
+                .AddMonths(request.StartMonthOffset);
+            var daysUntilStartDay = ((int)request.StartDayOfWeek - (int)firstOfTargetMonth.DayOfWeek + 7) % 7;
+            var selectedDate = firstOfTargetMonth.AddDays(daysUntilStartDay);
+            await DateRangeField.ClickAsync();
+            await SelectCalendarDateAsync(selectedDate);
+            await SelectCalendarDateAsync(selectedDate);
+        }
+
+        var description = $"{request.DescriptionPrefix}_VALIDATION";
+        await DescriptionField.FillAsync(description);
+
+        var submitButtonEnabled = await SubmitButton.IsEnabledAsync();
+        string? notificationText = null;
+        if (submitButtonEnabled)
+        {
+            await SubmitButton.ClickAsync();
+            try
+            {
+                await Notification.WaitForAsync(new()
+                {
+                    State = WaitForSelectorState.Visible,
+                    Timeout = ValidationResponseTimeoutMilliseconds
+                });
+                notificationText = (await Notification.InnerTextAsync()).Trim();
+            }
+            catch (TimeoutException)
+            {
+                // Field-level validation may not create a notification.
+            }
+        }
+
+        return new FormValidationResult(
+            ApplyLeaveButtonName,
+            omittedField,
+            submitButtonEnabled,
+            await ApplyLeaveDialog.IsVisibleAsync(),
+            (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
+                .Select(message => message.Trim())
+                .Where(message => message.Length > 0)
+                .ToArray(),
+            notificationText);
+    }
+
+    private async Task WaitForSubmissionNotificationAsync(int responseTimeoutMilliseconds)
+    {
+        // HRMS occasionally accepts the first UI click without starting the submit action.
+        // Retry once only when the dialog is still open, no alert appeared, and Submit remains enabled.
+        var firstWait = Math.Min(10000, responseTimeoutMilliseconds);
+        try
+        {
+            await Notification.WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = firstWait
+            });
+            return;
+        }
+        catch (TimeoutException)
+        {
+            if (!await ApplyLeaveDialog.IsVisibleAsync() || !await SubmitButton.IsEnabledAsync())
+                throw;
+
+            await SubmitButton.ClickAsync();
+        }
+
+        await Notification.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = Math.Max(1000, responseTimeoutMilliseconds - firstWait)
+        });
     }
 
     private async Task<ILocator> MarkDateAsHalfDayAsync(DateTime targetDate)

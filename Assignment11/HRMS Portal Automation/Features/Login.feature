@@ -12,7 +12,18 @@ Feature: Login
     Then the Dashboard should be opened
 
   @negative
-  Scenario: Invalid login displays an error
+  Scenario Outline: Login rejects invalid or incomplete credential combinations
     Given I open the HRMS login page
-    When I login with invalid credentials
-    Then the invalid login error should be displayed
+    When I submit login using "<username>" username and "<password>" password
+    Then the login result should be "<expectedResult>"
+
+    Examples:
+      | username       | password        | expectedResult |
+      | valid          | invalid         | error          |
+      | invalid        | valid           | error          |
+      | invalid        | invalid         | error          |
+      | blank          | valid           | validation     |
+      | valid          | blank           | validation     |
+      | blank          | blank           | validation     |
+      | validWithSpaces| valid           | error          |
+      | valid          | validWithSpaces | error          |

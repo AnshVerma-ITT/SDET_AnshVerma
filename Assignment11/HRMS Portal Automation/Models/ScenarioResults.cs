@@ -1,5 +1,32 @@
 namespace HRIntimeAutomation.Models;
 
+public sealed record LoginValidationResult(
+    bool LoginButtonEnabled,
+    bool UsernameValid,
+    bool PasswordValid,
+    string UsernameValidationMessage,
+    string PasswordValidationMessage,
+    IReadOnlyList<string> VisibleValidationMessages,
+    bool LoginFormVisible,
+    bool DashboardVisible,
+    string CurrentUrl);
+
+public sealed record SessionSecurityResult(
+    bool DirectAccessShowsLogin,
+    string DirectAccessUrl,
+    bool RefreshShowsLogin,
+    string RefreshUrl,
+    bool BackNavigationShowsLogin,
+    string BackNavigationUrl);
+
+public sealed record FormValidationResult(
+    string FormName,
+    string OmittedField,
+    bool SubmitButtonEnabled,
+    bool DialogVisible,
+    IReadOnlyList<string> ValidationMessages,
+    string? NotificationText);
+
 public sealed record AttendanceRangeSelection(
     DateTime StartDate,
     DateTime EndDate,
@@ -11,7 +38,8 @@ public sealed record FooterLinkResult(
     bool IsVisible,
     string? Href,
     string? Target,
-    string? OpenedUrl);
+    string? OpenedUrl,
+    string? OpenedTitle);
 
 public sealed record LeaveApplicationResult(
     DateTime StartDate,
@@ -48,7 +76,16 @@ public sealed record LeaveCorrectionRequest(
 
 public sealed record NavigationResult(
     string Destination,
+    string? LinkHref,
+    string? ExpectedUrlPath,
     string PreviousUrl,
     string CurrentUrl,
+    string PageTitle,
+    string DestinationMarkerText,
     bool DestinationIsVisible,
+    bool DestinationIsActive,
     bool RequiresUrlChange);
+
+public sealed record NavigationSectionResult(
+    bool WasCollapsed,
+    bool WasExpandedAfterReopen);

@@ -1,4 +1,4 @@
-@profile @regression @readOnly
+@profile @smoke @regression @readOnly
 Feature: My Profile
   Scenario: Personal job and work scheme information is correct
     Given I am logged in with valid credentials

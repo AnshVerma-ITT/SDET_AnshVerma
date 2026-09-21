@@ -10,12 +10,15 @@ public sealed class DashboardPage : BasePage
     private const string DashboardBreadcrumbSelector = "div.mantine-Breadcrumbs-breadcrumb";
     private const string CalendarSelector = ".mantine-Calendar-calendarBase";
     private const string CalendarHeaderSelector = ".mantine-Calendar-calendarHeaderLevel";
+    private const string CalendarControlSelector = ".mantine-Calendar-calendarHeaderControl";
     private const string MonthYearFormat = "MMMM yyyy";
 
     public DashboardPage(IPage page) : base(page) { }
 
     public ILocator Calendar => Page.Locator(CalendarSelector);
     public ILocator CalendarHeader => Calendar.Locator(CalendarHeaderSelector);
+    public ILocator PreviousMonthButton => Calendar.Locator(CalendarControlSelector).First;
+    public ILocator NextMonthButton => Calendar.Locator(CalendarControlSelector).Last;
     public string ExpectedMonthYear => DateTime.Today.ToString(MonthYearFormat, CultureInfo.InvariantCulture);
     public ILocator CurrentDay => Calendar.GetByRole(AriaRole.Button,
         new() { Name = DateTime.Today.Day.ToString(CultureInfo.InvariantCulture), Exact = true });
@@ -36,4 +39,8 @@ public sealed class DashboardPage : BasePage
         await Calendar.WaitForAsync(new() { State = WaitForSelectorState.Visible });
         await Calendar.HoverAsync();
     }
+
+    public Task OpenPreviousMonthAsync() => PreviousMonthButton.ClickAsync();
+
+    public Task OpenNextMonthAsync() => NextMonthButton.ClickAsync();
 }

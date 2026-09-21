@@ -24,5 +24,6 @@ public sealed class DashboardSteps
         await Assertions.Expect(_context.DashboardPage.CurrentDay).ToBeVisibleAsync();
         await Assertions.Expect(_context.DashboardPage.CurrentDay)
             .ToHaveCSSAsync("background-color", DashboardTestData.TodayBackgroundColor);
+
     }
 }

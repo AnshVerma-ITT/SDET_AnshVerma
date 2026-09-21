@@ -48,6 +48,31 @@ public sealed class AttendanceRecordPage : BasePage
         return new AttendanceRangeSelection(expectedDates.First(), expectedDates.Last(), expectedDates);
     }
 
+    public async Task<AttendanceRangeSelection> SelectRecentWeekdayRangeAsync(int rangeLengthDays)
+    {
+        if (rangeLengthDays <= 0 || rangeLengthDays > 5)
+            throw new ArgumentOutOfRangeException(nameof(rangeLengthDays));
+
+        var today = DateTime.Today;
+        for (var endOffset = 1; endOffset <= 21; endOffset++)
+        {
+            var endDate = today.AddDays(-endOffset);
+            var startDate = endDate.AddDays(-(rangeLengthDays - 1));
+            var expectedDates = Enumerable.Range(0, rangeLengthDays)
+                .Select(offset => startDate.AddDays(offset))
+                .ToArray();
+
+            if (expectedDates.All(date =>
+                    date.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday))
+            {
+                await SelectRangeAsync(expectedDates);
+                return new AttendanceRangeSelection(startDate, endDate, expectedDates);
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a recent completed weekday attendance range.");
+    }
+
     public async Task ApplyStatusFilterAsync(string status)
     {
         await StatusField.ClickAsync();
@@ -88,5 +113,12 @@ public sealed class AttendanceRecordPage : BasePage
             .Filter(new() { HasTextRegex = new Regex($"^{dayText}$") });
 
         await day.ClickAsync();
+    }
+
+    private async Task SelectRangeAsync(IReadOnlyList<DateTime> expectedDates)
+    {
+        await DateRangeField.ClickAsync();
+        await SelectCalendarDateAsync(expectedDates.First());
+        await SelectCalendarDateAsync(expectedDates.Last());
     }
 }

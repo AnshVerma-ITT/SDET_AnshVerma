@@ -21,7 +21,14 @@ public sealed class NavigationPage : BasePage
     private const string BreadcrumbSelector = "a.mantine-Text-root.mantine-Anchor-root";
     private const string DashboardBreadcrumbSelector = "div.mantine-Breadcrumbs-breadcrumb";
     private const string AriaHiddenAttribute = "aria-hidden";
+    private const string AriaCurrentAttribute = "aria-current";
+    private const string DataActiveAttribute = "data-active";
+    private const string ClassAttribute = "class";
+    private const string HrefAttribute = "href";
     private const string ExpandedValue = "false";
+    private const string ActiveValue = "true";
+    private const string CurrentPageValue = "page";
+    private const string ActiveClassToken = "active";
     private const string MenuExpansionFailureMessage = "Navigation submenu did not reach its expanded state.";
     private const int MenuExpansionAttemptLimit = 20;
     private const int MenuExpansionPollMilliseconds = 100;
@@ -74,8 +81,26 @@ public sealed class NavigationPage : BasePage
         await MyHolidays.WaitForAsync(new() { State = WaitForSelectorState.Visible });
     }
 
+    public async Task<NavigationSectionResult> CollapseAndReopenOrganizationAsync()
+    {
+        await OpenOrganizationAsync();
+        await OrganizationButton.ClickAsync();
+        await OrganizationMenu.WaitForAsync(new() { State = WaitForSelectorState.Hidden });
+        var wasCollapsed = !await IsExpandedAsync(OrganizationMenu);
+
+        await OpenOrganizationAsync();
+        return new NavigationSectionResult(wasCollapsed, await IsExpandedAsync(OrganizationMenu));
+    }
+
+    public Task ReloadAsync() => Page.ReloadAsync(new() { WaitUntil = WaitUntilState.DOMContentLoaded });
+
     public Task<NavigationResult> OpenDashboardAsync() =>
-        OpenDestinationAsync(DashboardText, Dashboard, DashboardBreadcrumb, requiresUrlChange: false);
+        OpenDestinationAsync(
+            DashboardText,
+            Dashboard,
+            DashboardBreadcrumb,
+            requiresUrlChange: false,
+            expectedUrlPathOverride: Configuration.AppRoutes.Dashboard);
     public Task<NavigationResult> OpenMyProfileAsync() =>
         OpenDestinationAsync(MyProfileText, MyProfile, Breadcrumb(MyProfileText));
     public Task<NavigationResult> OpenEmployeeDirectoryAsync() =>
@@ -120,17 +145,53 @@ public sealed class NavigationPage : BasePage
         string destination,
         ILocator link,
         ILocator destinationMarker,
-        bool requiresUrlChange = true)
+        bool requiresUrlChange = true,
+        string? expectedUrlPathOverride = null)
     {
         var previousUrl = Page.Url;
+        var linkHref = await link.GetAttributeAsync(HrefAttribute);
+        var expectedUrlPath = expectedUrlPathOverride ?? GetExpectedPath(previousUrl, linkHref);
         await link.ClickAsync();
         await destinationMarker.WaitForAsync(new() { State = WaitForSelectorState.Visible });
 
+        var currentUrl = Page.Url;
+        if (expectedUrlPath is null && Uri.TryCreate(currentUrl, UriKind.Absolute, out var reachedUri))
+            expectedUrlPath = reachedUri.AbsolutePath;
+
+        var ariaCurrent = await link.GetAttributeAsync(AriaCurrentAttribute);
+        var dataActive = await link.GetAttributeAsync(DataActiveAttribute);
+        var className = await link.GetAttributeAsync(ClassAttribute);
+        var urlMatches = expectedUrlPath is not null
+            && Uri.TryCreate(currentUrl, UriKind.Absolute, out var currentUri)
+            && string.Equals(currentUri.AbsolutePath.TrimEnd('/'), expectedUrlPath.TrimEnd('/'),
+                StringComparison.OrdinalIgnoreCase);
+        var destinationIsActive = urlMatches
+            || string.Equals(ariaCurrent, CurrentPageValue, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(dataActive, ActiveValue, StringComparison.OrdinalIgnoreCase)
+            || (className?.Contains(ActiveClassToken, StringComparison.OrdinalIgnoreCase) ?? false);
+
         return new NavigationResult(
             destination,
+            linkHref,
+            expectedUrlPath,
             previousUrl,
-            Page.Url,
+            currentUrl,
+            await Page.TitleAsync(),
+            (await destinationMarker.InnerTextAsync()).Trim(),
             await destinationMarker.IsVisibleAsync(),
+            destinationIsActive,
             requiresUrlChange);
+    }
+
+    private static string? GetExpectedPath(string currentUrl, string? linkHref)
+    {
+        if (string.IsNullOrWhiteSpace(linkHref)
+            || !Uri.TryCreate(currentUrl, UriKind.Absolute, out var baseUri)
+            || !Uri.TryCreate(baseUri, linkHref, out var destinationUri))
+        {
+            return null;
+        }
+
+        return destinationUri.AbsolutePath;
     }
 }

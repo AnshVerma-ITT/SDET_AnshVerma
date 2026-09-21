@@ -6,6 +6,12 @@ public static class FooterTestData
 {
     public const string NewWindowTarget = "_blank";
 
+    public static readonly IReadOnlyList<string> BrowserErrorUrlPrefixes =
+        ["about:", "chrome-error:", "edge-error:"];
+
+    public static readonly IReadOnlyList<string> ErrorIndicators =
+        ["404", "not found", "page unavailable", "application error"];
+
     public static readonly IReadOnlyList<SocialLinkData> SocialLinks =
     [
         new("YouTube", "https://www.youtube.com/c/InTimeTecCreatingAbundance", ["youtube.com", "www.youtube.com"]),

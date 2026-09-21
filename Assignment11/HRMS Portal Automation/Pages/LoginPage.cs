@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using HRIntimeAutomation.Configuration;
+using HRIntimeAutomation.Models;
 using Microsoft.Playwright;
 
 namespace HRIntimeAutomation.Pages;
@@ -13,14 +14,17 @@ public sealed class LoginPage : BasePage
     private const string DashboardBreadcrumbSelector = "div.mantine-Breadcrumbs-breadcrumb";
     private const string FlexibleWhitespacePattern = @"\s+";
     private const string SingleSpace = " ";
+    private const string ValidationMessageScript = "element => element.validationMessage || ''";
+    private const string CheckValidityScript = "element => element.checkValidity()";
+    private const string ValidationSelector = ".mantine-InputWrapper-error:visible, [data-error='true']:visible";
 
     public LoginPage(IPage page) : base(page) { }
 
-    private ILocator UsernameField => Page.Locator(UsernameSelector);
-    private ILocator PasswordField => Page.Locator(PasswordSelector);
-    private ILocator LoginButton => Page.GetByRole(AriaRole.Button,
+    public ILocator UsernameField => Page.Locator(UsernameSelector);
+    public ILocator PasswordField => Page.Locator(PasswordSelector);
+    public ILocator LoginButton => Page.GetByRole(AriaRole.Button,
         new() { Name = LoginButtonName, Exact = true });
-    private ILocator DashboardBreadcrumb => Page.Locator(DashboardBreadcrumbSelector)
+    public ILocator DashboardBreadcrumb => Page.Locator(DashboardBreadcrumbSelector)
         .Filter(new() { HasText = DashboardText });
 
     public async Task OpenAsync()
@@ -36,6 +40,33 @@ public sealed class LoginPage : BasePage
         await UsernameField.FillAsync(username);
         await PasswordField.FillAsync(password);
         await LoginButton.ClickAsync();
+    }
+
+    public async Task<LoginValidationResult> SubmitForValidationAsync(string username, string password)
+    {
+        await UsernameField.FillAsync(username);
+        await PasswordField.FillAsync(password);
+
+        var loginButtonEnabled = await LoginButton.IsEnabledAsync();
+        if (loginButtonEnabled)
+            await LoginButton.ClickAsync();
+
+        var usernameValid = await UsernameField.EvaluateAsync<bool>(CheckValidityScript);
+        var passwordValid = await PasswordField.EvaluateAsync<bool>(CheckValidityScript);
+        var usernameValidationMessage = await UsernameField.EvaluateAsync<string>(ValidationMessageScript);
+        var passwordValidationMessage = await PasswordField.EvaluateAsync<string>(ValidationMessageScript);
+        var visibleValidationMessages = await Page.Locator(ValidationSelector).AllInnerTextsAsync();
+
+        return new LoginValidationResult(
+            loginButtonEnabled,
+            usernameValid,
+            passwordValid,
+            usernameValidationMessage.Trim(),
+            passwordValidationMessage.Trim(),
+            visibleValidationMessages.Select(message => message.Trim()).Where(message => message.Length > 0).ToArray(),
+            await IsDisplayedAsync(),
+            await DashboardBreadcrumb.IsVisibleAsync(),
+            Page.Url);
     }
 
     public async Task<bool> IsDisplayedAsync() =>

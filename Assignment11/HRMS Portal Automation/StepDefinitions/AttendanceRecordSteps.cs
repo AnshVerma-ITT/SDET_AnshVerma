@@ -19,6 +19,11 @@ public sealed class AttendanceRecordSteps
         _context.AttendanceRange = await _context.AttendanceRecordPage
             .SelectFourDayRangeContainingWeekendAsync();
 
+    [When("I select a recent weekday attendance range of {int} days")]
+    public async Task WhenISelectARecentWeekdayAttendanceRange(int rangeLengthDays) =>
+        _context.AttendanceRange = await _context.AttendanceRecordPage
+            .SelectRecentWeekdayRangeAsync(rangeLengthDays);
+
     [Then("the attendance records and Weekly Off filter should be correct")]
     public async Task ThenTheAttendanceRecordsAndWeeklyOffFilterShouldBeCorrect()
     {
@@ -60,6 +65,28 @@ public sealed class AttendanceRecordSteps
             var row = _context.AttendanceRecordPage.RowForDate(weekendDate);
             await Assertions.Expect(row).ToHaveCountAsync(1);
             await Assertions.Expect(row).ToContainTextAsync(AttendanceTestData.WeeklyOffRecordStatus);
+        }
+    }
+
+    [Then("only records within the selected attendance range should appear")]
+    public async Task ThenOnlyRecordsWithinTheSelectedAttendanceRangeShouldAppear()
+    {
+        Assert.That(_context.AttendanceRange, Is.Not.Null);
+        var selection = _context.AttendanceRange!;
+        var expectedRange = $"{selection.StartDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}" +
+            $"{AttendanceTestData.RangeSeparator}" +
+            $"{selection.EndDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}";
+
+        await Assertions.Expect(_context.AttendanceRecordPage.DateRangeField)
+            .ToHaveValueAsync(expectedRange);
+        await Assertions.Expect(_context.AttendanceRecordPage.AttendanceRows)
+            .ToHaveCountAsync(selection.ExpectedDates.Count);
+
+        foreach (var expectedDate in selection.ExpectedDates)
+        {
+            var row = _context.AttendanceRecordPage.RowForDate(expectedDate);
+            await Assertions.Expect(row).ToHaveCountAsync(1);
+            await Assertions.Expect(row).ToBeVisibleAsync();
         }
     }
 }

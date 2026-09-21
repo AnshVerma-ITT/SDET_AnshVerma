@@ -8,16 +8,14 @@ public sealed class TestSettings
 {
     private const string SettingsFileName = "appsettings.json";
     private const string BaseUrlVariable = "HRMS_BASE_URL";
-    private const string BrowserVariable = "BROWSER";
+    private const string BrowserEngineTypeVariable = "BROWSER_ENGINE_TYPE";
     private const string HeadlessVariable = "HEADLESS";
     private const string TimeoutVariable = "TIMEOUT_MILLISECONDS";
     private const string ResponseTimeoutVariable = "RESPONSE_TIMEOUT_MILLISECONDS";
-    private const string ParallelEnabledVariable = "PARALLEL_ENABLED";
-    private const string ParallelWorkersVariable = "PARALLEL_WORKERS";
     private const string ArtifactsDirectoryVariable = "HRMS_ARTIFACTS_DIR";
 
     public required string BaseUrl { get; init; }
-    public required string Browser { get; init; }
+    public required string BrowserEngineType { get; init; }
     public bool Headless { get; init; }
     public int TimeoutMilliseconds { get; init; }
     public int ResponseTimeoutMilliseconds { get; init; }
@@ -29,8 +27,6 @@ public sealed class TestSettings
     public required string ArtifactsDirectory { get; init; }
     public required string TestIdAttribute { get; init; }
     public string ApplicationTimeZoneId { get; init; } = string.Empty;
-    public bool ParallelEnabled { get; init; }
-    public int ParallelWorkers { get; init; }
 
     public static TestSettings Load()
     {
@@ -63,7 +59,7 @@ public sealed class TestSettings
         return new TestSettings
         {
             BaseUrl = GetString(BaseUrlVariable, BaseUrl),
-            Browser = GetString(BrowserVariable, Browser),
+            BrowserEngineType = GetString(BrowserEngineTypeVariable, BrowserEngineType),
             Headless = GetBoolean(HeadlessVariable, Headless),
             TimeoutMilliseconds = GetInteger(TimeoutVariable, TimeoutMilliseconds),
             ResponseTimeoutMilliseconds = GetInteger(ResponseTimeoutVariable, ResponseTimeoutMilliseconds),
@@ -74,9 +70,7 @@ public sealed class TestSettings
             ScreenshotOnFailure = ScreenshotOnFailure,
             ArtifactsDirectory = ArtifactsDirectory,
             TestIdAttribute = TestIdAttribute,
-            ApplicationTimeZoneId = ApplicationTimeZoneId,
-            ParallelEnabled = GetBoolean(ParallelEnabledVariable, ParallelEnabled),
-            ParallelWorkers = GetInteger(ParallelWorkersVariable, ParallelWorkers)
+            ApplicationTimeZoneId = ApplicationTimeZoneId
         };
     }
 
@@ -88,10 +82,10 @@ public sealed class TestSettings
             throw new InvalidOperationException("baseUrl/HRMS_BASE_URL must be an absolute HTTP or HTTPS URL.");
         }
 
-        if (!BrowserNames.IsSupported(Browser))
+        if (!BrowserEngineTypes.IsSupported(BrowserEngineType))
         {
             throw new InvalidOperationException(
-                $"Unsupported browser '{Browser}'. Use Chrome, Chromium, Firefox, WebKit, or Edge.");
+                $"Unsupported browser engine type '{BrowserEngineType}'. Use Chrome, Chromium, Firefox, WebKit, or Edge.");
         }
 
         if (TimeoutMilliseconds <= 0 || ResponseTimeoutMilliseconds <= 0
@@ -105,10 +99,6 @@ public sealed class TestSettings
             throw new InvalidOperationException("artifactsDirectory and testIdAttribute are required.");
         }
 
-        if (ParallelWorkers <= 0)
-        {
-            throw new InvalidOperationException("parallelWorkers/PARALLEL_WORKERS must be greater than zero.");
-        }
     }
 
     private static string GetString(string variable, string fallback)

@@ -19,6 +19,11 @@ public sealed class LeaveCorrectionSteps
             LeaveCorrectionTestData.Request,
             _context.Driver.Settings.ResponseTimeoutMilliseconds);
 
+    [When("I submit a Leave Correction without {string}")]
+    public async Task WhenISubmitALeaveCorrectionWithout(string omittedField) =>
+        _context.FormValidationResult = await _context.LeaveCorrectionPage
+            .SubmitIncompleteCorrectionAsync(omittedField, LeaveCorrectionTestData.Request);
+
     [Then("the leave correction success message and created record should be displayed")]
     public async Task ThenTheLeaveCorrectionSuccessMessageAndCreatedRecordShouldBeDisplayed()
     {
@@ -52,5 +57,25 @@ public sealed class LeaveCorrectionSteps
         var status = (await cells.Nth(LeaveCorrectionTestData.StatusCellIndex).InnerTextAsync()).Trim();
         Assert.That(status, Is.Not.Empty,
             "The created Leave Correction record has an empty status.");
+    }
+
+    [Then("the incomplete Leave Correction should be rejected")]
+    public void ThenTheIncompleteLeaveCorrectionShouldBeRejected()
+    {
+        Assert.That(_context.FormValidationResult, Is.Not.Null);
+        var result = _context.FormValidationResult!;
+        var hasValidationEvidence = !result.SubmitButtonEnabled
+            || result.ValidationMessages.Count > 0
+            || !string.IsNullOrWhiteSpace(result.NotificationText);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.DialogVisible, Is.True,
+                "The incomplete Leave Correction dialog closed as if submission succeeded.");
+            Assert.That(result.NotificationText ?? string.Empty,
+                Does.Not.Contain(LeaveCorrectionTestData.SuccessMessage).IgnoreCase);
+            Assert.That(hasValidationEvidence, Is.True,
+                $"No validation was exposed when '{result.OmittedField}' was omitted.");
+        });
     }
 }

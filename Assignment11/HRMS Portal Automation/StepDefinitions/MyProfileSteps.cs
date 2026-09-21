@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using HRIntimeAutomation.Context;
+using HRIntimeAutomation.Utilities;
 using HRIntimeAutomation.TestData;
 using Microsoft.Playwright;
 using NUnit.Framework;
@@ -37,6 +38,7 @@ public sealed class MyProfileSteps
             var fieldRow = _context.MyProfilePage.TopFieldRow(expectedField.Label);
             await Assertions.Expect(fieldRow).ToBeVisibleAsync();
             await Assertions.Expect(fieldRow).ToContainTextAsync(expectedField.Value);
+            AssertRenderedFieldIsNotBlank(await fieldRow.InnerTextAsync(), expectedField.Label);
         }
     }
 
@@ -62,6 +64,8 @@ public sealed class MyProfileSteps
         {
             await Assertions.Expect(jobPanel!).ToContainTextAsync(expectedField.Label);
             await Assertions.Expect(jobPanel!).ToContainTextAsync(expectedField.Value);
+            Assert.That(expectedField.Value, Is.Not.Null.And.Not.Empty,
+                $"Expected profile data for {expectedField.Label} is blank.");
         }
     }
 
@@ -137,10 +141,22 @@ public sealed class MyProfileSteps
         Assert.That(lastWorkingDateParsed, Is.True,
             $"Last Working Date '{lastWorkingDateText}' has an unexpected format.");
 
-        var expectedLastWorkingDate = dateOfApply
-            .AddMonths(ResignationTestData.NoticePeriodMonths)
-            .AddDays(ResignationTestData.LastWorkingDayOffset);
+        var expectedLastWorkingDate = ResignationDateCalculator.CalculateLastWorkingDate(
+            dateOfApply,
+            ResignationTestData.NoticePeriodMonths,
+            ResignationTestData.LastWorkingDayOffset);
         Assert.That(actualLastWorkingDate, Is.EqualTo(expectedLastWorkingDate),
             $"Last Working Date should be {expectedLastWorkingDate.ToString(ResignationTestData.DateFormat, CultureInfo.InvariantCulture)}.");
+    }
+
+    private static void AssertRenderedFieldIsNotBlank(string renderedRowText, string label)
+    {
+        var valueText = Regex.Replace(
+                renderedRowText,
+                Regex.Escape(label),
+                string.Empty,
+                RegexOptions.IgnoreCase)
+            .Trim(' ', ':', '\r', '\n', '\t');
+        Assert.That(valueText, Is.Not.Empty, $"Profile field '{label}' is blank.");
     }
 }

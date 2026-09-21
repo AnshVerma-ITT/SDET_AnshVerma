@@ -21,6 +21,7 @@ namespace HRIntimeAutomation.Features
     [global::NUnit.Framework.DescriptionAttribute("My Profile")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("profile")]
+    [global::NUnit.Framework.CategoryAttribute("smoke")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
     [global::NUnit.Framework.CategoryAttribute("readOnly")]
     public partial class MyProfileFeature
@@ -30,6 +31,7 @@ namespace HRIntimeAutomation.Features
         
         private static string[] featureTags = new string[] {
                 "profile",
+                "smoke",
                 "regression",
                 "readOnly"};
         

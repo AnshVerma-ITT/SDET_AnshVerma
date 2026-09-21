@@ -13,6 +13,7 @@ public sealed class EmployeeDirectoryPage : BasePage
     private const string PageNumberButtonSelector = "button:not([data-dots='true'])";
     private const string EmployeeCardSelector = "div.mantine-Card-root";
     private const string EmployeeCardSectionSelector = "div.mantine-Card-cardSection[data-first='true']";
+    private const string TableRowSelector = "tbody tr";
     private const string PageNumberPattern = "^\\d+$";
     private const string ArrowDownKey = "ArrowDown";
     private const string EnterKey = "Enter";
@@ -29,6 +30,7 @@ public sealed class EmployeeDirectoryPage : BasePage
     public ILocator EmployeeCards => Page.Locator(EmployeeCardSelector)
         .Filter(new() { Has = Page.Locator(EmployeeCardSectionSelector) });
     public ILocator EmployeeTable => Page.GetByRole(AriaRole.Table);
+    public ILocator EmployeeRows => EmployeeTable.Locator(TableRowSelector);
 
     public async Task ApplyFiltersAsync(string jobTitle, string viewMode)
     {
@@ -43,6 +45,13 @@ public sealed class EmployeeDirectoryPage : BasePage
         Pagination.Locator($"{CurrentPageSelector}:text-is('{pageNumber}')");
 
     public Task OpenNextPageAsync() => NextButton.ClickAsync();
+
+    public Task OpenPreviousPageAsync() => PreviousButton.ClickAsync();
+
+    public async Task<IReadOnlyList<string>> ReadVisibleRecordSignaturesAsync() =>
+        (await EmployeeCards.AllInnerTextsAsync())
+        .Select(text => Regex.Replace(text, @"\s+", " ").Trim())
+        .ToArray();
 
     public async Task<int?> ReadLastPageNumberAsync()
     {

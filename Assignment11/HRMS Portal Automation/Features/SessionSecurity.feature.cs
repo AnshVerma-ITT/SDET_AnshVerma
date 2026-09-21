@@ -18,25 +18,24 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Login")]
+    [global::NUnit.Framework.DescriptionAttribute("Session authorization")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
-    [global::NUnit.Framework.CategoryAttribute("login")]
+    [global::NUnit.Framework.CategoryAttribute("session")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
     [global::NUnit.Framework.CategoryAttribute("readOnly")]
-    public partial class LoginFeature
+    public partial class SessionAuthorizationFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = new string[] {
-                "login",
+                "session",
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Login", "  As an HRMS user\r\n  I want login validation\r\n  So that valid and invalid authent" +
-                "ication behaviour is verified", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Session authorization", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
-#line 1 "Login.feature"
+#line 1 "SessionSecurity.feature"
 #line hidden
         
         [global::NUnit.Framework.OneTimeSetUpAttribute()]
@@ -112,93 +111,43 @@ namespace HRIntimeAutomation.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Login.feature.ndjson", 11);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/SessionSecurity.feature.ndjson", 3);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Valid login opens Dashboard")]
-        [global::NUnit.Framework.CategoryAttribute("smoke")]
-        public async global::System.Threading.Tasks.Task ValidLoginOpensDashboard()
+        [global::NUnit.Framework.DescriptionAttribute("Authenticated pages remain protected after logout")]
+        public async global::System.Threading.Tasks.Task AuthenticatedPagesRemainProtectedAfterLogout()
         {
-            string[] tagsOfScenario = new string[] {
-                    "smoke"};
+            string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Valid login opens Dashboard", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Authenticated pages remain protected after logout", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
+#line 3
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 4
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 5
+    await testRunner.WhenAsync("I logout from the profile menu", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 6
+    await testRunner.ThenAsync("I should be redirected to the login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 7
+    await testRunner.WhenAsync("I attempt direct Dashboard access refresh and back navigation", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
 #line 8
-  this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 9
-    await testRunner.GivenAsync("I open the HRMS login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 10
-    await testRunner.ThenAsync("the login form should be displayed", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 11
-    await testRunner.WhenAsync("I login with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 12
-    await testRunner.ThenAsync("the Dashboard should be opened", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Login rejects invalid or incomplete credential combinations")]
-        [global::NUnit.Framework.CategoryAttribute("negative")]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "invalid", "error", "1", null)]
-        [global::NUnit.Framework.TestCaseAttribute("invalid", "valid", "error", "2", null)]
-        [global::NUnit.Framework.TestCaseAttribute("invalid", "invalid", "error", "3", null)]
-        [global::NUnit.Framework.TestCaseAttribute("blank", "valid", "validation", "4", null)]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "blank", "validation", "5", null)]
-        [global::NUnit.Framework.TestCaseAttribute("blank", "blank", "validation", "6", null)]
-        [global::NUnit.Framework.TestCaseAttribute("validWithSpaces", "valid", "error", "7", null)]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "validWithSpaces", "error", "8", null)]
-        public async global::System.Threading.Tasks.Task LoginRejectsInvalidOrIncompleteCredentialCombinations(string username, string password, string expectedResult, string @__pickleIndex, string[] exampleTags)
-        {
-            string[] @__tags = new string[] {
-                    "negative"};
-            if ((exampleTags != null))
-            {
-                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
-            }
-            string[] tagsOfScenario = @__tags;
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("username", username);
-            argumentsOfScenario.Add("password", password);
-            argumentsOfScenario.Add("expectedResult", expectedResult);
-            string pickleIndex = @__pickleIndex;
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login rejects invalid or incomplete credential combinations", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 15
-  this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 16
-    await testRunner.GivenAsync("I open the HRMS login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 17
-    await testRunner.WhenAsync(string.Format("I submit login using \"{0}\" username and \"{1}\" password", username, password), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 18
-    await testRunner.ThenAsync(string.Format("the login result should be \"{0}\"", expectedResult), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("every post-logout attempt should still require authentication", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

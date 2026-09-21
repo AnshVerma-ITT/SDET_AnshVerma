@@ -1,6 +1,6 @@
 namespace HRIntimeAutomation.Configuration;
 
-public static class BrowserNames
+public static class BrowserEngineTypes
 {
     public const string Chrome = "Chrome";
     public const string Chromium = "Chromium";
@@ -17,5 +17,5 @@ public static class BrowserNames
         Edge
     };
 
-    public static bool IsSupported(string browser) => Supported.Contains(browser);
+    public static bool IsSupported(string browserEngineType) => Supported.Contains(browserEngineType);
 }

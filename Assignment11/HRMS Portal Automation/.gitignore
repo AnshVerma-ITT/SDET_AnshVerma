@@ -15,6 +15,7 @@ Videos/*.webm
 
 .env
 .env.*
+!.env.example
 
 *.user
 *.suo

@@ -32,6 +32,7 @@ public sealed class FooterPage : BasePage
                     isVisible,
                     null,
                     null,
+                    null,
                     null));
                 continue;
             }
@@ -43,6 +44,7 @@ public sealed class FooterPage : BasePage
             var target = await link.GetAttributeAsync(TargetAttribute);
             var popup = await Page.RunAndWaitForPopupAsync(() => link.ClickAsync());
             string? openedUrl;
+            string? openedTitle;
 
             try
             {
@@ -58,6 +60,7 @@ public sealed class FooterPage : BasePage
                 }
 
                 openedUrl = popup.Url;
+                openedTitle = await popup.TitleAsync();
             }
             finally
             {
@@ -70,7 +73,8 @@ public sealed class FooterPage : BasePage
                 isVisible,
                 href,
                 target,
-                openedUrl));
+                openedUrl,
+                openedTitle));
         }
 
         return results;

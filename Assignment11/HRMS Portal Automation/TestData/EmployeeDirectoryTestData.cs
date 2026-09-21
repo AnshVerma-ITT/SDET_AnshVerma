@@ -7,11 +7,4 @@ public static class EmployeeDirectoryTestData
     public const int MaximumRecordsPerPage = 12;
     public const int FirstPage = 1;
     public const int SecondPage = 2;
-
-    public static readonly IReadOnlyList<string> ExpectedEmployees =
-    [
-        "Archit Jain",
-        "Kapil Paliwal",
-        "Yatin Yogi"
-    ];
 }

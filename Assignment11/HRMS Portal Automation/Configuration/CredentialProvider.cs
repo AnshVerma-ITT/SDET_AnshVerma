@@ -4,32 +4,68 @@ public sealed record Credentials(string Username, string Password);
 
 public static class CredentialProvider
 {
-    private const string UsernameVariable = "dhruv.g";
-    private const string PasswordVariable = "Welcome(*&^%";
+    private const string UsernameVariable = "HRMS_USERNAME";
+    private const string PasswordVariable = "HRMS_PASSWORD";
 
     public static Credentials GetRequiredAdminCredentials()
     {
-      /*  var username = Environment.GetEnvironmentVariable(UsernameVariable);
+        LoadDotEnv();
+
+        var username = Environment.GetEnvironmentVariable(UsernameVariable);
         var password = Environment.GetEnvironmentVariable(PasswordVariable);
 
         var missingVariables = new List<string>();
         if (string.IsNullOrWhiteSpace(username))
-        {
             missingVariables.Add(UsernameVariable);
-        }
-
         if (string.IsNullOrWhiteSpace(password))
-        {
             missingVariables.Add(PasswordVariable);
-        }
 
         if (missingVariables.Count > 0)
         {
             throw new InvalidOperationException(
-                $"Set the following environment variables before running authenticated scenarios: {string.Join(", ", missingVariables)}. " +
-                "Never store real HRINTIME credentials in source code or feature files.");
+                $"Enter values for {string.Join(", ", missingVariables)} in the project .env file before running authenticated scenarios.");
         }
-*/
-        return new Credentials(UsernameVariable, PasswordVariable);
+
+        return new Credentials(username!, password!);
+    }
+
+    private static void LoadDotEnv()
+    {
+        var envPath = FindDotEnv();
+        if (envPath is null)
+            return;
+
+        foreach (var rawLine in File.ReadAllLines(envPath))
+        {
+            var line = rawLine.Trim();
+            if (line.Length == 0 || line.StartsWith('#'))
+                continue;
+
+            var separatorIndex = line.IndexOf('=');
+            if (separatorIndex <= 0)
+                continue;
+
+            var key = line[..separatorIndex].Trim();
+            var value = line[(separatorIndex + 1)..].Trim().Trim('"', '\'');
+            if (Environment.GetEnvironmentVariable(key) is null)
+                Environment.SetEnvironmentVariable(key, value);
+        }
+    }
+
+    private static string? FindDotEnv()
+    {
+        foreach (var startPath in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
+        {
+            var directory = new DirectoryInfo(startPath);
+            while (directory is not null)
+            {
+                var candidate = Path.Combine(directory.FullName, ".env");
+                if (File.Exists(candidate))
+                    return candidate;
+                directory = directory.Parent;
+            }
+        }
+
+        return null;
     }
 }

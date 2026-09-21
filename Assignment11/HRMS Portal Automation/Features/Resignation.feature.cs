@@ -111,7 +111,7 @@ namespace HRIntimeAutomation.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Resignation.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Resignation.feature.ndjson", 7);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -145,6 +145,54 @@ namespace HRIntimeAutomation.Features
 #line hidden
 #line 7
     await testRunner.ThenAsync("the Last Working Date should follow the two month resignation calculation", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Resignation calculation handles calendar boundaries")]
+        [global::NUnit.Framework.CategoryAttribute("calculation")]
+        [global::NUnit.Framework.CategoryAttribute("noBrowser")]
+        [global::NUnit.Framework.TestCaseAttribute("2026-01-15", "1", null)]
+        [global::NUnit.Framework.TestCaseAttribute("2026-01-31", "2", null)]
+        [global::NUnit.Framework.TestCaseAttribute("2026-11-30", "3", null)]
+        [global::NUnit.Framework.TestCaseAttribute("2024-02-29", "4", null)]
+        public async global::System.Threading.Tasks.Task ResignationCalculationHandlesCalendarBoundaries(string dateOfApply, string @__pickleIndex, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "calculation",
+                    "noBrowser"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("dateOfApply", dateOfApply);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Resignation calculation handles calendar boundaries", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 10
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 11
+    await testRunner.GivenAsync(string.Format("a resignation Date of Apply \"{0}\"", dateOfApply), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 12
+    await testRunner.WhenAsync("the configured resignation notice period is calculated", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 13
+    await testRunner.ThenAsync("the calculated Last Working Date should follow the configured calendar-month rule" +
+                        "", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

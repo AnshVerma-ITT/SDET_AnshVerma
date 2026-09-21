@@ -30,8 +30,8 @@ public sealed class EmployeeDirectorySteps
             EmployeeDirectoryTestData.JobTitle,
             EmployeeDirectoryTestData.ViewMode);
 
-    [Then("Archit Jain, Kapil Paliwal, and Yatin Yogi should be present")]
-    public async Task ThenTheThreeDirectorsShouldBePresent()
+    [Then("every returned employee should match the selected job title")]
+    public async Task ThenEveryEmployeeShouldMatchTheSelectedJobTitle()
     {
         await Assertions.Expect(_context.EmployeeDirectoryPage.JobTitleField)
             .ToHaveValueAsync(EmployeeDirectoryTestData.JobTitle);
@@ -39,11 +39,12 @@ public sealed class EmployeeDirectorySteps
             .ToHaveValueAsync(EmployeeDirectoryTestData.ViewMode);
         await Assertions.Expect(_context.EmployeeDirectoryPage.EmployeeTable).ToBeVisibleAsync();
 
-        foreach (var employee in EmployeeDirectoryTestData.ExpectedEmployees)
+        var rowCount = await _context.EmployeeDirectoryPage.EmployeeRows.CountAsync();
+        Assert.That(rowCount, Is.GreaterThan(0), "The selected job-title filter returned no employees.");
+        for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
         {
-            var employeeName = _context.EmployeeDirectoryPage.EmployeeName(employee);
-            await Assertions.Expect(employeeName).ToHaveCountAsync(1);
-            await Assertions.Expect(employeeName).ToBeVisibleAsync();
+            await Assertions.Expect(_context.EmployeeDirectoryPage.EmployeeRows.Nth(rowIndex))
+                .ToContainTextAsync(EmployeeDirectoryTestData.JobTitle);
         }
     }
 
@@ -55,6 +56,7 @@ public sealed class EmployeeDirectorySteps
 
         await AssertCurrentPageAsync(EmployeeDirectoryTestData.FirstPage);
         await AssertRecordCountAsync();
+        var firstPageRecords = await page.ReadVisibleRecordSignaturesAsync();
         await AssertButtonStateAsync(page.PreviousButton, shouldBeEnabled: false);
         await AssertButtonStateAsync(page.NextButton, shouldBeEnabled: true);
 
@@ -62,8 +64,22 @@ public sealed class EmployeeDirectorySteps
         await Assertions.Expect(page.CurrentPage(EmployeeDirectoryTestData.SecondPage)).ToBeVisibleAsync();
         await AssertCurrentPageAsync(EmployeeDirectoryTestData.SecondPage);
         await AssertRecordCountAsync();
+        var secondPageRecords = await page.ReadVisibleRecordSignaturesAsync();
+        Assert.That(string.Join("|", secondPageRecords),
+            Is.Not.EqualTo(string.Join("|", firstPageRecords)),
+            "Employee Directory records did not change after moving to the next page.");
         await AssertButtonStateAsync(page.PreviousButton, shouldBeEnabled: true);
         await AssertButtonStateAsync(page.NextButton, shouldBeEnabled: true);
+
+        await page.OpenPreviousPageAsync();
+        await Assertions.Expect(page.CurrentPage(EmployeeDirectoryTestData.FirstPage)).ToBeVisibleAsync();
+        await AssertCurrentPageAsync(EmployeeDirectoryTestData.FirstPage);
+        var returnedFirstPageRecords = await page.ReadVisibleRecordSignaturesAsync();
+        Assert.That(returnedFirstPageRecords, Is.EqualTo(firstPageRecords),
+            "Returning to page 1 did not restore the original Employee Directory records.");
+
+        await page.OpenNextPageAsync();
+        await Assertions.Expect(page.CurrentPage(EmployeeDirectoryTestData.SecondPage)).ToBeVisibleAsync();
 
         var lastPage = await page.ReadLastPageNumberAsync();
         Assert.That(lastPage, Is.Not.Null.And.GreaterThanOrEqualTo(EmployeeDirectoryTestData.SecondPage),

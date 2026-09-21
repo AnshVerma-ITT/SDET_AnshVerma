@@ -1,7 +1,7 @@
 using HRIntimeAutomation.Configuration;
 using Microsoft.Playwright;
 
-namespace HRIntimeAutomation.Helper;
+namespace HRIntimeAutomation.Utilities;
 
 public static class BrowserContextFactory
 {

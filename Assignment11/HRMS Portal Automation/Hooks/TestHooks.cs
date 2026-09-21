@@ -1,6 +1,6 @@
 using HRIntimeAutomation.Configuration;
 using HRIntimeAutomation.Context;
-using HRIntimeAutomation.Helper;
+using HRIntimeAutomation.Utilities;
 using HRIntimeAutomation.Pages;
 using Reqnroll;
 
@@ -9,11 +9,6 @@ namespace HRIntimeAutomation.Hooks;
 [Binding]
 public sealed class TestHooks
 {
-    // Leave Application and Leave Correction mutate the same employee account.
-    // Keep only those scenarios serialized while the rest of the suite remains
-    // eligible for NUnit fixture-level parallel execution.
-    private static readonly SemaphoreSlim LeaveOperationGate = new(1, 1);
-
     private readonly ScenarioTestContext _context;
     private readonly ScenarioContext _scenarioContext;
 
@@ -23,24 +18,16 @@ public sealed class TestHooks
         _scenarioContext = scenarioContext;
     }
 
-    [BeforeScenario(Order = 0)]
-    public async Task SerializeAccountMutatingLeaveScenariosAsync()
-    {
-        var tags = _scenarioContext.ScenarioInfo.CombinedTags;
-        var isMutatingLeaveScenario = tags.Any(tag =>
-            tag.Equals(TestTags.Leave, StringComparison.OrdinalIgnoreCase) ||
-            tag.Equals(TestTags.LeaveCorrection, StringComparison.OrdinalIgnoreCase));
-
-        if (!isMutatingLeaveScenario)
-            return;
-
-        await LeaveOperationGate.WaitAsync();
-        _context.HoldsLeaveOperationGate = true;
-    }
 
     [BeforeScenario(Order = 10)]
     public async Task BeforeScenarioAsync()
     {
+        if (_scenarioContext.ScenarioInfo.CombinedTags.Any(tag =>
+                tag.Equals(TestTags.NoBrowser, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
         _context.Driver = new BrowserDriver();
         await _context.Driver.StartAsync();
 
@@ -60,18 +47,14 @@ public sealed class TestHooks
     [AfterScenario(Order = 100)]
     public async Task AfterScenarioAsync()
     {
-        try
+        if (_context.Driver is not null)
         {
-            if (_context.Driver is not null)
-                await _context.Driver.StopAsync();
-        }
-        finally
-        {
-            if (_context.HoldsLeaveOperationGate)
-            {
-                _context.HoldsLeaveOperationGate = false;
-                LeaveOperationGate.Release();
-            }
+            var failedScenarioName = _scenarioContext.TestError is null
+                ? null
+                : _scenarioContext.ScenarioInfo.Title;
+            var artifacts = await _context.Driver.StopAsync(failedScenarioName);
+            foreach (var artifact in artifacts.Where(File.Exists))
+                NUnit.Framework.TestContext.AddTestAttachment(artifact);
         }
     }
 }
