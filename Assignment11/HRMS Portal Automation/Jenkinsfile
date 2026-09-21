@@ -1284,11 +1284,9 @@ ${env.BUILD_URL}
 
                 catch (Exception e) {
 
-                    echo `
-                        "Email notification failed: ${e.getMessage()}"
+                    echo "Email notification failed: ${e.getMessage()}"
 
-                    echo `
-                        "Pipeline result will not be affected by email failure."
+                    echo "Pipeline result will not be affected by email failure."
                 }
             }
         }
