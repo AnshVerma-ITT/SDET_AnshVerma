@@ -251,7 +251,7 @@ pipeline {
                             Write-Host "Running tests on Chromium"
                             Write-Host "======================================"
 
-                            $env:BROWSER = "Chromium"
+                            $env:BROWSER_ENGINE_TYPE = "Chromium"
 
                             $chromiumArgs =
                                 New-Object System.Collections.Generic.List[string]
@@ -294,7 +294,7 @@ pipeline {
                             Write-Host "Running tests on WebKit"
                             Write-Host "======================================"
 
-                            $env:BROWSER = "WebKit"
+                            $env:BROWSER_ENGINE_TYPE = "WebKit"
 
                             $webkitArgs =
                                 New-Object System.Collections.Generic.List[string]
@@ -342,6 +342,11 @@ pipeline {
                                 "Running tests on $env:BROWSER"
 
                             Write-Host "======================================"
+
+                            # TestSettings reads BROWSER_ENGINE_TYPE. The Jenkins
+                            # BROWSER parameter is only the pipeline selection.
+                            $env:BROWSER_ENGINE_TYPE = $env:BROWSER
+                            Write-Host "Browser engine type: $env:BROWSER_ENGINE_TYPE"
 
                             $singleBrowserArgs =
                                 New-Object System.Collections.Generic.List[string]
@@ -427,6 +432,13 @@ pipeline {
                     powershell '''
 
                         $retryCount = [int]$env:RETRY_COUNT
+
+                        # Preserve the selected engine during retries. Environment
+                        # changes made in the previous PowerShell step do not persist.
+                        if ($env:BROWSER -ne "All") {
+                            $env:BROWSER_ENGINE_TYPE = $env:BROWSER
+                            Write-Host "Retry browser engine type: $env:BROWSER_ENGINE_TYPE"
+                        }
 
                         $summaryFile = $env:RETRY_SUMMARY
 
