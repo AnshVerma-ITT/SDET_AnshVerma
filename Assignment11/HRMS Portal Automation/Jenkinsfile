@@ -1,0 +1,1345 @@
+pipeline {
+
+    agent any
+
+    parameters {
+
+        choice(
+            name: 'EXECUTION_MODE',
+            choices: [
+                'Parallel',
+                'Sequential'
+            ],
+            description: 'Select test execution mode'
+        )
+
+        choice(
+            name: 'BROWSER',
+            choices: [
+                'Chromium',
+                'WebKit',
+                'All'
+            ],
+            description: 'Select browser'
+        )
+
+        choice(
+            name: 'TEST_CATEGORY',
+            choices: [
+                'All',
+                'smoke',
+                'regression'
+            ],
+            description: 'Select test category'
+        )
+
+        choice(
+            name: 'RETRY_COUNT',
+            choices: [
+                '0',
+                '1',
+                '2',
+                '3'
+            ],
+            description: 'Number of retries for failed tests'
+        )
+    }
+
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
+    environment {
+
+        PROJECT_FILE =
+            'Assignment11/HRMS Portal Automation/HRIntimeAutomation.csproj'
+
+        PROJECT_DIRECTORY =
+            'Assignment11/HRMS Portal Automation'
+
+        TEST_RESULTS =
+            'Assignment11/HRMS Portal Automation/TestResults'
+
+        ALLURE_RESULTS =
+            'Assignment11/HRMS Portal Automation/Reports/allure-results'
+
+        RETRY_SUMMARY =
+            'Assignment11/HRMS Portal Automation/TestResults/retry-summary.txt'
+
+        EMAIL_SUMMARY =
+            'Assignment11/HRMS Portal Automation/TestResults/email-summary.txt'
+    }
+
+    stages {
+
+        // ============================================================
+        // PREPARE
+        // ============================================================
+
+        stage('Prepare') {
+
+            steps {
+
+                powershell '''
+
+                    Write-Host "======================================"
+                    Write-Host "HRMS Jenkins Pipeline"
+                    Write-Host "======================================"
+                    Write-Host "Execution Mode : $env:EXECUTION_MODE"
+                    Write-Host "Browser        : $env:BROWSER"
+                    Write-Host "Category       : $env:TEST_CATEGORY"
+                    Write-Host "Retry Count    : $env:RETRY_COUNT"
+                    Write-Host "======================================"
+
+                    $projectDirectory = $env:PROJECT_DIRECTORY
+
+                    $testResults = Join-Path `
+                        $projectDirectory `
+                        "TestResults"
+
+                    $allureResults = Join-Path `
+                        $projectDirectory `
+                        "Reports/allure-results"
+
+                    if (Test-Path $testResults) {
+
+                        Remove-Item `
+                            $testResults `
+                            -Recurse `
+                            -Force
+                    }
+
+                    if (Test-Path $allureResults) {
+
+                        Remove-Item `
+                            $allureResults `
+                            -Recurse `
+                            -Force
+                    }
+
+                    New-Item `
+                        -ItemType Directory `
+                        -Force `
+                        -Path $testResults |
+                        Out-Null
+
+                    New-Item `
+                        -ItemType Directory `
+                        -Force `
+                        -Path $allureResults |
+                        Out-Null
+
+                    Write-Host "Test result directories prepared."
+                '''
+            }
+        }
+
+
+        // ============================================================
+        // RESTORE
+        // ============================================================
+
+        stage('Restore') {
+
+            steps {
+
+                bat '''
+                    dotnet restore "%PROJECT_FILE%"
+                '''
+            }
+        }
+
+
+        // ============================================================
+        // BUILD
+        // ============================================================
+
+        stage('Build') {
+
+            steps {
+
+                bat '''
+                    dotnet build "%PROJECT_FILE%" --no-restore
+                '''
+            }
+        }
+
+
+        // ============================================================
+        // RUN TESTS
+        // ============================================================
+
+        stage('Run Tests') {
+
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'hrms-login',
+                        usernameVariable: 'HRMS_USERNAME',
+                        passwordVariable: 'HRMS_PASSWORD'
+                    )
+                ]) {
+
+                    powershell '''
+
+                        Write-Host "======================================"
+                        Write-Host "Starting Test Execution"
+                        Write-Host "======================================"
+                        Write-Host "Credentials loaded from Jenkins."
+                        Write-Host "======================================"
+
+                        # ------------------------------------------------
+                        # Parallel / Sequential configuration
+                        # ------------------------------------------------
+
+                        if ($env:EXECUTION_MODE -eq "Parallel") {
+
+                            $env:PARALLEL_ENABLED = "true"
+                            $env:PARALLEL_WORKERS = "3"
+
+                            Write-Host "Parallel execution ENABLED"
+                            Write-Host "Parallel workers: 3"
+                        }
+                        else {
+
+                            $env:PARALLEL_ENABLED = "false"
+                            $env:PARALLEL_WORKERS = "1"
+
+                            Write-Host "Parallel execution DISABLED"
+                        }
+
+
+                        $overallExitCode = 0
+
+
+                        # ------------------------------------------------
+                        # Test category filter
+                        # ------------------------------------------------
+
+                        function Add-TestCategoryFilter {
+
+                            param (
+                                [System.Collections.Generic.List[string]]$Arguments
+                            )
+
+                            if ($env:TEST_CATEGORY -ne "All") {
+
+                                Write-Host `
+                                    "Running category: $env:TEST_CATEGORY"
+
+                                $Arguments.Add("--filter")
+
+                                $Arguments.Add(
+                                    "TestCategory=$env:TEST_CATEGORY"
+                                )
+                            }
+                        }
+
+
+                        # ------------------------------------------------
+                        # Run All Browsers
+                        # ------------------------------------------------
+
+                        if ($env:BROWSER -eq "All") {
+
+                            # ============================================
+                            # Chromium
+                            # ============================================
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on Chromium"
+                            Write-Host "======================================"
+
+                            $env:BROWSER_ENGINE_TYPE = "Chromium"
+
+                            $chromiumArgs =
+                                New-Object System.Collections.Generic.List[string]
+
+                            $chromiumArgs.Add($env:PROJECT_FILE)
+
+                            $chromiumArgs.Add("--no-build")
+
+                            $chromiumArgs.Add("--logger")
+
+                            $chromiumArgs.Add(
+                                "trx;LogFileName=chromium.trx"
+                            )
+
+                            Add-TestCategoryFilter $chromiumArgs
+
+                            dotnet test @chromiumArgs
+
+                            $chromiumExitCode = $LASTEXITCODE
+
+                            if ($chromiumExitCode -ne 0) {
+
+                                $overallExitCode = $chromiumExitCode
+
+                                Write-Host `
+                                    "Chromium tests contain failures."
+                            }
+                            else {
+
+                                Write-Host `
+                                    "Chromium tests completed successfully."
+                            }
+
+
+                            # ============================================
+                            # WebKit
+                            # ============================================
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on WebKit"
+                            Write-Host "======================================"
+
+                            $env:BROWSER_ENGINE_TYPE = "WebKit"
+
+                            $webkitArgs =
+                                New-Object System.Collections.Generic.List[string]
+
+                            $webkitArgs.Add($env:PROJECT_FILE)
+
+                            $webkitArgs.Add("--no-build")
+
+                            $webkitArgs.Add("--logger")
+
+                            $webkitArgs.Add(
+                                "trx;LogFileName=webkit.trx"
+                            )
+
+                            Add-TestCategoryFilter $webkitArgs
+
+                            dotnet test @webkitArgs
+
+                            $webkitExitCode = $LASTEXITCODE
+
+                            if ($webkitExitCode -ne 0) {
+
+                                $overallExitCode = $webkitExitCode
+
+                                Write-Host `
+                                    "WebKit tests contain failures."
+                            }
+                            else {
+
+                                Write-Host `
+                                    "WebKit tests completed successfully."
+                            }
+                        }
+
+
+                        # ------------------------------------------------
+                        # Run Single Browser
+                        # ------------------------------------------------
+
+                        else {
+
+                            Write-Host "======================================"
+
+                            Write-Host `
+                                "Running tests on $env:BROWSER"
+
+                            Write-Host "======================================"
+
+                            # TestSettings reads BROWSER_ENGINE_TYPE. The Jenkins
+                            # BROWSER parameter is only the pipeline selection.
+                            $env:BROWSER_ENGINE_TYPE = $env:BROWSER
+                            Write-Host "Browser engine type: $env:BROWSER_ENGINE_TYPE"
+
+                            $singleBrowserArgs =
+                                New-Object System.Collections.Generic.List[string]
+
+                            $singleBrowserArgs.Add(
+                                $env:PROJECT_FILE
+                            )
+
+                            $singleBrowserArgs.Add("--no-build")
+
+                            $singleBrowserArgs.Add("--logger")
+
+                            $singleBrowserArgs.Add(
+                                "trx;LogFileName=initial.trx"
+                            )
+
+                            Add-TestCategoryFilter $singleBrowserArgs
+
+                            dotnet test @singleBrowserArgs
+
+                            $overallExitCode = $LASTEXITCODE
+
+                            if ($overallExitCode -ne 0) {
+
+                                Write-Host `
+                                    "Initial test execution contains failures."
+                            }
+                            else {
+
+                                Write-Host `
+                                    "Initial test execution completed successfully."
+                            }
+                        }
+
+
+                        # ------------------------------------------------
+                        # Initial execution result
+                        # ------------------------------------------------
+
+                        Write-Host "======================================"
+                        Write-Host "Initial Test Execution Completed"
+                        Write-Host "Exit Code: $overallExitCode"
+                        Write-Host "======================================"
+
+
+                        if ($overallExitCode -ne 0) {
+
+                            Write-Host `
+                                "Initial failures detected."
+
+                            Write-Host `
+                                "The pipeline will continue to the retry stage."
+
+                            # Do not fail this stage.
+                            # Retry/report/archive stages must continue.
+
+                            exit 0
+                        }
+
+                        exit 0
+                    '''
+                }
+            }
+        }
+
+
+        // ============================================================
+        // RETRY FAILED TESTS
+        // ============================================================
+
+        stage('Retry Failed Tests') {
+
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'hrms-login',
+                        usernameVariable: 'HRMS_USERNAME',
+                        passwordVariable: 'HRMS_PASSWORD'
+                    )
+                ]) {
+
+                    powershell '''
+
+                        $retryCount = [int]$env:RETRY_COUNT
+
+                        # Preserve the selected engine during retries. Environment
+                        # changes made in the previous PowerShell step do not persist.
+                        if ($env:BROWSER -ne "All") {
+                            $env:BROWSER_ENGINE_TYPE = $env:BROWSER
+                            Write-Host "Retry browser engine type: $env:BROWSER_ENGINE_TYPE"
+                        }
+
+                        $summaryFile = $env:RETRY_SUMMARY
+
+
+                        if (Test-Path $summaryFile) {
+
+                            Remove-Item `
+                                $summaryFile `
+                                -Force
+                        }
+
+
+                        # ------------------------------------------------
+                        # Retry disabled
+                        # ------------------------------------------------
+
+                        if ($retryCount -eq 0) {
+
+                            Write-Host "======================================"
+                            Write-Host "Retry Disabled"
+                            Write-Host "======================================"
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=UNKNOWN"
+
+                            exit 0
+                        }
+
+
+                        Write-Host "======================================"
+                        Write-Host "Searching for Failed Tests"
+                        Write-Host "======================================"
+
+
+                        if (-not (Test-Path $env:TEST_RESULTS)) {
+
+                            Write-Host `
+                                "TestResults directory does not exist."
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=0"
+
+                            exit 0
+                        }
+
+
+                        # ------------------------------------------------
+                        # Get initial TRX files only
+                        # ------------------------------------------------
+
+                        $trxFiles = @(
+
+                            Get-ChildItem `
+                                -Path $env:TEST_RESULTS `
+                                -Filter "*.trx" `
+                                -File |
+
+                            Where-Object {
+
+                                $_.Name -eq "initial.trx" -or
+                                $_.Name -eq "chromium.trx" -or
+                                $_.Name -eq "webkit.trx"
+                            }
+                        )
+
+
+                        if ($trxFiles.Count -eq 0) {
+
+                            Write-Host "No initial TRX files found."
+                            Write-Host "Nothing to retry."
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=0"
+
+                            exit 0
+                        }
+
+
+                        # ------------------------------------------------
+                        # Find failed tests
+                        # ------------------------------------------------
+
+                        $failedTestNames =
+                            New-Object System.Collections.Generic.List[string]
+
+
+                        foreach ($trxFile in $trxFiles) {
+
+                            Write-Host "Reading: $($trxFile.Name)"
+
+                            try {
+
+                                [xml]$trx =
+                                    Get-Content `
+                                        -Path $trxFile.FullName `
+                                        -Raw
+
+
+                                $failedResults = @(
+
+                                    $trx.TestRun.Results.UnitTestResult |
+
+                                    Where-Object {
+
+                                        $_.outcome -eq "Failed"
+                                    }
+                                )
+
+
+                                foreach ($failedResult in $failedResults) {
+
+                                    $testName =
+                                        [string]$failedResult.testName
+
+
+                                    if (
+                                        -not [string]::IsNullOrWhiteSpace(
+                                            $testName
+                                        ) -and
+                                        -not $failedTestNames.Contains(
+                                            $testName
+                                        )
+                                    ) {
+
+                                        $failedTestNames.Add(
+                                            $testName
+                                        )
+                                    }
+                                }
+                            }
+
+                            catch {
+
+                                Write-Host `
+                                    "Could not read TRX file: $($trxFile.FullName)"
+
+                                Write-Host `
+                                    "Error: $($_.Exception.Message)"
+                            }
+                        }
+
+
+                        # ------------------------------------------------
+                        # No failed tests
+                        # ------------------------------------------------
+
+                        if ($failedTestNames.Count -eq 0) {
+
+                            Write-Host "======================================"
+                            Write-Host "No Failed Tests Found"
+                            Write-Host "======================================"
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=0"
+
+                            exit 0
+                        }
+
+
+                        # ------------------------------------------------
+                        # Display failed tests
+                        # ------------------------------------------------
+
+                        Write-Host "======================================"
+                        Write-Host "Failed Tests"
+                        Write-Host "======================================"
+
+
+                        foreach ($testName in $failedTestNames) {
+
+                            Write-Host "FAILED: $testName"
+                        }
+
+
+                        $remainingFailures =
+                            @($failedTestNames)
+
+
+                        # ------------------------------------------------
+                        # Retry loop
+                        # ------------------------------------------------
+
+                        for (
+
+                            $attempt = 1;
+
+                            $attempt -le $retryCount;
+
+                            $attempt++
+                        ) {
+
+                            if ($remainingFailures.Count -eq 0) {
+
+                                break
+                            }
+
+
+                            Write-Host "======================================"
+
+                            Write-Host `
+                                "Retry Attempt $attempt"
+
+                            Write-Host `
+                                "Tests to retry: $($remainingFailures.Count)"
+
+                            Write-Host "======================================"
+
+
+                            $nextFailures =
+                                New-Object System.Collections.Generic.List[string]
+
+
+                            foreach ($testName in $remainingFailures) {
+
+                                Write-Host "--------------------------------------"
+
+                                Write-Host `
+                                    "Retrying: $testName"
+
+                                Write-Host "--------------------------------------"
+
+
+                                $safeName =
+                                    $testName -replace `
+                                        '[^a-zA-Z0-9_-]', '_'
+
+
+                                $retryFileName =
+                                    "retry_${attempt}_${safeName}.trx"
+
+
+                                $retryArgs =
+                                    New-Object System.Collections.Generic.List[string]
+
+
+                                $retryArgs.Add(
+                                    $env:PROJECT_FILE
+                                )
+
+                                $retryArgs.Add("--no-build")
+
+                                $retryArgs.Add("--filter")
+
+                                $retryArgs.Add(
+                                    "Name~$testName"
+                                )
+
+                                $retryArgs.Add("--logger")
+
+                                $retryArgs.Add(
+                                    "trx;LogFileName=$retryFileName"
+                                )
+
+
+                                dotnet test @retryArgs
+
+                                $retryExitCode = $LASTEXITCODE
+
+
+                                if ($retryExitCode -ne 0) {
+
+                                    Write-Host `
+                                        "FAILED AGAIN: $testName"
+
+                                    $nextFailures.Add(
+                                        $testName
+                                    )
+                                }
+                                else {
+
+                                    Write-Host `
+                                        "PASSED ON RETRY: $testName"
+                                }
+                            }
+
+
+                            $remainingFailures =
+                                @($nextFailures)
+                        }
+
+
+                        # ------------------------------------------------
+                        # Retry summary
+                        # ------------------------------------------------
+
+                        Write-Host "======================================"
+                        Write-Host "Retry Summary"
+                        Write-Host "======================================"
+
+
+                        if ($remainingFailures.Count -gt 0) {
+
+                            Write-Host `
+                                "Tests still failing after retries:"
+
+
+                            foreach ($testName in $remainingFailures) {
+
+                                Write-Host "FAILED: $testName"
+                            }
+
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=$($remainingFailures.Count)"
+
+
+                            Write-Host `
+                                "Remaining failure count: $($remainingFailures.Count)"
+                        }
+                        else {
+
+                            Write-Host `
+                                "All previously failed tests passed during retry."
+
+
+                            Set-Content `
+                                -Path $summaryFile `
+                                -Value "RemainingFailures=0"
+                        }
+
+
+                        # Retry stage itself should not fail.
+                        # Final result is decided in post actions.
+
+                        exit 0
+                    '''
+                }
+            }
+        }
+
+
+        // ============================================================
+        // ALLURE REPORT
+        // ============================================================
+
+        stage('Allure Report') {
+
+            steps {
+
+                script {
+
+                    allure(
+
+                        includeProperties: false,
+
+                        jdk: '',
+
+                        results: [
+                            [
+                                path: "${env.ALLURE_RESULTS}"
+                            ]
+                        ]
+                    )
+                }
+            }
+        }
+
+
+        // ============================================================
+        // ARCHIVE RESULTS
+        // ============================================================
+
+        stage('Archive Results') {
+
+            steps {
+
+                archiveArtifacts(
+
+                    artifacts:
+                        'Assignment11/HRMS Portal Automation/TestResults/**/*.trx, ' +
+                        'Assignment11/HRMS Portal Automation/TestResults/*.txt, ' +
+                        'Assignment11/HRMS Portal Automation/Screenshots/**/*, ' +
+                        'Assignment11/HRMS Portal Automation/Traces/**/*',
+
+                    allowEmptyArchive: true
+                )
+            }
+        }
+    }
+
+
+    // ================================================================
+    // POST ACTIONS
+    // ================================================================
+
+    post {
+
+        always {
+
+            script {
+
+                echo "======================================"
+                echo "Generating Final Test Summary"
+                echo "======================================"
+
+
+                // ----------------------------------------------------
+                // Generate email summary directly from TRX XML
+                // ----------------------------------------------------
+
+                powershell '''
+
+                    $resultsDirectory =
+                        Join-Path `
+                            $env:WORKSPACE `
+                            "Assignment11\\HRMS Portal Automation\\TestResults"
+
+
+                    $summaryFile =
+                        Join-Path `
+                            $env:WORKSPACE `
+                            "Assignment11\\HRMS Portal Automation\\TestResults\\email-summary.txt"
+
+
+                    $totalTests = 0
+                    $passedTests = 0
+                    $failedTests = 0
+                    $skippedTests = 0
+
+
+                    Write-Host "======================================"
+                    Write-Host "Reading TRX Test Results"
+                    Write-Host "======================================"
+
+
+                    if (Test-Path $resultsDirectory) {
+
+                        $trxFiles = @(
+
+                            Get-ChildItem `
+                                -Path $resultsDirectory `
+                                -Filter "*.trx" `
+                                -File |
+
+                            Where-Object {
+
+                                $_.Name -eq "initial.trx" -or
+                                $_.Name -eq "chromium.trx" -or
+                                $_.Name -eq "webkit.trx"
+                            }
+                        )
+
+
+                        if ($trxFiles.Count -eq 0) {
+
+                            Write-Host "No initial TRX files found."
+                        }
+
+
+                        foreach ($trxFile in $trxFiles) {
+
+                            Write-Host `
+                                "Processing TRX: $($trxFile.Name)"
+
+
+                            try {
+
+                                [xml]$trx =
+                                    Get-Content `
+                                        -Path $trxFile.FullName `
+                                        -Raw
+
+
+                                # ----------------------------------------
+                                # Read TestRun counters
+                                # ----------------------------------------
+
+                                $counters =
+                                    $trx.TestRun.ResultSummary.Counters
+
+
+                                if ($null -ne $counters) {
+
+                                    $fileTotal =
+                                        [int]$counters.total
+
+
+                                    $filePassed =
+                                        [int]$counters.passed
+
+
+                                    $fileFailed =
+                                        [int]$counters.failed
+
+
+                                    $fileSkipped = 0
+
+
+                                    # ------------------------------------
+                                    # Calculate skipped / not executed
+                                    # ------------------------------------
+
+                                    if ($null -ne $counters.notExecuted) {
+
+                                        $fileSkipped =
+                                            [int]$counters.notExecuted
+                                    }
+
+                                    elseif ($null -ne $counters.inconclusive) {
+
+                                        $fileSkipped =
+                                            [int]$counters.inconclusive
+                                    }
+
+                                    else {
+
+                                        $fileSkipped =
+                                            $fileTotal -
+                                            $filePassed -
+                                            $fileFailed
+
+
+                                        if ($fileSkipped -lt 0) {
+
+                                            $fileSkipped = 0
+                                        }
+                                    }
+
+
+                                    $totalTests += $fileTotal
+
+                                    $passedTests += $filePassed
+
+                                    $failedTests += $fileFailed
+
+                                    $skippedTests += $fileSkipped
+
+
+                                    Write-Host `
+                                        "Total   : $fileTotal"
+
+                                    Write-Host `
+                                        "Passed  : $filePassed"
+
+                                    Write-Host `
+                                        "Failed  : $fileFailed"
+
+                                    Write-Host `
+                                        "Skipped : $fileSkipped"
+                                }
+
+
+                                else {
+
+                                    # ------------------------------------
+                                    # Fallback: count UnitTestResult
+                                    # ------------------------------------
+
+                                    Write-Host `
+                                        "Counters not found. Using UnitTestResult fallback."
+
+
+                                    $results = @(
+                                        $trx.TestRun.Results.UnitTestResult
+                                    )
+
+
+                                    foreach ($result in $results) {
+
+                                        $totalTests++
+
+
+                                        switch ($result.outcome) {
+
+                                            "Passed" {
+
+                                                $passedTests++
+                                            }
+
+                                            "Failed" {
+
+                                                $failedTests++
+                                            }
+
+                                            "NotExecuted" {
+
+                                                $skippedTests++
+                                            }
+
+                                            "Skipped" {
+
+                                                $skippedTests++
+                                            }
+
+                                            default {
+
+                                                $skippedTests++
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
+                            catch {
+
+                                Write-Host `
+                                    "Could not read TRX file: $($trxFile.FullName)"
+
+                                Write-Host `
+                                    "Error: $($_.Exception.Message)"
+                            }
+                        }
+                    }
+
+
+                    # ----------------------------------------------------
+                    # Final console summary
+                    # ----------------------------------------------------
+
+                    Write-Host "======================================"
+                    Write-Host "FINAL TEST SUMMARY"
+                    Write-Host "======================================"
+
+                    Write-Host `
+                        "Total Tests   : $totalTests"
+
+                    Write-Host `
+                        "Passed Tests  : $passedTests"
+
+                    Write-Host `
+                        "Failed Tests  : $failedTests"
+
+                    Write-Host `
+                        "Skipped Tests : $skippedTests"
+
+                    Write-Host "======================================"
+
+
+                    # ----------------------------------------------------
+                    # Write summary file for Jenkins/Groovy
+                    # ----------------------------------------------------
+
+                    @"
+TOTAL=$totalTests
+PASSED=$passedTests
+FAILED=$failedTests
+SKIPPED=$skippedTests
+"@ |
+                        Set-Content `
+                            -Path $summaryFile `
+                            -Encoding UTF8
+                '''
+
+
+                // ----------------------------------------------------
+                // Read summary generated by PowerShell
+                // ----------------------------------------------------
+
+                def summaryFile =
+                    'Assignment11/HRMS Portal Automation/TestResults/email-summary.txt'
+
+
+                def passedTests = 0
+                def failedTests = 0
+                def totalTests = 0
+                def skippedTests = 0
+
+
+                if (fileExists(summaryFile)) {
+
+                    def summary =
+                        readFile(summaryFile)
+
+
+                    def totalMatch =
+                        summary =~ /TOTAL=(\d+)/
+
+                    def passedMatch =
+                        summary =~ /PASSED=(\d+)/
+
+                    def failedMatch =
+                        summary =~ /FAILED=(\d+)/
+
+                    def skippedMatch =
+                        summary =~ /SKIPPED=(\d+)/
+
+
+                    if (totalMatch.find()) {
+
+                        totalTests =
+                            totalMatch[0][1].toInteger()
+                    }
+
+
+                    if (passedMatch.find()) {
+
+                        passedTests =
+                            passedMatch[0][1].toInteger()
+                    }
+
+
+                    if (failedMatch.find()) {
+
+                        failedTests =
+                            failedMatch[0][1].toInteger()
+                    }
+
+
+                    if (skippedMatch.find()) {
+
+                        skippedTests =
+                            skippedMatch[0][1].toInteger()
+                    }
+                }
+
+
+                // ----------------------------------------------------
+                // Read retry result
+                // ----------------------------------------------------
+
+                def remainingFailures = 0
+
+
+                if (fileExists(env.RETRY_SUMMARY)) {
+
+                    def retrySummary =
+                        readFile(env.RETRY_SUMMARY).trim()
+
+
+                    def retryMatch =
+                        retrySummary =~ /RemainingFailures=(\d+)/
+
+
+                    if (retryMatch.find()) {
+
+                        remainingFailures =
+                            retryMatch[0][1].toInteger()
+                    }
+                }
+
+
+                // ----------------------------------------------------
+                // Determine final build result
+                // ----------------------------------------------------
+
+                def initialFailures =
+                    failedTests
+
+
+                def finalFailedTests =
+                    remainingFailures
+
+
+                if (params.RETRY_COUNT == '0') {
+
+                    if (initialFailures > 0) {
+
+                        finalFailedTests = initialFailures
+
+                        currentBuild.result = 'FAILURE'
+                    }
+                    else {
+
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
+                    }
+                }
+
+                else {
+
+                    if (remainingFailures > 0) {
+
+                        finalFailedTests = remainingFailures
+
+                        currentBuild.result = 'FAILURE'
+                    }
+
+                    else if (initialFailures > 0) {
+
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
+                    }
+
+                    else {
+
+                        finalFailedTests = 0
+
+                        currentBuild.result = 'SUCCESS'
+                    }
+                }
+
+
+                def buildStatus =
+                    currentBuild.currentResult
+
+
+                // ----------------------------------------------------
+                // Pass percentage
+                // ----------------------------------------------------
+
+                def passPercentage =
+                    totalTests > 0
+                        ? String.format(
+                            "%.2f",
+                            (passedTests * 100.0 / totalTests)
+                        )
+                        : "0.00"
+
+
+                // ----------------------------------------------------
+                // Email body
+                // ----------------------------------------------------
+
+                def emailBody = """
+
+HRMS Portal Automation - Jenkins Build
+
+========================================
+BUILD INFORMATION
+========================================
+
+Build Number   : ${env.BUILD_NUMBER}
+Build Status   : ${buildStatus}
+Build Duration : ${currentBuild.durationString}
+
+========================================
+TEST SUMMARY
+========================================
+
+Initial Total Tests  : ${totalTests}
+Initial Passed Tests : ${passedTests}
+Initial Failed Tests : ${failedTests}
+Initial Skipped Tests: ${skippedTests}
+
+Remaining Failures   : ${finalFailedTests}
+
+Pass Percentage      : ${passPercentage}%
+
+========================================
+EXECUTION DETAILS
+========================================
+
+Browser        : ${params.BROWSER}
+Execution Mode : ${params.EXECUTION_MODE}
+Test Category  : ${params.TEST_CATEGORY}
+Retry Count    : ${params.RETRY_COUNT}
+
+========================================
+REPORTS
+========================================
+
+Detailed Allure Report:
+
+${env.BUILD_URL}allure/
+
+
+Jenkins Build:
+
+${env.BUILD_URL}
+
+========================================
+"""
+
+
+                // ----------------------------------------------------
+                // Print email content in Jenkins console
+                // ----------------------------------------------------
+
+                echo "======================================"
+                echo "EMAIL SUMMARY"
+                echo "======================================"
+
+                echo emailBody
+
+                echo "======================================"
+
+
+                // ----------------------------------------------------
+                // Send email
+                // ----------------------------------------------------
+
+                try {
+
+                    mail(
+
+                        to: 'anshav14@gmail.com',
+
+                        subject:
+                            "HRMS Automation - Build #${env.BUILD_NUMBER} - ${buildStatus}",
+
+                        body: emailBody
+                    )
+
+                    echo "Email notification sent successfully."
+                }
+
+                catch (Exception e) {
+
+                    echo "Email notification failed: ${e.getMessage()}"
+
+                    echo "Pipeline result will not be affected by email failure."
+                }
+            }
+        }
+    }
+}

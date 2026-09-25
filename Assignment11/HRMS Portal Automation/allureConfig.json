@@ -1,0 +1,7 @@
+{
+  "allure": {
+    "directory": "../../../Reports/allure-results",
+    "links": [],
+    "failExceptions": []
+  }
+}
