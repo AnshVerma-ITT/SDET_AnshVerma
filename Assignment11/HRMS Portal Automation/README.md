@@ -336,9 +336,19 @@ dotnet build .\HRIntimeAutomation.csproj
 
 ### Install Playwright browsers on a new environment
 
+Install all Playwright browser engines:
+
 ```powershell
 pwsh .\bin\Debug\net10.0\playwright.ps1 install
 ```
+
+Install only Firefox:
+
+```powershell
+pwsh .\bin\Debug\net10.0\playwright.ps1 install firefox
+```
+
+The framework supports `Chromium`, `WebKit`, and `Firefox`. In Jenkins, selecting `All` executes the suite once on each of these three browser engines.
 
 ### Run all tests
 

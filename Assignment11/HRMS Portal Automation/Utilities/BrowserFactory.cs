@@ -19,7 +19,10 @@ public static class BrowserFactory
         if (settings.BrowserEngineType.Equals(BrowserEngineTypes.WebKit, StringComparison.OrdinalIgnoreCase))
             return playwright.Webkit.LaunchAsync(options);
 
+        if (settings.BrowserEngineType.Equals(BrowserEngineTypes.Firefox, StringComparison.OrdinalIgnoreCase))
+            return playwright.Firefox.LaunchAsync(options);
+
         throw new InvalidOperationException(
-            $"Unsupported browser engine type: {settings.BrowserEngineType}. Use Chromium or WebKit.");
+            $"Unsupported browser engine type: {settings.BrowserEngineType}. Use Chromium, WebKit, or Firefox.");
     }
 }

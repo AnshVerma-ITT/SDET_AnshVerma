@@ -18,6 +18,7 @@ pipeline {
             choices: [
                 'Chromium',
                 'WebKit',
+                'Firefox',
                 'All'
             ],
             description: 'Select browser'
@@ -327,6 +328,49 @@ pipeline {
                                 Write-Host `
                                     "WebKit tests completed successfully."
                             }
+
+
+                            # ============================================
+                            # Firefox
+                            # ============================================
+
+                            Write-Host "======================================"
+                            Write-Host "Running tests on Firefox"
+                            Write-Host "======================================"
+
+                            $env:BROWSER_ENGINE_TYPE = "Firefox"
+
+                            $firefoxArgs =
+                                New-Object System.Collections.Generic.List[string]
+
+                            $firefoxArgs.Add($env:PROJECT_FILE)
+
+                            $firefoxArgs.Add("--no-build")
+
+                            $firefoxArgs.Add("--logger")
+
+                            $firefoxArgs.Add(
+                                "trx;LogFileName=firefox.trx"
+                            )
+
+                            Add-TestCategoryFilter $firefoxArgs
+
+                            dotnet test @firefoxArgs
+
+                            $firefoxExitCode = $LASTEXITCODE
+
+                            if ($firefoxExitCode -ne 0) {
+
+                                $overallExitCode = $firefoxExitCode
+
+                                Write-Host `
+                                    "Firefox tests contain failures."
+                            }
+                            else {
+
+                                Write-Host `
+                                    "Firefox tests completed successfully."
+                            }
                         }
 
 
@@ -502,7 +546,8 @@ pipeline {
 
                                 $_.Name -eq "initial.trx" -or
                                 $_.Name -eq "chromium.trx" -or
-                                $_.Name -eq "webkit.trx"
+                                $_.Name -eq "webkit.trx" -or
+                                $_.Name -eq "firefox.trx"
                             }
                         )
 
@@ -882,7 +927,8 @@ pipeline {
 
                                 $_.Name -eq "initial.trx" -or
                                 $_.Name -eq "chromium.trx" -or
-                                $_.Name -eq "webkit.trx"
+                                $_.Name -eq "webkit.trx" -or
+                                $_.Name -eq "firefox.trx"
                             }
                         )
 

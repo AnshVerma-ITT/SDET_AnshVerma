@@ -129,7 +129,7 @@ public sealed class TestSettings
         {
             throw new InvalidOperationException(
                 $"Unsupported browser engine type '{BrowserEngineType}'. " +
-                "Use Chromium or WebKit.");
+                "Use Chromium, WebKit, or Firefox.");
         }
 
         if (TimeoutMilliseconds <= 0
