@@ -19,7 +19,7 @@ public sealed class TestHooks
     }
 
 
-    [BeforeScenario(Order = 10)]
+    [BeforeScenario]
     public async Task BeforeScenarioAsync()
     {
         if (_scenarioContext.ScenarioInfo.CombinedTags.Any(tag =>
@@ -44,7 +44,7 @@ public sealed class TestHooks
         _context.LogoutPage = new LogoutPage(page);
     }
 
-    [AfterScenario(Order = 100)]
+    [AfterScenario]
     public async Task AfterScenarioAsync()
     {
         if (_context.Driver is not null)
