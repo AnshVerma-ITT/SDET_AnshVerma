@@ -579,21 +579,3 @@ Finally, integration with a **Jenkins pipeline** enables Continuous Integration 
 
 Therefore, this project is not simply a collection of automated UI scripts. It is a structured **BDD-based UI test automation framework with controlled execution, business-level test coverage, diagnostics, reporting, and CI integration**, designed to provide repeatable validation of the HRINTIME application.
 
-## 24. Production-safe configuration
-
-The unavailable `hrms-test` host has been replaced by `https://hrms.intimetec.com`; all application paths are centralized in `Configuration/AppRoutes.cs`. The framework defaults to safe production behavior:
-
-- `@dataMutation` tests are skipped unless `ALLOW_PRODUCTION_MUTATIONS=true`.
-- account-risk login variations are skipped unless `ALLOW_ACCOUNT_RISK_TESTS=true`.
-- screenshots and traces are disabled on production unless `ALLOW_PRODUCTION_ARTIFACTS=true`.
-- mutating scenarios are serialized to protect a shared account.
-
-Employee expectations are maintained directly in `TestData/ProfileTestData.cs`. The local `.env` remains ignored and must never be committed.
-
-Run safe read-only coverage with:
-
-```powershell
-dotnet test .\HRIntimeAutomation.csproj --filter "TestCategory=readOnly&TestCategory!=accountRisk"
-```
-
-See `Documentation/TestCaseSummary.md` for the complete concise suite, and `Documentation/RedTeamReview.md` plus `Documentation/RecommendedTestCases.md` for the security review and coverage backlog.
