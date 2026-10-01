@@ -15,6 +15,10 @@ public sealed class TestSettings
     private const string TimeoutVariable = "TIMEOUT_MILLISECONDS";
     private const string ResponseTimeoutVariable = "RESPONSE_TIMEOUT_MILLISECONDS";
     private const string ArtifactsDirectoryVariable = "HRMS_ARTIFACTS_DIR";
+    private const string AllowProductionMutationsVariable = "ALLOW_PRODUCTION_MUTATIONS";
+    private const string AllowAccountRiskTestsVariable = "ALLOW_ACCOUNT_RISK_TESTS";
+    private const string AllowProductionArtifactsVariable = "ALLOW_PRODUCTION_ARTIFACTS";
+    private const string ProductionHost = "hrms.intimetec.com";
 
     public required string BaseUrl { get; init; }
     public required string BrowserEngineType { get; init; }
@@ -29,6 +33,12 @@ public sealed class TestSettings
     public required string ArtifactsDirectory { get; init; }
     public required string TestIdAttribute { get; init; }
     public string ApplicationTimeZoneId { get; init; } = string.Empty;
+    public bool AllowProductionMutations { get; init; }
+    public bool AllowAccountRiskTests { get; init; }
+    public bool AllowProductionArtifacts { get; init; }
+    public bool IsProduction => Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri)
+        && uri.Host.Equals(ProductionHost, StringComparison.OrdinalIgnoreCase);
+    public bool FailureArtifactsEnabled => !IsProduction || AllowProductionArtifacts;
 
     public static TestSettings Load()
     {
@@ -108,7 +118,10 @@ public sealed class TestSettings
 
             TestIdAttribute = TestIdAttribute,
 
-            ApplicationTimeZoneId = ApplicationTimeZoneId
+            ApplicationTimeZoneId = ApplicationTimeZoneId,
+            AllowProductionMutations = GetBoolean(AllowProductionMutationsVariable, false),
+            AllowAccountRiskTests = GetBoolean(AllowAccountRiskTestsVariable, false),
+            AllowProductionArtifacts = GetBoolean(AllowProductionArtifactsVariable, false)
         };
     }
 
@@ -118,11 +131,10 @@ public sealed class TestSettings
                 BaseUrl,
                 UriKind.Absolute,
                 out var baseUri)
-            || (baseUri.Scheme != Uri.UriSchemeHttp
-                && baseUri.Scheme != Uri.UriSchemeHttps))
+            || (baseUri.Scheme != Uri.UriSchemeHttps && !baseUri.IsLoopback))
         {
             throw new InvalidOperationException(
-                "baseUrl/HRMS_BASE_URL must be an absolute HTTP or HTTPS URL.");
+                "baseUrl/HRMS_BASE_URL must use HTTPS (HTTP is allowed only for loopback testing).");
         }
 
         if (!BrowserEngineTypes.IsSupported(BrowserEngineType))
@@ -184,9 +196,11 @@ public sealed class TestSettings
     {
         var value = Environment.GetEnvironmentVariable(variable);
 
-        return string.IsNullOrWhiteSpace(value)
-            ? fallback
-            : bool.Parse(value);
+        if (string.IsNullOrWhiteSpace(value))
+            return fallback;
+        return bool.TryParse(value, out var result)
+            ? result
+            : throw new InvalidOperationException($"{variable} must be 'true' or 'false'.");
     }
 
     private static int GetInteger(
@@ -195,11 +209,10 @@ public sealed class TestSettings
     {
         var value = Environment.GetEnvironmentVariable(variable);
 
-        return string.IsNullOrWhiteSpace(value)
-            ? fallback
-            : int.Parse(
-                value,
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture);
+        if (string.IsNullOrWhiteSpace(value))
+            return fallback;
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : throw new InvalidOperationException($"{variable} must be a whole number.");
     }
 }

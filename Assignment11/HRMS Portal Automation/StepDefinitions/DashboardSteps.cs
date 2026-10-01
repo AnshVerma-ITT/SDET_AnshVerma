@@ -12,9 +12,6 @@ public sealed class DashboardSteps
 
     public DashboardSteps(ScenarioTestContext context) => _context = context;
 
-    [When("I navigate to the Dashboard")]
-    public Task WhenINavigateToTheDashboard() => _context.DashboardPage.NavigateToDashboardAsync();
-
     [Then("the calendar should show the current date month and year")]
     public async Task ThenTheCalendarShouldShowTheCurrentDateMonthAndYear()
     {

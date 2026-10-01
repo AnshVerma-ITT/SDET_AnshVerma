@@ -1,4 +1,5 @@
 using System.Globalization;
+using HRIntimeAutomation.Configuration;
 using HRIntimeAutomation.Context;
 using HRIntimeAutomation.TestData;
 using Microsoft.Playwright;
@@ -14,40 +15,40 @@ public sealed class AttendanceRecordSteps
 
     public AttendanceRecordSteps(ScenarioTestContext context) => _context = context;
 
-    [When("I select a four day attendance range containing Saturday and Sunday")]
-    public async Task WhenISelectAFourDayAttendanceRangeContainingSaturdayAndSunday() =>
-        _context.AttendanceRange = await _context.AttendanceRecordPage
+    [When("I select a completed four-day period that includes Saturday and Sunday")]
+    public async Task SelectCompletedFourDayPeriodContainingWeekend() =>
+        _context.AttendanceDates = await _context.AttendanceRecordPage
             .SelectFourDayRangeContainingWeekendAsync();
 
-    [When("I select a recent weekday attendance range of {int} days")]
-    public async Task WhenISelectARecentWeekdayAttendanceRange(int rangeLengthDays) =>
-        _context.AttendanceRange = await _context.AttendanceRecordPage
+    [When("I select a completed weekday period of {int} days")]
+    public async Task SelectCompletedWeekdayPeriod(int rangeLengthDays) =>
+        _context.AttendanceDates = await _context.AttendanceRecordPage
             .SelectRecentWeekdayRangeAsync(rangeLengthDays);
 
-    [Then("the attendance records and Weekly Off filter should be correct")]
-    public async Task ThenTheAttendanceRecordsAndWeeklyOffFilterShouldBeCorrect()
+    [Then("one attendance record should appear for every selected date")]
+    public async Task OneAttendanceRecordAppearsForEachSelectedDate()
     {
-        Assert.That(_context.AttendanceRange, Is.Not.Null,
-            "The attendance date range was not saved by the When step.");
-        var selection = _context.AttendanceRange!;
-        var expectedRange = $"{selection.StartDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}" +
-            $"{AttendanceTestData.RangeSeparator}" +
-            $"{selection.EndDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}";
-
-        await Assertions.Expect(_context.AttendanceRecordPage.DateRangeField)
-            .ToHaveValueAsync(expectedRange);
+        await AssertAttendancePageAndSelectedRangeAsync();
         await Assertions.Expect(_context.AttendanceRecordPage.AttendanceRows)
-            .ToHaveCountAsync(AttendanceTestData.SelectedRangeRecordCount);
+            .ToHaveCountAsync(_context.AttendanceDates.Count);
 
-        foreach (var date in selection.ExpectedDates)
+        foreach (var date in _context.AttendanceDates)
         {
             var row = _context.AttendanceRecordPage.RowForDate(date);
             await Assertions.Expect(row).ToHaveCountAsync(1);
             await Assertions.Expect(row).ToBeVisibleAsync();
         }
+    }
 
-        foreach (var weekendDate in selection.ExpectedDates
-                     .Where(date => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday))
+    [Then("the Weekly Off filter should show only the selected Saturday and Sunday")]
+    public async Task WeeklyOffFilterShowsOnlySelectedWeekendDates()
+    {
+        var weekendDates = _context.AttendanceDates
+            .Where(date => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+            .ToArray();
+        Assert.That(weekendDates, Has.Length.EqualTo(AttendanceTestData.FilteredWeekendRecordCount));
+
+        foreach (var weekendDate in weekendDates)
         {
             await Assertions.Expect(_context.AttendanceRecordPage.RowForDate(weekendDate))
                 .ToContainTextAsync(AttendanceTestData.WeeklyOffRecordStatus);
@@ -57,10 +58,9 @@ public sealed class AttendanceRecordSteps
         await Assertions.Expect(_context.AttendanceRecordPage.StatusField)
             .ToHaveValueAsync(AttendanceTestData.WeeklyOffFilter);
         await Assertions.Expect(_context.AttendanceRecordPage.AttendanceRows)
-            .ToHaveCountAsync(AttendanceTestData.FilteredWeekendRecordCount);
+            .ToHaveCountAsync(weekendDates.Length);
 
-        foreach (var weekendDate in selection.ExpectedDates
-                     .Where(date => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday))
+        foreach (var weekendDate in weekendDates)
         {
             var row = _context.AttendanceRecordPage.RowForDate(weekendDate);
             await Assertions.Expect(row).ToHaveCountAsync(1);
@@ -68,25 +68,33 @@ public sealed class AttendanceRecordSteps
         }
     }
 
-    [Then("only records within the selected attendance range should appear")]
-    public async Task ThenOnlyRecordsWithinTheSelectedAttendanceRangeShouldAppear()
+    [Then("no attendance record should fall outside the selected period")]
+    public async Task NoAttendanceRecordFallsOutsideSelectedPeriod()
     {
-        Assert.That(_context.AttendanceRange, Is.Not.Null);
-        var selection = _context.AttendanceRange!;
-        var expectedRange = $"{selection.StartDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}" +
-            $"{AttendanceTestData.RangeSeparator}" +
-            $"{selection.EndDate.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}";
+        await AssertAttendancePageAndSelectedRangeAsync();
+        var expectedLabels = _context.AttendanceDates
+            .Select(date => date.ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture))
+            .ToHashSet(StringComparer.Ordinal);
+        var rows = await _context.AttendanceRecordPage.AttendanceRows.AllInnerTextsAsync();
 
-        await Assertions.Expect(_context.AttendanceRecordPage.DateRangeField)
-            .ToHaveValueAsync(expectedRange);
-        await Assertions.Expect(_context.AttendanceRecordPage.AttendanceRows)
-            .ToHaveCountAsync(selection.ExpectedDates.Count);
-
-        foreach (var expectedDate in selection.ExpectedDates)
+        Assert.Multiple(() =>
         {
-            var row = _context.AttendanceRecordPage.RowForDate(expectedDate);
-            await Assertions.Expect(row).ToHaveCountAsync(1);
-            await Assertions.Expect(row).ToBeVisibleAsync();
-        }
+            foreach (var row in rows)
+            {
+                Assert.That(expectedLabels.Any(row.Contains), Is.True,
+                    $"Attendance row was outside the selected period: {row}");
+            }
+        });
+    }
+
+    private async Task AssertAttendancePageAndSelectedRangeAsync()
+    {
+        Assert.That(_context.AttendanceDates, Is.Not.Empty,
+            "The attendance period was not saved by the When step.");
+        await _context.AttendanceRecordPage.Pages.AssertUrlAsync(AppRoutes.AttendanceRecord);
+        var expectedRange = $"{_context.AttendanceDates.First().ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}" +
+            $"{AttendanceTestData.RangeSeparator}" +
+            $"{_context.AttendanceDates.Last().ToString(AttendanceTestData.RecordDateFormat, CultureInfo.InvariantCulture)}";
+        await Assertions.Expect(_context.AttendanceRecordPage.DateRangeField).ToHaveValueAsync(expectedRange);
     }
 }

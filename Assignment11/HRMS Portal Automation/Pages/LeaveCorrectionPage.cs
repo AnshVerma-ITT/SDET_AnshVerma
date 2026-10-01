@@ -25,7 +25,13 @@ public sealed class LeaveCorrectionPage : BasePage
     private const string ValidationSelector = ".mantine-InputWrapper-error:visible, [data-error='true']:visible";
     private const int ValidationResponseTimeoutMilliseconds = 3000;
 
-    public LeaveCorrectionPage(IPage page) : base(page) { }
+    public LeaveCorrectionPage(IPage page, string baseUrl) : base(page, baseUrl) { }
+
+    public string LastOmittedField { get; private set; } = string.Empty;
+    public bool LastSubmitButtonEnabled { get; private set; }
+    public bool LastDialogVisible { get; private set; }
+    public IReadOnlyList<string> LastValidationMessages { get; private set; } = [];
+    public string? LastValidationNotification { get; private set; }
 
     private ILocator ApplyCorrectionButton => Page.GetByRole(AriaRole.Button,
         new() { Name = ApplyCorrectionButtonName, Exact = true });
@@ -93,7 +99,7 @@ public sealed class LeaveCorrectionPage : BasePage
             .Filter(new() { HasText = correctionType })
             .First;
 
-    public async Task<FormValidationResult> SubmitIncompleteCorrectionAsync(
+    public async Task SubmitIncompleteCorrectionAsync(
         string omittedField,
         LeaveCorrectionRequest request)
     {
@@ -117,9 +123,10 @@ public sealed class LeaveCorrectionPage : BasePage
 
         await DescriptionField.FillAsync($"{request.DescriptionPrefix}_VALIDATION");
 
-        var submitButtonEnabled = await SubmitButton.IsEnabledAsync();
+        LastOmittedField = omittedField;
+        LastSubmitButtonEnabled = await SubmitButton.IsEnabledAsync();
         string? notificationText = null;
-        if (submitButtonEnabled)
+        if (LastSubmitButtonEnabled)
         {
             await SubmitButton.ClickAsync();
             try
@@ -137,16 +144,10 @@ public sealed class LeaveCorrectionPage : BasePage
             }
         }
 
-        return new FormValidationResult(
-            ApplyCorrectionButtonName,
-            omittedField,
-            submitButtonEnabled,
-            await ApplyCorrectionDialog.IsVisibleAsync(),
-            (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
-                .Select(message => message.Trim())
-                .Where(message => message.Length > 0)
-                .ToArray(),
-            notificationText);
+        LastDialogVisible = await ApplyCorrectionDialog.IsVisibleAsync();
+        LastValidationMessages = (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
+            .Select(message => message.Trim()).Where(message => message.Length > 0).ToArray();
+        LastValidationNotification = notificationText;
     }
 
     private async Task WaitForSubmissionNotificationAsync(int responseTimeoutMilliseconds)

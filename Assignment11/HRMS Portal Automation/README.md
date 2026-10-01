@@ -115,6 +115,9 @@ Manages application routes, browser engine types, environment/configuration load
 ### `Utilities/`
 Contains reusable browser/framework infrastructure such as browser lifecycle and launch/context factories.
 
+### `Wrappers/`
+Contains reusable element and page actions. `PageActions` owns navigation and exact route assertions so every opened HRMS page is checked consistently.
+
 ### `Hooks/TestHooks.cs`
 Executes framework setup and teardown around BDD scenarios, including browser/context creation and failure-artifact capture.
 
@@ -122,7 +125,7 @@ Executes framework setup and teardown around BDD scenarios, including browser/co
 Provides scenario-scoped storage for page objects and actual results shared between steps.
 
 ### `Models/`
-Contains structured result/request records passed between pages and step definitions.
+Contains only request/result records that carry real workflow data. Transient UI validation state stays on the relevant page object instead of creating scenario DTOs.
 
 ## 6. Page Object Model
 
@@ -132,7 +135,7 @@ This improves maintainability because a locator change can usually be corrected 
 
 ## 7. Credentials and `.env`
 
-Credentials should never be hardcoded in feature files, Page Objects, Step Definitions, or source control.
+Real credentials should never be hardcoded in feature files, Page Objects, Step Definitions, or source control. Deliberately fake invalid values are explicit in the login scenarios/steps so there is no token-switching layer.
 
 A local `.env` can contain:
 
@@ -168,21 +171,20 @@ The automation suite covers the major HRINTIME areas required by the assignment.
 | Dashboard | Current-date/calendar validation |
 | Navigation | Main HRMS navigation and navigation stability |
 | My Profile | Personal, job and work-scheme information |
-| Resignation | UI validation and date-calculation rules |
+| Resignation | Live UI validation of the configured date-calculation rule |
 | Leave Application | Positive and mandatory-field scenarios |
 | Leave Correction | Work-from-home, half-day and validation scenarios |
-| Attendance | Date ranges, weekly-off and boundary validation |
+| Attendance | Date ranges and weekly-off validation |
 | Employee Directory | Job-title filtering and pagination |
 | Footer | Social-media links |
 | Logout | Successful logout |
 | Session Security | Protection after logout |
-| Framework diagnostics | Screenshots/traces for failed executions |
 
-The suite includes positive testing, negative testing, field validation, boundary testing, business-rule validation, navigation testing, filtering, pagination, authentication, session protection, and failure diagnostics.
+The suite includes positive testing, negative testing, field validation, business-rule validation, navigation testing, filtering, pagination, authentication, session protection, and failure diagnostics.
 
 ## 10. Detailed Test Cases
 
-The current suite contains approximately **34 NUnit executions**, with the majority representing HRINTIME BDD scenarios/example cases and an additional framework-oriented failure-artifact validation depending on the project version.
+Reqnroll generates one NUnit execution per scenario/example row. The suite contains only browser-based HRMS UI scenarios; use `dotnet test --list-tests` for the exact current count.
 
 ### TC01 — Successful Login
 Opens HRINTIME, enters valid credentials, submits the login request, and verifies that Dashboard becomes available.
@@ -232,18 +234,6 @@ The calculation is conceptually:
 expectedLastWorkingDate = dateOfApply.AddMonths(2).AddDays(-1);
 ```
 
-### TC15 — Standard Resignation Date
-Validates the resignation-date calculation with a normal mid-month date.
-
-### TC16 — End-of-Month Resignation Date
-Validates calculation behavior around dates such as January 31.
-
-### TC17 — Year-Boundary Resignation Calculation
-Validates a resignation calculation that crosses into the following year.
-
-### TC18 — Leap-Year Calculation
-Validates calculation behavior involving leap day/February.
-
 ### TC19 — Successful Casual Leave Application
 Navigates to Leaves Application, selects Casual Leave, dynamically chooses an appropriate future range containing a weekend without beginning or ending on the weekend, marks the required date as half-day, enters a unique description, submits, and validates the application response.
 
@@ -288,9 +278,6 @@ From an authenticated session, opens the profile menu, selects Logout, and verif
 
 ### TC33 — Protected Pages After Logout
 After logout, attempts direct Dashboard access, refresh, and browser-back navigation, verifying that authentication remains required and protected content is not restored.
-
-### TC34 — Failure Artifacts
-Where retained, `FailureArtifactsTest.cs` validates the automation framework rather than HRINTIME business functionality. It verifies screenshot and Playwright trace generation for failed executions.
 
 ## 11. Test Categories
 
@@ -532,8 +519,6 @@ Keeps UI implementation details concentrated in Page classes so test scenarios r
 | Positive testing | Valid Login |
 | Negative testing | Invalid credentials |
 | Mandatory-field testing | Leave without date |
-| Boundary testing | Jan 31 resignation |
-| Calendar testing | Leap day |
 | UI testing | Dashboard |
 | Navigation testing | Sidebar |
 | Data validation | My Profile |
@@ -584,7 +569,7 @@ The **HRINTIME Playwright Automation Framework** provides an organized automated
 
 Its coverage extends across authentication, Dashboard behavior, navigation, employee information, resignation calculations, leave management, attendance, employee-directory filtering and pagination, footer links, logout, and post-logout session protection.
 
-The framework includes both **positive and negative testing**, together with boundary and business-rule validation. Dynamic test data is used where appropriate so scenarios are less dependent on permanently hardcoded dates.
+The framework includes both **positive and negative testing**, together with business-rule validation. Dynamic test data is used where appropriate so scenarios are less dependent on permanently hardcoded dates.
 
 The architecture separates business scenarios, step bindings/assertions, Page Object interactions, test data/configuration, and browser infrastructure. This improves readability, maintainability, and scalability.
 
@@ -593,3 +578,22 @@ Failure handling through **screenshots and Playwright traces** provides useful d
 Finally, integration with a **Jenkins pipeline** enables Continuous Integration execution. Jenkins can run smoke or regression tests, inject credentials securely, execute browsers headlessly, collect test results, retain screenshots/traces, and publish reporting output.
 
 Therefore, this project is not simply a collection of automated UI scripts. It is a structured **BDD-based UI test automation framework with controlled execution, business-level test coverage, diagnostics, reporting, and CI integration**, designed to provide repeatable validation of the HRINTIME application.
+
+## 24. Production-safe configuration
+
+The unavailable `hrms-test` host has been replaced by `https://hrms.intimetec.com`; all application paths are centralized in `Configuration/AppRoutes.cs`. The framework defaults to safe production behavior:
+
+- `@dataMutation` tests are skipped unless `ALLOW_PRODUCTION_MUTATIONS=true`.
+- account-risk login variations are skipped unless `ALLOW_ACCOUNT_RISK_TESTS=true`.
+- screenshots and traces are disabled on production unless `ALLOW_PRODUCTION_ARTIFACTS=true`.
+- mutating scenarios are serialized to protect a shared account.
+
+Employee expectations are maintained directly in `TestData/ProfileTestData.cs`. The local `.env` remains ignored and must never be committed.
+
+Run safe read-only coverage with:
+
+```powershell
+dotnet test .\HRIntimeAutomation.csproj --filter "TestCategory=readOnly&TestCategory!=accountRisk"
+```
+
+See `Documentation/TestCaseSummary.md` for the complete concise suite, and `Documentation/RedTeamReview.md` plus `Documentation/RecommendedTestCases.md` for the security review and coverage backlog.

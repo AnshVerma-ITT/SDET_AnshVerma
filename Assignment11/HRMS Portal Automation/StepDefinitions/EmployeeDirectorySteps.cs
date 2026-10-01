@@ -17,13 +17,6 @@ public sealed class EmployeeDirectorySteps
 
     public EmployeeDirectorySteps(ScenarioTestContext context) => _context = context;
 
-    [When("I navigate to Employee Directory")]
-    public async Task WhenINavigateToEmployeeDirectory()
-    {
-        await _context.NavigationPage.OpenOrganizationAsync();
-        await _context.NavigationPage.OpenEmployeeDirectoryAsync();
-    }
-
     [When("I filter Job Title as Director of Engineering and select Table View")]
     public Task WhenIFilterJobTitleAndSelectTableView() =>
         _context.EmployeeDirectoryPage.ApplyFiltersAsync(

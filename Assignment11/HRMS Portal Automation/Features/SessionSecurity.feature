@@ -4,5 +4,5 @@ Feature: Session authorization
     Given I am logged in with valid credentials
     When I logout from the profile menu
     Then I should be redirected to the login page
-    When I attempt direct Dashboard access refresh and back navigation
+    When I attempt direct access to every protected route then refresh and navigate back
     Then every post-logout attempt should still require authentication

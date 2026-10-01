@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using HRIntimeAutomation.Configuration;
-using HRIntimeAutomation.Models;
 using Microsoft.Playwright;
 
 namespace HRIntimeAutomation.Pages;
@@ -12,20 +11,22 @@ public sealed class LoginPage : BasePage
     private const string LoginButtonName = "Login";
     private const string DashboardText = "Dashboard";
     private const string DashboardBreadcrumbSelector = "div.mantine-Breadcrumbs-breadcrumb";
-    private const string FlexibleWhitespacePattern = @"\s+";
-    private const string SingleSpace = " ";
     private const string ValidationMessageScript = "element => element.validationMessage || ''";
     private const string CheckValidityScript = "element => element.checkValidity()";
     private const string ValidationSelector = ".mantine-InputWrapper-error:visible, [data-error='true']:visible";
 
-    public LoginPage(IPage page) : base(page) { }
+    public LoginPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public ILocator UsernameField => Page.Locator(UsernameSelector);
     public ILocator PasswordField => Page.Locator(PasswordSelector);
-    public ILocator LoginButton => Page.GetByRole(AriaRole.Button,
-        new() { Name = LoginButtonName, Exact = true });
-    public ILocator DashboardBreadcrumb => Page.Locator(DashboardBreadcrumbSelector)
-        .Filter(new() { HasText = DashboardText });
+    public ILocator LoginButton => Page.GetByRole(AriaRole.Button, new() { Name = LoginButtonName, Exact = true });
+    public ILocator DashboardBreadcrumb => Page.Locator(DashboardBreadcrumbSelector).Filter(new() { HasText = DashboardText });
+    public bool LastLoginButtonEnabled { get; private set; }
+    public bool LastUsernameValid { get; private set; }
+    public bool LastPasswordValid { get; private set; }
+    public string LastUsernameValidationMessage { get; private set; } = string.Empty;
+    public string LastPasswordValidationMessage { get; private set; } = string.Empty;
+    public IReadOnlyList<string> LastVisibleValidationMessages { get; private set; } = [];
 
     public async Task OpenAsync()
     {
@@ -42,49 +43,36 @@ public sealed class LoginPage : BasePage
         await LoginButton.ClickAsync();
     }
 
-    public async Task<LoginValidationResult> SubmitForValidationAsync(string username, string password)
+    public async Task SubmitForValidationAsync(string username, string password)
     {
         await UsernameField.FillAsync(username);
         await PasswordField.FillAsync(password);
-
-        var loginButtonEnabled = await LoginButton.IsEnabledAsync();
-        if (loginButtonEnabled)
+        LastLoginButtonEnabled = await LoginButton.IsEnabledAsync();
+        if (LastLoginButtonEnabled)
             await LoginButton.ClickAsync();
 
-        var usernameValid = await UsernameField.EvaluateAsync<bool>(CheckValidityScript);
-        var passwordValid = await PasswordField.EvaluateAsync<bool>(CheckValidityScript);
-        var usernameValidationMessage = await UsernameField.EvaluateAsync<string>(ValidationMessageScript);
-        var passwordValidationMessage = await PasswordField.EvaluateAsync<string>(ValidationMessageScript);
-        var visibleValidationMessages = await Page.Locator(ValidationSelector).AllInnerTextsAsync();
-
-        return new LoginValidationResult(
-            loginButtonEnabled,
-            usernameValid,
-            passwordValid,
-            usernameValidationMessage.Trim(),
-            passwordValidationMessage.Trim(),
-            visibleValidationMessages.Select(message => message.Trim()).Where(message => message.Length > 0).ToArray(),
-            await IsDisplayedAsync(),
-            await DashboardBreadcrumb.IsVisibleAsync(),
-            Page.Url);
+        LastUsernameValid = await UsernameField.EvaluateAsync<bool>(CheckValidityScript);
+        LastPasswordValid = await PasswordField.EvaluateAsync<bool>(CheckValidityScript);
+        LastUsernameValidationMessage = (await UsernameField.EvaluateAsync<string>(ValidationMessageScript)).Trim();
+        LastPasswordValidationMessage = (await PasswordField.EvaluateAsync<string>(ValidationMessageScript)).Trim();
+        LastVisibleValidationMessages = (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
+            .Select(message => message.Trim()).Where(message => message.Length > 0).ToArray();
     }
 
     public async Task<bool> IsDisplayedAsync() =>
-        await UsernameField.IsVisibleAsync()
-        && await PasswordField.IsVisibleAsync()
-        && await LoginButton.IsVisibleAsync();
+        await UsernameField.IsVisibleAsync() && await PasswordField.IsVisibleAsync() && await LoginButton.IsVisibleAsync();
 
-    public Task WaitForDashboardAsync() =>
-        DashboardBreadcrumb.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+    public async Task WaitForDashboardAsync()
+    {
+        await DashboardBreadcrumb.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+        await Pages.AssertUrlAsync(AppRoutes.Dashboard);
+    }
 
     public async Task<string> GetMessageAsync(string expectedMessage)
     {
-        var messagePattern = string.Join(
-            FlexibleWhitespacePattern,
-            expectedMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Select(Regex.Escape));
-        var message = Page.GetByText(new Regex(messagePattern, RegexOptions.IgnoreCase));
+        var pattern = string.Join(@"\s+", expectedMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(Regex.Escape));
+        var message = Page.GetByText(new Regex(pattern, RegexOptions.IgnoreCase));
         await message.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-        return Regex.Replace(await message.InnerTextAsync(), FlexibleWhitespacePattern, SingleSpace).Trim();
+        return Regex.Replace(await message.InnerTextAsync(), @"\s+", " ").Trim();
     }
 }

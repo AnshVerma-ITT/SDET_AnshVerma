@@ -18,7 +18,7 @@ public sealed class EmployeeDirectoryPage : BasePage
     private const string ArrowDownKey = "ArrowDown";
     private const string EnterKey = "Enter";
 
-    public EmployeeDirectoryPage(IPage page) : base(page) { }
+    public EmployeeDirectoryPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public ILocator JobTitleField => Page.GetByPlaceholder(JobTitlePlaceholder, new() { Exact = true });
     public ILocator ViewModeField => Page.GetByPlaceholder(ViewModePlaceholder, new() { Exact = true });

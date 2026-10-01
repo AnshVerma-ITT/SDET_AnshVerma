@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using HRIntimeAutomation.Models;
 using Microsoft.Playwright;
 
 namespace HRIntimeAutomation.Pages;
@@ -19,7 +18,7 @@ public sealed class AttendanceRecordPage : BasePage
     private const string RecordDateFormat = "dd-MMM-yyyy";
     private const int CalendarNavigationAttemptLimit = 24;
 
-    public AttendanceRecordPage(IPage page) : base(page) { }
+    public AttendanceRecordPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public ILocator DateRangeField => Page.GetByPlaceholder(DateRangePlaceholder, new() { Exact = true });
     public ILocator StatusField => Page.GetByPlaceholder(StatusPlaceholder, new() { Exact = true });
@@ -29,7 +28,7 @@ public sealed class AttendanceRecordPage : BasePage
 
     private ILocator CalendarDropdown => Page.Locator(CalendarDropdownSelector).Filter(new() { Visible = true });
 
-    public async Task<AttendanceRangeSelection> SelectFourDayRangeContainingWeekendAsync()
+    public async Task<IReadOnlyList<DateTime>> SelectFourDayRangeContainingWeekendAsync()
     {
         var today = DateTime.Today;
         var daysSinceSaturday = ((int)today.DayOfWeek - (int)DayOfWeek.Saturday + 7) % 7;
@@ -45,10 +44,10 @@ public sealed class AttendanceRecordPage : BasePage
         await SelectCalendarDateAsync(expectedDates.First());
         await SelectCalendarDateAsync(expectedDates.Last());
 
-        return new AttendanceRangeSelection(expectedDates.First(), expectedDates.Last(), expectedDates);
+        return expectedDates;
     }
 
-    public async Task<AttendanceRangeSelection> SelectRecentWeekdayRangeAsync(int rangeLengthDays)
+    public async Task<IReadOnlyList<DateTime>> SelectRecentWeekdayRangeAsync(int rangeLengthDays)
     {
         if (rangeLengthDays <= 0 || rangeLengthDays > 5)
             throw new ArgumentOutOfRangeException(nameof(rangeLengthDays));
@@ -66,7 +65,7 @@ public sealed class AttendanceRecordPage : BasePage
                     date.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday))
             {
                 await SelectRangeAsync(expectedDates);
-                return new AttendanceRangeSelection(startDate, endDate, expectedDates);
+                return expectedDates;
             }
         }
 

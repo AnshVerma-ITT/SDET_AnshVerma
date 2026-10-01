@@ -11,7 +11,7 @@ public sealed class FooterPage : BasePage
     private const string TargetAttribute = "target";
     private const string AboutUrlPrefix = "about:";
 
-    public FooterPage(IPage page) : base(page) { }
+    public FooterPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public async Task<IReadOnlyList<FooterLinkResult>> OpenSocialLinksAsync(
         IEnumerable<SocialLinkData> socialLinks)

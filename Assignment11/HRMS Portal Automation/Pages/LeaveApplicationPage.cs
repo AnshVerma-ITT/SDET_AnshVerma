@@ -29,7 +29,13 @@ public sealed class LeaveApplicationPage : BasePage
     private const int ValidationResponseTimeoutMilliseconds = 3000;
     private const int CalendarNavigationAttemptLimit = 14;
 
-    public LeaveApplicationPage(IPage page) : base(page) { }
+    public LeaveApplicationPage(IPage page, string baseUrl) : base(page, baseUrl) { }
+
+    public string LastOmittedField { get; private set; } = string.Empty;
+    public bool LastSubmitButtonEnabled { get; private set; }
+    public bool LastDialogVisible { get; private set; }
+    public IReadOnlyList<string> LastValidationMessages { get; private set; } = [];
+    public string? LastValidationNotification { get; private set; }
 
     private ILocator ApplyLeaveButton => Page.GetByRole(AriaRole.Button,
         new() { Name = ApplyLeaveButtonName, Exact = true });
@@ -95,7 +101,7 @@ public sealed class LeaveApplicationPage : BasePage
             .Filter(new() { HasText = leaveType })
             .First;
 
-    public async Task<FormValidationResult> SubmitIncompleteLeaveAsync(
+    public async Task SubmitIncompleteLeaveAsync(
         string omittedField,
         LeaveApplicationRequest request)
     {
@@ -122,9 +128,10 @@ public sealed class LeaveApplicationPage : BasePage
         var description = $"{request.DescriptionPrefix}_VALIDATION";
         await DescriptionField.FillAsync(description);
 
-        var submitButtonEnabled = await SubmitButton.IsEnabledAsync();
+        LastOmittedField = omittedField;
+        LastSubmitButtonEnabled = await SubmitButton.IsEnabledAsync();
         string? notificationText = null;
-        if (submitButtonEnabled)
+        if (LastSubmitButtonEnabled)
         {
             await SubmitButton.ClickAsync();
             try
@@ -142,16 +149,10 @@ public sealed class LeaveApplicationPage : BasePage
             }
         }
 
-        return new FormValidationResult(
-            ApplyLeaveButtonName,
-            omittedField,
-            submitButtonEnabled,
-            await ApplyLeaveDialog.IsVisibleAsync(),
-            (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
-                .Select(message => message.Trim())
-                .Where(message => message.Length > 0)
-                .ToArray(),
-            notificationText);
+        LastDialogVisible = await ApplyLeaveDialog.IsVisibleAsync();
+        LastValidationMessages = (await Page.Locator(ValidationSelector).AllInnerTextsAsync())
+            .Select(message => message.Trim()).Where(message => message.Length > 0).ToArray();
+        LastValidationNotification = notificationText;
     }
 
     private async Task WaitForSubmissionNotificationAsync(int responseTimeoutMilliseconds)

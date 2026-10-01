@@ -13,7 +13,7 @@ public sealed class DashboardPage : BasePage
     private const string CalendarControlSelector = ".mantine-Calendar-calendarHeaderControl";
     private const string MonthYearFormat = "MMMM yyyy";
 
-    public DashboardPage(IPage page) : base(page) { }
+    public DashboardPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public ILocator Calendar => Page.Locator(CalendarSelector);
     public ILocator CalendarHeader => Calendar.Locator(CalendarHeaderSelector);
@@ -31,6 +31,7 @@ public sealed class DashboardPage : BasePage
     public async Task NavigateToDashboardAsync()
     {
         await DashboardNavigation.ClickAsync();
+        await Pages.AssertUrlAsync(Configuration.AppRoutes.Dashboard);
         await DashboardBreadcrumb.WaitForAsync(new() { State = WaitForSelectorState.Visible });
     }
 

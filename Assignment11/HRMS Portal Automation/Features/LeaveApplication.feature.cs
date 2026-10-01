@@ -140,7 +140,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.WhenAsync("I navigate to Leaves Application", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Leaves Application\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 7
     await testRunner.AndAsync("I apply for Casual Leave using the configured date range", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -190,7 +190,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 13
-    await testRunner.WhenAsync("I navigate to Leaves Application", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Leaves Application\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 14
     await testRunner.AndAsync(string.Format("I submit a Leave Application without \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");

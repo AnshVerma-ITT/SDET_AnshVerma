@@ -6,7 +6,7 @@ public sealed class LogoutPage : BasePage
 {
     private const string LogoutText = "Logout";
 
-    public LogoutPage(IPage page) : base(page) { }
+    public LogoutPage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     private ILocator LogoutLink => Page.GetByText(LogoutText, new() { Exact = true }).First;
 

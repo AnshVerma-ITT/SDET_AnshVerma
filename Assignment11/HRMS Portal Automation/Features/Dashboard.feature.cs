@@ -140,7 +140,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 5
-    await testRunner.WhenAsync("I navigate to the Dashboard", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Dashboard\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 6
     await testRunner.ThenAsync("the calendar should show the current date month and year", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

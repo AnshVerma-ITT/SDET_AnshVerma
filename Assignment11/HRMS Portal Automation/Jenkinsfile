@@ -29,10 +29,21 @@ pipeline {
             choices: [
                 'All',
                 'smoke',
-                'regression'
+                'regression',
+                'readOnly',
+                'dataMutation',
+                'negative',
+                'accountRisk'
             ],
             description: 'Select test category'
         )
+
+        booleanParam(name: 'ALLOW_PRODUCTION_MUTATIONS', defaultValue: false,
+            description: 'Explicitly allow @dataMutation scenarios against production')
+        booleanParam(name: 'ALLOW_ACCOUNT_RISK_TESTS', defaultValue: false,
+            description: 'Allow credential variations that can affect account lockout counters')
+        booleanParam(name: 'ALLOW_PRODUCTION_ARTIFACTS', defaultValue: false,
+            description: 'Allow screenshots/traces that may contain production employee data')
 
         choice(
             name: 'RETRY_COUNT',
@@ -90,6 +101,9 @@ pipeline {
                     Write-Host "Browser        : $env:BROWSER"
                     Write-Host "Category       : $env:TEST_CATEGORY"
                     Write-Host "Retry Count    : $env:RETRY_COUNT"
+                    Write-Host "Prod mutations : $env:ALLOW_PRODUCTION_MUTATIONS"
+                    Write-Host "Account risk   : $env:ALLOW_ACCOUNT_RISK_TESTS"
+                    Write-Host "Prod artifacts : $env:ALLOW_PRODUCTION_ARTIFACTS"
                     Write-Host "======================================"
 
                     $projectDirectory = $env:PROJECT_DIRECTORY

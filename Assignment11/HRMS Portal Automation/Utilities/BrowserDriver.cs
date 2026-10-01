@@ -11,19 +11,22 @@ public sealed class BrowserDriver
     private IBrowserContext? _context;
     private bool _tracingStarted;
 
-    public IPage Page { get; private set; } = null!;
-    public TestSettings Settings { get; private set; } = null!;
+    private IPage? _page;
+    private TestSettings? _settings;
+
+    public IPage Page => _page ?? throw new InvalidOperationException("BrowserDriver has not been started.");
+    public TestSettings Settings => _settings ?? throw new InvalidOperationException("BrowserDriver has not been started.");
 
     public async Task StartAsync()
     {
-        Settings = TestSettings.Load();
+        _settings = TestSettings.Load();
         try
         {
             _playwright = await Playwright.CreateAsync();
             _playwright.Selectors.SetTestIdAttribute(Settings.TestIdAttribute);
             _browser = await BrowserFactory.LaunchAsync(_playwright, Settings);
             _context = await BrowserContextFactory.CreateAsync(_browser, Settings);
-            if (Settings.TraceOnFailure)
+            if (Settings.TraceOnFailure && Settings.FailureArtifactsEnabled)
             {
                 await _context.Tracing.StartAsync(new()
                 {
@@ -34,7 +37,7 @@ public sealed class BrowserDriver
                 _tracingStarted = true;
             }
 
-            Page = await _context.NewPageAsync();
+            _page = await _context.NewPageAsync();
         }
         catch
         {
@@ -49,7 +52,7 @@ public sealed class BrowserDriver
         try
         {
             if (_context is not null)
-                await FinishArtifactsAsync(failedScenarioName, artifacts);
+                await CaptureFailureArtifactsAndStopTracingAsync(failedScenarioName, artifacts);
 
             if (_context is not null)
                 await _context.CloseAsync();
@@ -67,6 +70,7 @@ public sealed class BrowserDriver
                 _context = null;
                 _browser = null;
                 _playwright = null;
+                _page = null;
                 _tracingStarted = false;
             }
         }
@@ -74,7 +78,9 @@ public sealed class BrowserDriver
         return artifacts;
     }
 
-    private async Task FinishArtifactsAsync(string? failedScenarioName, ICollection<string> artifacts)
+    private async Task CaptureFailureArtifactsAndStopTracingAsync(
+        string? failedScenarioName,
+        ICollection<string> artifacts)
     {
         var failed = !string.IsNullOrWhiteSpace(failedScenarioName);
         string? artifactBasePath = null;
@@ -87,7 +93,7 @@ public sealed class BrowserDriver
             artifactBasePath = Path.Combine(artifactsDirectory, $"{safeScenarioName}_{uniqueSuffix}");
         }
 
-        if (failed && Settings.ScreenshotOnFailure && !Page.IsClosed)
+        if (failed && Settings.FailureArtifactsEnabled && Settings.ScreenshotOnFailure && !Page.IsClosed)
         {
             var screenshotPath = $"{artifactBasePath}.png";
             await Page.ScreenshotAsync(new() { Path = screenshotPath, FullPage = true });

@@ -8,6 +8,6 @@ Feature: Left navigation
 
   Scenario: Navigation remains usable after page refresh and module toggling
     Given I am logged in with valid credentials
-    When I navigate to Employee Directory
+    When I navigate to "Employee Directory"
     And I refresh the current page and collapse and reopen Organization navigation
     Then navigation should remain usable with correct expanded and collapsed states

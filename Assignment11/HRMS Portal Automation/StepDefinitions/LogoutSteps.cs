@@ -1,3 +1,4 @@
+using HRIntimeAutomation.Configuration;
 using HRIntimeAutomation.Context;
 using HRIntimeAutomation.TestData;
 using NUnit.Framework;
@@ -17,7 +18,10 @@ public sealed class LogoutSteps
         _context.LogoutPage.LogoutAsync(ProfileTestData.AvatarInitials);
 
     [Then("I should be redirected to the login page")]
-    public async Task ThenIShouldBeRedirectedToTheLoginPage() =>
+    public async Task ThenIShouldBeRedirectedToTheLoginPage()
+    {
         Assert.That(await _context.LoginPage.IsDisplayedAsync(), Is.True,
             "The Login page was not displayed after logout.");
+        await _context.LoginPage.Pages.AssertUrlAsync(AppRoutes.Login);
+    }
 }

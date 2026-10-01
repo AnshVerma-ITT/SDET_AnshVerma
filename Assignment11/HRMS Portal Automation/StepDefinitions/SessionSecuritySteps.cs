@@ -1,6 +1,5 @@
 using HRIntimeAutomation.Configuration;
 using HRIntimeAutomation.Context;
-using HRIntimeAutomation.Models;
 using NUnit.Framework;
 using Reqnroll;
 
@@ -10,58 +9,36 @@ namespace HRIntimeAutomation.StepDefinitions;
 public sealed class SessionSecuritySteps
 {
     private readonly ScenarioTestContext _context;
-
     public SessionSecuritySteps(ScenarioTestContext context) => _context = context;
 
-    [When("I attempt direct Dashboard access refresh and back navigation")]
-    public async Task WhenIAttemptDirectDashboardAccessRefreshAndBackNavigation()
+    [When("I attempt direct access to every protected route then refresh and navigate back")]
+    public async Task CheckProtectedRoutes()
     {
-        var page = _context.Driver.Page;
-
-        await page.GotoAsync(AppRoutes.Dashboard, new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
-        var directAccessShowsLogin = await _context.LoginPage.IsDisplayedAsync();
-        var directAccessUrl = page.Url;
-
-        await page.ReloadAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
-        var refreshShowsLogin = await _context.LoginPage.IsDisplayedAsync();
-        var refreshUrl = page.Url;
-
-        await page.GoBackAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
-        var backNavigationShowsLogin = await _context.LoginPage.IsDisplayedAsync();
-
-        _context.SessionSecurityResult = new SessionSecurityResult(
-            directAccessShowsLogin,
-            directAccessUrl,
-            refreshShowsLogin,
-            refreshUrl,
-            backNavigationShowsLogin,
-            page.Url);
+        var results = new Dictionary<string, bool>();
+        foreach (var route in AppRoutes.ProtectedRoutes)
+        {
+            await _context.Driver!.Page.GotoAsync(route, new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
+            results[$"direct:{route}"] = await IsLoginAsync();
+        }
+        await _context.Driver!.Page.ReloadAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
+        results["refresh"] = await IsLoginAsync();
+        await _context.Driver.Page.GoBackAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.DOMContentLoaded });
+        results["back"] = await IsLoginAsync();
+        _context.SessionSecurityChecks = results;
     }
 
     [Then("every post-logout attempt should still require authentication")]
-    public void ThenEveryPostLogoutAttemptShouldStillRequireAuthentication()
+    public void EveryAttemptRequiresLogin()
     {
-        Assert.That(_context.SessionSecurityResult, Is.Not.Null,
-            "Post-logout session checks were not captured.");
-        var result = _context.SessionSecurityResult!;
-
+        Assert.That(_context.SessionSecurityChecks, Is.Not.Empty);
         Assert.Multiple(() =>
         {
-            Assert.That(result.DirectAccessShowsLogin, Is.True,
-                "Direct Dashboard access succeeded after logout.");
-            Assert.That(result.RefreshShowsLogin, Is.True,
-                "Refreshing after logout restored an authenticated page.");
-            Assert.That(result.BackNavigationShowsLogin, Is.True,
-                "Browser back navigation restored an authenticated page.");
-            Assert.That(GetPath(result.DirectAccessUrl), Is.Not.EqualTo(AppRoutes.Dashboard).IgnoreCase,
-                "Direct access must not remain on the protected Dashboard path.");
-            Assert.That(GetPath(result.RefreshUrl), Is.Not.EqualTo(AppRoutes.Dashboard).IgnoreCase,
-                "Refresh must not restore the protected Dashboard path.");
-            Assert.That(GetPath(result.BackNavigationUrl), Is.Not.EqualTo(AppRoutes.Dashboard).IgnoreCase,
-                "Back navigation must not restore the protected Dashboard path.");
+            foreach (var result in _context.SessionSecurityChecks)
+                Assert.That(result.Value, Is.True, $"Post-logout check failed: {result.Key}");
         });
     }
 
-    private static string GetPath(string url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.AbsolutePath : url;
+    private async Task<bool> IsLoginAsync() =>
+        await _context.LoginPage.IsDisplayedAsync()
+        && _context.LoginPage.Pages.RouteMatches(_context.Driver!.Page.Url, AppRoutes.Login);
 }

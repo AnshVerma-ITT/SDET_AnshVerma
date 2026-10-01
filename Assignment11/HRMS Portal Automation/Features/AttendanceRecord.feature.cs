@@ -33,7 +33,8 @@ namespace HRIntimeAutomation.Features
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Attendance Record", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Attendance Record", "  As an HRMS employee\r\n  I want attendance filters to return the expected dates a" +
+                "nd statuses\r\n  So that I can trust the attendance records shown to me", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "AttendanceRecord.feature"
 #line hidden
@@ -115,18 +116,18 @@ namespace HRIntimeAutomation.Features
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Four day range and Weekly Off filtering are correct")]
+        [global::NUnit.Framework.DescriptionAttribute("Weekly Off filter shows the selected weekend dates")]
         [global::NUnit.Framework.CategoryAttribute("smoke")]
-        public async global::System.Threading.Tasks.Task FourDayRangeAndWeeklyOffFilteringAreCorrect()
+        public async global::System.Threading.Tasks.Task WeeklyOffFilterShowsTheSelectedWeekendDates()
         {
             string[] tagsOfScenario = new string[] {
                     "smoke"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Four day range and Weekly Off filtering are correct", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Weekly Off filter shows the selected weekend dates", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 4
+#line 8
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -136,37 +137,40 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 5
+#line 9
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 6
-    await testRunner.WhenAsync("I navigate to Attendance Record", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 10
+    await testRunner.WhenAsync("I navigate to \"Attendance Record\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 7
-    await testRunner.AndAsync("I select a four day attendance range containing Saturday and Sunday", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line 11
+    await testRunner.AndAsync("I select a completed four-day period that includes Saturday and Sunday", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 8
-    await testRunner.ThenAsync("the attendance records and Weekly Off filter should be correct", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line 12
+    await testRunner.ThenAsync("one attendance record should appear for every selected date", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 13
+    await testRunner.AndAsync("the Weekly Off filter should show only the selected Saturday and Sunday", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Attendance ranges contain no records outside the selected dates")]
+        [global::NUnit.Framework.DescriptionAttribute("Attendance results stay within the selected weekday period")]
         [global::NUnit.Framework.TestCaseAttribute("1", "1", null)]
         [global::NUnit.Framework.TestCaseAttribute("2", "2", null)]
         [global::NUnit.Framework.TestCaseAttribute("4", "3", null)]
-        public async global::System.Threading.Tasks.Task AttendanceRangesContainNoRecordsOutsideTheSelectedDates(string days, string @__pickleIndex, string[] exampleTags)
+        public async global::System.Threading.Tasks.Task AttendanceResultsStayWithinTheSelectedWeekdayPeriod(string days, string @__pickleIndex, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             argumentsOfScenario.Add("days", days);
             string pickleIndex = @__pickleIndex;
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Attendance ranges contain no records outside the selected dates", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Attendance results stay within the selected weekday period", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 10
+#line 15
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -176,17 +180,20 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 11
+#line 16
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 12
-    await testRunner.WhenAsync("I navigate to Attendance Record", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 17
+    await testRunner.WhenAsync("I navigate to \"Attendance Record\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 13
-    await testRunner.AndAsync(string.Format("I select a recent weekday attendance range of {0} days", days), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line 18
+    await testRunner.AndAsync(string.Format("I select a completed weekday period of {0} days", days), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 14
-    await testRunner.ThenAsync("only records within the selected attendance range should appear", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line 19
+    await testRunner.ThenAsync("one attendance record should appear for every selected date", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 20
+    await testRunner.AndAsync("no attendance record should fall outside the selected period", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

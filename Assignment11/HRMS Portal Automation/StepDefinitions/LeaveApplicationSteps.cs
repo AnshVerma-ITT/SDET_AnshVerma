@@ -17,12 +17,11 @@ public sealed class LeaveApplicationSteps
     public async Task WhenIApplyForCasualLeaveUsingTheConfiguredDateRange() =>
         _context.LeaveApplicationResult = await _context.LeaveApplicationPage.ApplyLeaveAsync(
             LeaveApplicationTestData.Request,
-            _context.Driver.Settings.ResponseTimeoutMilliseconds);
+            _context.Driver!.Settings.ResponseTimeoutMilliseconds);
 
     [When("I submit a Leave Application without {string}")]
-    public async Task WhenISubmitALeaveApplicationWithout(string omittedField) =>
-        _context.FormValidationResult = await _context.LeaveApplicationPage
-            .SubmitIncompleteLeaveAsync(omittedField, LeaveApplicationTestData.Request);
+    public Task WhenISubmitALeaveApplicationWithout(string omittedField) =>
+        _context.LeaveApplicationPage.SubmitIncompleteLeaveAsync(omittedField, LeaveApplicationTestData.Request);
 
     [Then("the leave request success message should be displayed")]
     public async Task ThenTheLeaveRequestSuccessMessageShouldBeDisplayed()
@@ -65,20 +64,19 @@ public sealed class LeaveApplicationSteps
     [Then("the incomplete Leave Application should be rejected")]
     public void ThenTheIncompleteLeaveApplicationShouldBeRejected()
     {
-        Assert.That(_context.FormValidationResult, Is.Not.Null);
-        var result = _context.FormValidationResult!;
-        var hasValidationEvidence = !result.SubmitButtonEnabled
-            || result.ValidationMessages.Count > 0
-            || !string.IsNullOrWhiteSpace(result.NotificationText);
+        var page = _context.LeaveApplicationPage;
+        var hasValidationEvidence = !page.LastSubmitButtonEnabled
+            || page.LastValidationMessages.Count > 0
+            || !string.IsNullOrWhiteSpace(page.LastValidationNotification);
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.DialogVisible, Is.True,
+            Assert.That(page.LastDialogVisible, Is.True,
                 "The incomplete Leave Application dialog closed as if submission succeeded.");
-            Assert.That(result.NotificationText ?? string.Empty,
+            Assert.That(page.LastValidationNotification ?? string.Empty,
                 Does.Not.Contain(LeaveApplicationTestData.LeaveSuccessMessage).IgnoreCase);
             Assert.That(hasValidationEvidence, Is.True,
-                $"No validation was exposed when '{result.OmittedField}' was omitted.");
+                $"No validation was exposed when '{page.LastOmittedField}' was omitted.");
         });
     }
 }

@@ -1,7 +1,5 @@
-using System.Globalization;
 using System.Text.RegularExpressions;
 using HRIntimeAutomation.Context;
-using HRIntimeAutomation.Utilities;
 using HRIntimeAutomation.TestData;
 using Microsoft.Playwright;
 using NUnit.Framework;
@@ -23,10 +21,6 @@ public sealed class MyProfileSteps
 
     public MyProfileSteps(ScenarioTestContext context) => _context = context;
 
-    [When("I navigate to Organization My Profile")]
-    public Task WhenINavigateToOrganizationMyProfile() =>
-        _context.MyProfilePage.NavigateToMyProfileAsync();
-
     [Then("the top personal information should match the expected employee data")]
     public async Task ThenTheTopPersonalInformationShouldMatch()
     {
@@ -44,6 +38,19 @@ public sealed class MyProfileSteps
 
     [When("I open Job and Skills")]
     public Task WhenIOpenJobAndSkills() => _context.MyProfilePage.OpenJobAndSkillsAsync();
+
+    [When("I open close and reopen the current Scheme Details")]
+    public async Task WhenIOpenCloseAndReopenSchemeDetails()
+    {
+        await _context.MyProfilePage.OpenCurrentSchemeDetailsAsync(ProfileTestData.CurrentSchemeName);
+        await _context.MyProfilePage.CloseSchemeDetailsAsync();
+        await Assertions.Expect(_context.MyProfilePage.SchemeDialog).ToBeHiddenAsync();
+        await _context.MyProfilePage.OpenCurrentSchemeDetailsAsync(ProfileTestData.CurrentSchemeName);
+    }
+
+    [Then("the Scheme Details dialog should be visible")]
+    public Task ThenSchemeDetailsDialogShouldBeVisible() =>
+        Assertions.Expect(_context.MyProfilePage.SchemeDialog).ToBeVisibleAsync();
 
     [Then("the Job section should match the expected job data")]
     public async Task ThenTheJobSectionShouldMatch()
@@ -98,55 +105,6 @@ public sealed class MyProfileSteps
             Assert.That(dialogText, Does.Match(ProfileTestData.SaturdayWeekOffPattern));
             Assert.That(dialogText, Does.Match(ProfileTestData.SundayWeekOffPattern));
         });
-    }
-
-    [When("I open Employment Resignation")]
-    public Task WhenIOpenEmploymentResignation() =>
-        _context.MyProfilePage.OpenEmploymentResignationAsync();
-
-    [Then("the Last Working Date should follow the two month resignation calculation")]
-    public async Task ThenTheLastWorkingDateShouldFollowTwoMonthCalculation()
-    {
-        var page = _context.MyProfilePage;
-        await Assertions.Expect(page.EmploymentTab)
-            .ToHaveAttributeAsync(AriaSelectedAttribute, TrueAttributeValue);
-        await Assertions.Expect(page.ResignationTab)
-            .ToHaveAttributeAsync(AriaSelectedAttribute, TrueAttributeValue);
-        await Assertions.Expect(page.ResignationPanel).ToBeVisibleAsync();
-        await Assertions.Expect(page.DateOfApplyInput).ToHaveCountAsync(1);
-        await Assertions.Expect(page.LastWorkingDateInput).ToHaveCountAsync(1);
-
-        var datePattern = new Regex(ResignationTestData.DateValuePattern);
-        await Assertions.Expect(page.DateOfApplyInput).ToHaveValueAsync(datePattern);
-        await Assertions.Expect(page.LastWorkingDateInput).ToHaveValueAsync(datePattern);
-
-        var dateOfApplyText = (await page.DateOfApplyInput.InputValueAsync()).Trim();
-        var lastWorkingDateText = (await page.LastWorkingDateInput.InputValueAsync()).Trim();
-
-        var dateOfApplyParsed = DateTime.TryParseExact(
-            dateOfApplyText,
-            ResignationTestData.DateFormat,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
-            out var dateOfApply);
-        var lastWorkingDateParsed = DateTime.TryParseExact(
-            lastWorkingDateText,
-            ResignationTestData.DateFormat,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
-            out var actualLastWorkingDate);
-
-        Assert.That(dateOfApplyParsed, Is.True,
-            $"Date of Apply '{dateOfApplyText}' has an unexpected format.");
-        Assert.That(lastWorkingDateParsed, Is.True,
-            $"Last Working Date '{lastWorkingDateText}' has an unexpected format.");
-
-        var expectedLastWorkingDate = ResignationDateCalculator.CalculateLastWorkingDate(
-            dateOfApply,
-            ResignationTestData.NoticePeriodMonths,
-            ResignationTestData.LastWorkingDayOffset);
-        Assert.That(actualLastWorkingDate, Is.EqualTo(expectedLastWorkingDate),
-            $"Last Working Date should be {expectedLastWorkingDate.ToString(ResignationTestData.DateFormat, CultureInfo.InvariantCulture)}.");
     }
 
     private static void AssertRenderedFieldIsNotBlank(string renderedRowText, string label)

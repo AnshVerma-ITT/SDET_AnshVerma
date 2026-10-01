@@ -140,7 +140,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.WhenAsync("I navigate to Employee Directory", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 7
     await testRunner.AndAsync("I filter Job Title as Director of Engineering and select Table View", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -176,7 +176,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 12
-    await testRunner.WhenAsync("I navigate to Employee Directory", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 13
     await testRunner.ThenAsync("Employee Directory pagination should show no more than 12 records and have correc" +

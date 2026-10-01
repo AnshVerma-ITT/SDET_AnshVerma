@@ -12,6 +12,7 @@ allure-report/
 Screenshots/*.png
 Traces/*.zip
 Videos/*.webm
+Features/*.feature.cs
 
 .env
 .env.*

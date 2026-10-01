@@ -110,6 +110,15 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I open the HRMS login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Login.feature.ndjson", 11);
@@ -127,7 +136,7 @@ namespace HRIntimeAutomation.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Valid login opens Dashboard", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 8
+#line 11
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -137,16 +146,16 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 9
-    await testRunner.GivenAsync("I open the HRMS login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 10
-    await testRunner.ThenAsync("the login form should be displayed", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 11
-    await testRunner.WhenAsync("I login with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
 #line 12
+    await testRunner.ThenAsync("the login form should be displayed", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 13
+    await testRunner.WhenAsync("I login with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 14
     await testRunner.ThenAsync("the Dashboard should be opened", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -154,17 +163,123 @@ namespace HRIntimeAutomation.Features
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Login rejects invalid or incomplete credential combinations")]
+        [global::NUnit.Framework.DescriptionAttribute("Valid username with an invalid password is rejected")]
         [global::NUnit.Framework.CategoryAttribute("negative")]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "invalid", "error", "1", null)]
-        [global::NUnit.Framework.TestCaseAttribute("invalid", "valid", "error", "2", null)]
-        [global::NUnit.Framework.TestCaseAttribute("invalid", "invalid", "error", "3", null)]
-        [global::NUnit.Framework.TestCaseAttribute("blank", "valid", "validation", "4", null)]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "blank", "validation", "5", null)]
-        [global::NUnit.Framework.TestCaseAttribute("blank", "blank", "validation", "6", null)]
-        [global::NUnit.Framework.TestCaseAttribute("validWithSpaces", "valid", "error", "7", null)]
-        [global::NUnit.Framework.TestCaseAttribute("valid", "validWithSpaces", "error", "8", null)]
-        public async global::System.Threading.Tasks.Task LoginRejectsInvalidOrIncompleteCredentialCombinations(string username, string password, string expectedResult, string @__pickleIndex, string[] exampleTags)
+        [global::NUnit.Framework.CategoryAttribute("accountRisk")]
+        public async global::System.Threading.Tasks.Task ValidUsernameWithAnInvalidPasswordIsRejected()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "negative",
+                    "accountRisk"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "1";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Valid username with an invalid password is rejected", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 17
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 7
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 18
+    await testRunner.WhenAsync("I submit the configured username with password \"InvalidPassword!12345\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 19
+    await testRunner.ThenAsync("authentication should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Invalid username with a valid password is rejected")]
+        [global::NUnit.Framework.CategoryAttribute("negative")]
+        [global::NUnit.Framework.CategoryAttribute("accountRisk")]
+        public async global::System.Threading.Tasks.Task InvalidUsernameWithAValidPasswordIsRejected()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "negative",
+                    "accountRisk"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "2";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Invalid username with a valid password is rejected", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 22
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 7
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 23
+    await testRunner.WhenAsync("I submit username \"invalid.automation.user@intimetec.com\" with the configured pas" +
+                        "sword", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 24
+    await testRunner.ThenAsync("authentication should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Invalid username and invalid password are rejected")]
+        [global::NUnit.Framework.CategoryAttribute("negative")]
+        public async global::System.Threading.Tasks.Task InvalidUsernameAndInvalidPasswordAreRejected()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "negative"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "3";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Invalid username and invalid password are rejected", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 27
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 7
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 28
+    await testRunner.WhenAsync("I submit username \"invalid.automation.user@intimetec.com\" and password \"InvalidPa" +
+                        "ssword!12345\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 29
+    await testRunner.ThenAsync("authentication should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Missing credentials are rejected by form validation")]
+        [global::NUnit.Framework.CategoryAttribute("negative")]
+        [global::NUnit.Framework.TestCaseAttribute("username", "4", null)]
+        [global::NUnit.Framework.TestCaseAttribute("password", "5", null)]
+        [global::NUnit.Framework.TestCaseAttribute("both", "6", null)]
+        public async global::System.Threading.Tasks.Task MissingCredentialsAreRejectedByFormValidation(string field, string @__pickleIndex, string[] exampleTags)
         {
             string[] @__tags = new string[] {
                     "negative"};
@@ -174,14 +289,12 @@ namespace HRIntimeAutomation.Features
             }
             string[] tagsOfScenario = @__tags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("username", username);
-            argumentsOfScenario.Add("password", password);
-            argumentsOfScenario.Add("expectedResult", expectedResult);
+            argumentsOfScenario.Add("field", field);
             string pickleIndex = @__pickleIndex;
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login rejects invalid or incomplete credential combinations", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Missing credentials are rejected by form validation", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 15
+#line 32
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -191,14 +304,59 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 16
-    await testRunner.GivenAsync("I open the HRMS login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 17
-    await testRunner.WhenAsync(string.Format("I submit login using \"{0}\" username and \"{1}\" password", username, password), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 33
+    await testRunner.WhenAsync(string.Format("I submit the login form without the \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 18
-    await testRunner.ThenAsync(string.Format("the login result should be \"{0}\"", expectedResult), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line 34
+    await testRunner.ThenAsync("login validation should prevent authentication", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Whitespace around configured credentials is rejected")]
+        [global::NUnit.Framework.CategoryAttribute("negative")]
+        [global::NUnit.Framework.CategoryAttribute("accountRisk")]
+        [global::NUnit.Framework.TestCaseAttribute("username", "7", null)]
+        [global::NUnit.Framework.TestCaseAttribute("password", "8", null)]
+        public async global::System.Threading.Tasks.Task WhitespaceAroundConfiguredCredentialsIsRejected(string field, string @__pickleIndex, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "negative",
+                    "accountRisk"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("field", field);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Whitespace around configured credentials is rejected", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 43
+  this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 7
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 44
+    await testRunner.WhenAsync(string.Format("I add leading and trailing spaces to the configured \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 45
+    await testRunner.ThenAsync("authentication should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

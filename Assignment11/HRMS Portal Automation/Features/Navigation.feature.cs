@@ -173,7 +173,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 11
-    await testRunner.WhenAsync("I navigate to Employee Directory", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 12
     await testRunner.AndAsync("I refresh the current page and collapse and reopen Organization navigation", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");

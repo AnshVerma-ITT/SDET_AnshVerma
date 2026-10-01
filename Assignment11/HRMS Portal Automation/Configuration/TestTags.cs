@@ -9,5 +9,5 @@ public static class TestTags
 
     public const string Leave = "leave";
     public const string LeaveCorrection = "leaveCorrection";
-    public const string NoBrowser = "noBrowser";
+    public const string AccountRisk = "accountRisk";
 }

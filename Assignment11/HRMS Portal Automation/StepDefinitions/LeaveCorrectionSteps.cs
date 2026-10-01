@@ -17,12 +17,11 @@ public sealed class LeaveCorrectionSteps
     public async Task WhenIApplyATwoDayWorkFromHomeCorrectionWithOneHalfDay() =>
         _context.LeaveCorrectionResult = await _context.LeaveCorrectionPage.ApplyCorrectionAsync(
             LeaveCorrectionTestData.Request,
-            _context.Driver.Settings.ResponseTimeoutMilliseconds);
+            _context.Driver!.Settings.ResponseTimeoutMilliseconds);
 
     [When("I submit a Leave Correction without {string}")]
-    public async Task WhenISubmitALeaveCorrectionWithout(string omittedField) =>
-        _context.FormValidationResult = await _context.LeaveCorrectionPage
-            .SubmitIncompleteCorrectionAsync(omittedField, LeaveCorrectionTestData.Request);
+    public Task WhenISubmitALeaveCorrectionWithout(string omittedField) =>
+        _context.LeaveCorrectionPage.SubmitIncompleteCorrectionAsync(omittedField, LeaveCorrectionTestData.Request);
 
     [Then("the leave correction success message and created record should be displayed")]
     public async Task ThenTheLeaveCorrectionSuccessMessageAndCreatedRecordShouldBeDisplayed()
@@ -62,20 +61,19 @@ public sealed class LeaveCorrectionSteps
     [Then("the incomplete Leave Correction should be rejected")]
     public void ThenTheIncompleteLeaveCorrectionShouldBeRejected()
     {
-        Assert.That(_context.FormValidationResult, Is.Not.Null);
-        var result = _context.FormValidationResult!;
-        var hasValidationEvidence = !result.SubmitButtonEnabled
-            || result.ValidationMessages.Count > 0
-            || !string.IsNullOrWhiteSpace(result.NotificationText);
+        var page = _context.LeaveCorrectionPage;
+        var hasValidationEvidence = !page.LastSubmitButtonEnabled
+            || page.LastValidationMessages.Count > 0
+            || !string.IsNullOrWhiteSpace(page.LastValidationNotification);
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.DialogVisible, Is.True,
+            Assert.That(page.LastDialogVisible, Is.True,
                 "The incomplete Leave Correction dialog closed as if submission succeeded.");
-            Assert.That(result.NotificationText ?? string.Empty,
+            Assert.That(page.LastValidationNotification ?? string.Empty,
                 Does.Not.Contain(LeaveCorrectionTestData.SuccessMessage).IgnoreCase);
             Assert.That(hasValidationEvidence, Is.True,
-                $"No validation was exposed when '{result.OmittedField}' was omitted.");
+                $"No validation was exposed when '{page.LastOmittedField}' was omitted.");
         });
     }
 }

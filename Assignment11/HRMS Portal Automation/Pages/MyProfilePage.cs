@@ -26,7 +26,7 @@ public sealed class MyProfilePage : BasePage
     private const string ExpandedValue = "true";
     private const string VisibleMenuValue = "false";
 
-    public MyProfilePage(IPage page) : base(page) { }
+    public MyProfilePage(IPage page, string baseUrl) : base(page, baseUrl) { }
 
     public ILocator JobAndSkillsTab => Page.GetByRole(AriaRole.Tab,
         new() { Name = JobAndSkillsText, Exact = true });
@@ -59,7 +59,7 @@ public sealed class MyProfilePage : BasePage
             await OrganizationButton.ClickAsync();
 
         await OrganizationMenu.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-        await MyProfileLink.ClickAsync();
+        await Pages.ClickAndAssertUrlAsync(MyProfileLink, Configuration.AppRoutes.MyProfile);
         await MyProfileBreadcrumb.WaitForAsync(new() { State = WaitForSelectorState.Visible });
     }
 
@@ -107,6 +107,16 @@ public sealed class MyProfilePage : BasePage
 
     public Task OpenSchemeDetailsAsync(ILocator currentScheme) =>
         SchemeDetailsButton(currentScheme).ClickAsync();
+
+    public async Task OpenCurrentSchemeDetailsAsync(string schemeName)
+    {
+        var panel = await ExpandWorkSchemeAsync()
+            ?? throw new InvalidOperationException("Work Scheme Record panel could not be resolved.");
+        await OpenSchemeDetailsAsync(CurrentScheme(panel, schemeName));
+        await SchemeDialog.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+    }
+
+    public Task CloseSchemeDetailsAsync() => Page.Keyboard.PressAsync("Escape");
 
     public async Task OpenEmploymentResignationAsync()
     {

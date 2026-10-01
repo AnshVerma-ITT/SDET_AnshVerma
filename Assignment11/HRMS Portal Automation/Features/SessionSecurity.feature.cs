@@ -144,7 +144,7 @@ namespace HRIntimeAutomation.Features
     await testRunner.ThenAsync("I should be redirected to the login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 7
-    await testRunner.WhenAsync("I attempt direct Dashboard access refresh and back navigation", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I attempt direct access to every protected route then refresh and navigate back", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 8
     await testRunner.ThenAsync("every post-logout attempt should still require authentication", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
