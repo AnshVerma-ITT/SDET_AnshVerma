@@ -18,7 +18,7 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Footer social links")]
+    [global::NUnit.Framework.DescriptionAttribute("Footer Social Links")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("footer")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
@@ -33,7 +33,9 @@ namespace HRIntimeAutomation.Features
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Footer social links", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Footer Social Links", "  As an authenticated HRMS employee\r\n  I want the footer social-media links to po" +
+                "int to their configured services\r\n  So that external company links are valid and" +
+                " open as intended", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "Footer.feature"
 #line hidden
@@ -109,22 +111,31 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Footer.feature.ndjson", 3);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Footer social media links open their respective pages")]
-        public async global::System.Threading.Tasks.Task FooterSocialMediaLinksOpenTheirRespectivePages()
+        [global::NUnit.Framework.DescriptionAttribute("Configured footer social-media links open their respective pages")]
+        public async global::System.Threading.Tasks.Task ConfiguredFooterSocial_MediaLinksOpenTheirRespectivePages()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Footer social media links open their respective pages", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Configured footer social-media links open their respective pages", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 3
+#line 10
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -134,13 +145,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 4
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 5
+#line 11
     await testRunner.WhenAsync("I hover over and open all footer social media links", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 6
+#line 12
     await testRunner.ThenAsync("all footer social media links should open valid respective pages", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

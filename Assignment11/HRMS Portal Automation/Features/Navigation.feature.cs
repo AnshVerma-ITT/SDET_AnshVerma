@@ -18,7 +18,7 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Left navigation")]
+    [global::NUnit.Framework.DescriptionAttribute("Left Navigation")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("navigation")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
@@ -33,7 +33,9 @@ namespace HRIntimeAutomation.Features
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Left navigation", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Left Navigation", "  As an authenticated HRMS employee\r\n  I want the left navigation to open each su" +
+                "pported HRMS page\r\n  So that every required module and submenu destination remai" +
+                "ns accessible", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "Navigation.feature"
 #line hidden
@@ -109,24 +111,47 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Navigation.feature.ndjson", 4);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Navigation.feature.ndjson", 11);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Required HRMS navigation links open their pages")]
+        [global::NUnit.Framework.DescriptionAttribute("Required HRMS navigation destinations open successfully")]
         [global::NUnit.Framework.CategoryAttribute("smoke")]
-        public async global::System.Threading.Tasks.Task RequiredHRMSNavigationLinksOpenTheirPages()
+        [global::NUnit.Framework.TestCaseAttribute("Dashboard", "0", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Organization My Profile", "1", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Employee Directory", "2", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Attendance Record", "3", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Leaves Application", "4", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Leave Entitlements", "5", null)]
+        [global::NUnit.Framework.TestCaseAttribute("Leave Correction", "6", null)]
+        [global::NUnit.Framework.TestCaseAttribute("My Holidays", "7", null)]
+        public async global::System.Threading.Tasks.Task RequiredHRMSNavigationDestinationsOpenSuccessfully(string page, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = new string[] {
+            string[] @__tags = new string[] {
                     "smoke"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Required HRMS navigation links open their pages", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("page", page);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Required HRMS navigation destinations open successfully", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 4
+#line 11
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -136,30 +161,30 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 5
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 6
-    await testRunner.WhenAsync("I verify all required left navigation links", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 7
-    await testRunner.ThenAsync("each required navigation page should open successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 12
+    await testRunner.WhenAsync(string.Format("I navigate to \"{0}\"", page), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 13
+    await testRunner.ThenAsync("the current navigation destination should open successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Navigation remains usable after page refresh and module toggling")]
-        public async global::System.Threading.Tasks.Task NavigationRemainsUsableAfterPageRefreshAndModuleToggling()
+        [global::NUnit.Framework.DescriptionAttribute("Navigation remains usable after refresh and Organization module toggling")]
+        public async global::System.Threading.Tasks.Task NavigationRemainsUsableAfterRefreshAndOrganizationModuleToggling()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Navigation remains usable after page refresh and module toggling", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string pickleIndex = "8";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Navigation remains usable after refresh and Organization module toggling", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 9
+#line 26
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -169,16 +194,16 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 10
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 11
+#line 27
     await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 12
+#line 28
     await testRunner.AndAsync("I refresh the current page and collapse and reopen Organization navigation", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 13
+#line 29
     await testRunner.ThenAsync("navigation should remain usable with correct expanded and collapsed states", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

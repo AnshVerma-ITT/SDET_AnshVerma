@@ -18,7 +18,7 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Resignation date calculation")]
+    [global::NUnit.Framework.DescriptionAttribute("Resignation Date Calculation")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("resignation")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
@@ -33,7 +33,8 @@ namespace HRIntimeAutomation.Features
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Resignation date calculation", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Resignation Date Calculation", "  As an HRMS employee\r\n  I want the resignation form to calculate the required la" +
+                "st working date\r\n  So that the configured notice period is applied correctly", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "Resignation.feature"
 #line hidden
@@ -109,22 +110,34 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 9
+    await testRunner.AndAsync("I navigate to \"Organization My Profile\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Resignation.feature.ndjson", 3);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Last Working Date follows the required two month period")]
-        public async global::System.Threading.Tasks.Task LastWorkingDateFollowsTheRequiredTwoMonthPeriod()
+        [global::NUnit.Framework.DescriptionAttribute("Last Working Date follows the required two-month resignation period")]
+        public async global::System.Threading.Tasks.Task LastWorkingDateFollowsTheRequiredTwo_MonthResignationPeriod()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Last Working Date follows the required two month period", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Last Working Date follows the required two-month resignation period", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 3
+#line 11
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -134,16 +147,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 4
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 5
-    await testRunner.WhenAsync("I navigate to \"Organization My Profile\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 6
-    await testRunner.AndAsync("I open Employment Resignation", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
 #line 7
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 12
+    await testRunner.WhenAsync("I open Employment Resignation", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 13
     await testRunner.ThenAsync("the Last Working Date should follow the two month resignation calculation", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

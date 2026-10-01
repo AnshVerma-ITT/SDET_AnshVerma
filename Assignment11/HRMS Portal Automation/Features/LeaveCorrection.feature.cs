@@ -18,11 +18,11 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Apply Leave Correction")]
+    [global::NUnit.Framework.DescriptionAttribute("Leave Correction")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("leaveCorrection")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
-    public partial class ApplyLeaveCorrectionFeature
+    public partial class LeaveCorrectionFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -31,7 +31,9 @@ namespace HRIntimeAutomation.Features
                 "leaveCorrection",
                 "regression"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Apply Leave Correction", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Leave Correction", "  As an HRMS employee\r\n  I want to submit leave corrections with required-field v" +
+                "alidation\r\n  So that valid corrections are recorded and incomplete corrections a" +
+                "re prevented", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "LeaveCorrection.feature"
 #line hidden
@@ -107,26 +109,38 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 9
+    await testRunner.AndAsync("I navigate to \"Leave Correction\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/LeaveCorrection.feature.ndjson", 5);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Work from home correction with one half day is applied successfully")]
+        [global::NUnit.Framework.DescriptionAttribute("Two-day Work from Home correction with one half day is applied successfully")]
         [global::NUnit.Framework.CategoryAttribute("smoke")]
         [global::NUnit.Framework.CategoryAttribute("dataMutation")]
-        public async global::System.Threading.Tasks.Task WorkFromHomeCorrectionWithOneHalfDayIsAppliedSuccessfully()
+        public async global::System.Threading.Tasks.Task Two_DayWorkFromHomeCorrectionWithOneHalfDayIsAppliedSuccessfully()
         {
             string[] tagsOfScenario = new string[] {
                     "smoke",
                     "dataMutation"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Work from home correction with one half day is applied successfully", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Two-day Work from Home correction with one half day is applied successfully", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 4
+#line 12
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -136,16 +150,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 5
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 6
-    await testRunner.WhenAsync("I navigate to \"Leave Correction\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 7
-    await testRunner.AndAsync("I apply a two day Work from Home correction with one half day", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 8
+#line 13
+    await testRunner.WhenAsync("I apply a two day Work from Home correction with one half day", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 14
     await testRunner.ThenAsync("the leave correction success message and created record should be displayed", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -176,7 +187,7 @@ namespace HRIntimeAutomation.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Required Leave Correction fields prevent incomplete submission", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 11
+#line 17
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -186,16 +197,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 12
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 13
-    await testRunner.WhenAsync("I navigate to \"Leave Correction\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 18
+    await testRunner.WhenAsync(string.Format("I submit a Leave Correction without \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 14
-    await testRunner.AndAsync(string.Format("I submit a Leave Correction without \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 15
+#line 19
     await testRunner.ThenAsync("the incomplete Leave Correction should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

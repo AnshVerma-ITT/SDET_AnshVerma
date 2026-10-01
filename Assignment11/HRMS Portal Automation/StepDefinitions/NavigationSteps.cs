@@ -23,6 +23,14 @@ public sealed class NavigationSteps
     [When("I navigate to {string}")]
     public Task NavigateTo(string pageName) => NavigateAsync(pageName);
 
+    [Then("the current navigation destination should open successfully")]
+    public void CurrentNavigationDestinationOpened()
+    {
+        Assert.That(_context.NavigationResults, Has.Count.EqualTo(1),
+            "Exactly one navigation destination should be verified by this scenario.");
+        AllPagesOpened();
+    }
+
     [Then("each required navigation page should open successfully")]
     public void AllPagesOpened()
     {

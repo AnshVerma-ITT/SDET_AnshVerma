@@ -18,12 +18,12 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Employee Directory filtering")]
+    [global::NUnit.Framework.DescriptionAttribute("Employee Directory")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("employeeDirectory")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
     [global::NUnit.Framework.CategoryAttribute("readOnly")]
-    public partial class EmployeeDirectoryFilteringFeature
+    public partial class EmployeeDirectoryFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -33,7 +33,8 @@ namespace HRIntimeAutomation.Features
                 "regression",
                 "readOnly"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Employee Directory filtering", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Employee Directory", "  As an HRMS employee\r\n  I want to filter and browse the employee directory\r\n  So" +
+                " that directory results and pagination can be trusted", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "EmployeeDirectory.feature"
 #line hidden
@@ -109,24 +110,36 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 9
+    await testRunner.AndAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/EmployeeDirectory.feature.ndjson", 4);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Directors of Engineering are shown in Table View")]
+        [global::NUnit.Framework.DescriptionAttribute("Director of Engineering filter returns matching employees in Table View")]
         [global::NUnit.Framework.CategoryAttribute("smoke")]
-        public async global::System.Threading.Tasks.Task DirectorsOfEngineeringAreShownInTableView()
+        public async global::System.Threading.Tasks.Task DirectorOfEngineeringFilterReturnsMatchingEmployeesInTableView()
         {
             string[] tagsOfScenario = new string[] {
                     "smoke"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Directors of Engineering are shown in Table View", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Director of Engineering filter returns matching employees in Table View", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 4
+#line 12
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -136,16 +149,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 5
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 6
-    await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 7
-    await testRunner.AndAsync("I filter Job Title as Director of Engineering and select Table View", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 8
+#line 13
+    await testRunner.WhenAsync("I filter Job Title as Director of Engineering and select Table View", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 14
     await testRunner.ThenAsync("every returned employee should match the selected job title", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -153,16 +163,16 @@ namespace HRIntimeAutomation.Features
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Employee Directory pagination works correctly")]
-        public async global::System.Threading.Tasks.Task EmployeeDirectoryPaginationWorksCorrectly()
+        [global::NUnit.Framework.DescriptionAttribute("Employee Directory pagination maintains valid page size and navigation states")]
+        public async global::System.Threading.Tasks.Task EmployeeDirectoryPaginationMaintainsValidPageSizeAndNavigationStates()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Employee Directory pagination works correctly", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Employee Directory pagination maintains valid page size and navigation states", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 10
+#line 16
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -172,13 +182,10 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 11
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 12
-    await testRunner.WhenAsync("I navigate to \"Employee Directory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 13
+#line 17
     await testRunner.ThenAsync("Employee Directory pagination should show no more than 12 records and have correc" +
                         "t navigation states", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden

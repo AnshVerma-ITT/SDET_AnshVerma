@@ -18,11 +18,11 @@ namespace HRIntimeAutomation.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::NUnit.Framework.TestFixtureAttribute()]
-    [global::NUnit.Framework.DescriptionAttribute("Apply Leave")]
+    [global::NUnit.Framework.DescriptionAttribute("Leave Application")]
     [global::NUnit.Framework.FixtureLifeCycleAttribute(global::NUnit.Framework.LifeCycle.InstancePerTestCase)]
     [global::NUnit.Framework.CategoryAttribute("leave")]
     [global::NUnit.Framework.CategoryAttribute("regression")]
-    public partial class ApplyLeaveFeature
+    public partial class LeaveApplicationFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -31,7 +31,9 @@ namespace HRIntimeAutomation.Features
                 "leave",
                 "regression"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Apply Leave", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Leave Application", "  As an HRMS employee\r\n  I want to submit leave requests with required-field vali" +
+                "dation\r\n  So that valid requests are created and incomplete requests are prevent" +
+                "ed", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "LeaveApplication.feature"
 #line hidden
@@ -107,26 +109,38 @@ namespace HRIntimeAutomation.Features
             await testRunner.CollectScenarioErrorsAsync();
         }
         
+        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        {
+#line 7
+  #line hidden
+#line 8
+    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 9
+    await testRunner.AndAsync("I navigate to \"Leaves Application\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+        }
+        
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/LeaveApplication.feature.ndjson", 5);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Casual Leave request is applied successfully")]
+        [global::NUnit.Framework.DescriptionAttribute("Casual Leave request is applied successfully for the configured date range")]
         [global::NUnit.Framework.CategoryAttribute("smoke")]
         [global::NUnit.Framework.CategoryAttribute("dataMutation")]
-        public async global::System.Threading.Tasks.Task CasualLeaveRequestIsAppliedSuccessfully()
+        public async global::System.Threading.Tasks.Task CasualLeaveRequestIsAppliedSuccessfullyForTheConfiguredDateRange()
         {
             string[] tagsOfScenario = new string[] {
                     "smoke",
                     "dataMutation"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Casual Leave request is applied successfully", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Casual Leave request is applied successfully for the configured date range", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 4
+#line 12
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -136,16 +150,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 5
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 6
-    await testRunner.WhenAsync("I navigate to \"Leaves Application\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 7
-    await testRunner.AndAsync("I apply for Casual Leave using the configured date range", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 8
+#line 13
+    await testRunner.WhenAsync("I apply for Casual Leave using the configured date range", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 14
     await testRunner.ThenAsync("the leave request success message should be displayed", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -176,7 +187,7 @@ namespace HRIntimeAutomation.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Required Leave Application fields prevent incomplete submission", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 11
+#line 17
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -186,16 +197,13 @@ namespace HRIntimeAutomation.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 12
-    await testRunner.GivenAsync("I am logged in with valid credentials", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 7
+  await this.FeatureBackgroundAsync();
 #line hidden
-#line 13
-    await testRunner.WhenAsync("I navigate to \"Leaves Application\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 18
+    await testRunner.WhenAsync(string.Format("I submit a Leave Application without \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 14
-    await testRunner.AndAsync(string.Format("I submit a Leave Application without \"{0}\"", field), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 15
+#line 19
     await testRunner.ThenAsync("the incomplete Leave Application should be rejected", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

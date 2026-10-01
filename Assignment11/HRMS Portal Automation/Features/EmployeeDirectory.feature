@@ -1,13 +1,17 @@
 @employeeDirectory @regression @readOnly
-Feature: Employee Directory filtering
-  @smoke
-  Scenario: Directors of Engineering are shown in Table View
+Feature: Employee Directory
+  As an HRMS employee
+  I want to filter and browse the employee directory
+  So that directory results and pagination can be trusted
+
+  Background:
     Given I am logged in with valid credentials
-    When I navigate to "Employee Directory"
-    And I filter Job Title as Director of Engineering and select Table View
+    And I navigate to "Employee Directory"
+
+  @smoke
+  Scenario: Director of Engineering filter returns matching employees in Table View
+    When I filter Job Title as Director of Engineering and select Table View
     Then every returned employee should match the selected job title
 
-  Scenario: Employee Directory pagination works correctly
-    Given I am logged in with valid credentials
-    When I navigate to "Employee Directory"
+  Scenario: Employee Directory pagination maintains valid page size and navigation states
     Then Employee Directory pagination should show no more than 12 records and have correct navigation states
